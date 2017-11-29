@@ -19,7 +19,7 @@ public class RW {
 
 	public static void main(String[] args){
 		
-		//parsanje vhodnih podatkov
+		//parsanje vhodnih podatkov haahah
 		Options options = new Options();
 		
 		options.addOption("s", false, "izpisi statistiko na izhod");
