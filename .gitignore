@@ -1,7 +1,10 @@
+bin/
 
+
+commons-cli-1.4/
 *.class
 *.s2
 
 *.csv
 
-bin/
+*.zip
