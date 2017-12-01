@@ -48,6 +48,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 		
 	}
 	
+
 	private boolean naIntervalu() {
 		return ((casZacetni<=casTrenutni) && (casTrenutni <= casKoncni));
 	}

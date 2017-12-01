@@ -46,7 +46,8 @@ public class RW {
 		
 		Option handle = new Option("h",true ,"handles. Handli, ki jih želimo izpisati.Privzeto vsi. " +
 				"Če želimo i-ti handle mora biti na i+1 mestu argumenta števka 1." +
-				"Če je drugi argument 0 bodo handli z 1 odstranjeni");
+				"Če je drugi argument 0 bodo handli z 1 odstranjeni." +
+				" long flags");
 		handle.setOptionalArg(true);
 		options.addOption(handle);
 		
@@ -156,7 +157,7 @@ public class RW {
 					String s = cmd.getOptionValues("h")[2];
 					handles *= -1;
 					
-				}finally
+				}catch(ArrayIndexOutOfBoundsException e)
 				{
 					
 				}
