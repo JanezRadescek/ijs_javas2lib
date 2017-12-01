@@ -10,34 +10,34 @@ import s2.S2.SensorDefinition;
 import s2.S2.StructDefinition;
 import s2.S2.TimestampDefinition;
 
-public class OutputCallback implements  ReadLineCallbackInterface {
+///
+public class OutCSVCallback implements  ReadLineCallbackInterface {
 
 	S2 s2;
 	long a;
 	long b;
 	PrintStream out;
 	boolean dataMapping = true;
-	byte theHandle;
+	long theHandles;
 
-	//kako nastaviti lasttime? lahko dobimo prvi paket brez časa??
 	long lastTime = 0;
 	
 
-	public OutputCallback(S2 s2, long a, long b, byte theHandle) {
+	public OutCSVCallback(S2 s2, long[] ab, long handles) {
 		this.s2 = s2;
-		this.a = a;
-		this.b = b;
-		this.theHandle = theHandle;
+		this.a = ab[0];
+		this.b = ab[1];
+		this.theHandles = handles;
 		this.out = System.out;
 		
 	}
 	
-	public OutputCallback(S2 s2, long a, long b, byte theHandle, String directory, String name, String extension)
+	public OutCSVCallback(S2 s2, long[] ab, long handles, String directory, String name, String extension)
 	{
 		this.s2 = s2;
-		this.a = a;
-		this.b = b;
-		this.theHandle = theHandle;
+		this.a = ab[0];
+		this.b = ab[1];
+		this.theHandles = handles;
 		
 		if (extension.equals("csv"))
 		{
@@ -100,17 +100,17 @@ public class OutputCallback implements  ReadLineCallbackInterface {
 
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
-		char[] zaporedje = definition.elementsInOrder.toCharArray();
-		
-		this.out.print("TimeStamp");
-		for(char s:zaporedje)
+		if((this.theHandles & 1<<handle) != 0)
 		{
-			this.out.print(s+"");
+			char[] zaporedje = definition.elementsInOrder.toCharArray();
+			this.out.print("TimeStamp");
+			for(char s:zaporedje)
+			{
+				this.out.print(s+"");
+			}
+			this.out.println("Handle");
+			
 		}
-		this.out.println("Handle");
-		
-		
-		
 		return true;
 	}
 
@@ -129,7 +129,7 @@ public class OutputCallback implements  ReadLineCallbackInterface {
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
 		lastTime = timestamp;
 		
-		if((a<= lastTime && lastTime <= b) && (this.theHandle == handle))
+		if((a<= lastTime && lastTime <= b) && ((this.theHandles & 1<<handle) != 0))
 		{
 			ArrayList<Float> sensorData = new ArrayList<>();
 			
@@ -187,23 +187,12 @@ public class OutputCallback implements  ReadLineCallbackInterface {
 
 	@Override
 	public boolean onUnknownLineType(byte type, int len, byte[] data) {
-		if(a<= lastTime && lastTime <= b)
-		{
-			// TODO Auto-generated method stub
-			return true;
-		}
-		else
-			return false;
+		return true;
 	}
 
 	@Override
 	public boolean onError(int lineNum, String error) {
-		if(a<= lastTime && lastTime <= b)
-		{
-			return true;
-		}
-		else
-			return false;
+		return true;
 	}
 
 }
