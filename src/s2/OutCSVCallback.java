@@ -10,57 +10,64 @@ import s2.S2.SensorDefinition;
 import s2.S2.StructDefinition;
 import s2.S2.TimestampDefinition;
 
-///
+
+/**
+ * Callback for writing in human-readable data
+ * @author janez
+ *
+ */
 public class OutCSVCallback implements  ReadLineCallbackInterface {
 
+	//S2 file we are reading from
 	S2 s2;
+	//user
 	long a;
 	long b;
 	PrintStream out;
 	boolean dataMapping = true;
-	long theHandles;
+	long theHandle;
 
 	long lastTime = 0;
 	
 
-	public OutCSVCallback(S2 s2, long[] ab, long handles) {
+	/**
+	 * Creates callback for writing human-readable data in CSV
+	 * @param s2 - S2 file we are reading from 
+	 * @param ab - interval for which we write data
+	 * @param handle - handle of stream we will write 
+	 */
+	public OutCSVCallback(S2 s2, long[] ab, long handle) {
 		this.s2 = s2;
 		this.a = ab[0];
 		this.b = ab[1];
-		this.theHandles = handles;
+		this.theHandle = handle;
+		if ((handle & (--handle)) != 0)
+			System.err.println("Handle is not power off 2");
 		this.out = System.out;
 		
 	}
 	
-	public OutCSVCallback(S2 s2, long[] ab, long handles, String directory, String name, String extension)
+	/**
+	 * Creates callback for writing human-readable data in CSV
+	 * @param s2 - S2 file we are reading from 
+	 * @param ab - interval for which we write data
+	 * @param handles - handle of stream we will write. Handle = 2^(wanted stream) ,stream = log2(handle)
+	 * If we want i-stream than on i+1 position in binary form of handles must be 1.
+	 * Example wanted stream = 0, corect handle = 1; wanted stream 4, corect handle = 16(10) = 10000(2)
+	 * @param directory - directory of output file
+	 * @param name - name of output file
+	 */
+	public OutCSVCallback(S2 s2, long[] ab, long handle, String directory, String name)
 	{
-		this.s2 = s2;
-		this.a = ab[0];
-		this.b = ab[1];
-		this.theHandles = handles;
-		
-		if (extension.equals("csv"))
-		{
-			try {
-				this.out = new CsvStream(new FileOutputStream(directory+"\\"+name));
-				System.out.println("writing data into file " + directory+"\\"+name);
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		else if (extension.equals("txt"))
-		{
-			try {
-				this.out = new PrintStream(new FileOutputStream(directory+name));
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		this(s2, ab, handle);
+		try {
+			this.out = new CsvStream(new FileOutputStream(directory+"\\"+name));
+			System.out.println("writing data into file " + directory+"\\"+name);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 		}
 	}
 
-	
 	@Override
 	public boolean onComment(String comment) {
 		return true;
@@ -83,13 +90,11 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 
 	@Override
 	public boolean onEndOfFile() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean onUnmarkedEndOfFile() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -100,7 +105,8 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
-		if((this.theHandles & 1<<handle) != 0)
+		//writes "data format"
+		if(theHandle == (1<<handle))
 		{
 			char[] zaporedje = definition.elementsInOrder.toCharArray();
 			this.out.print("TimeStamp");
@@ -109,7 +115,6 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 				this.out.print(s+"");
 			}
 			this.out.println("Handle");
-			
 		}
 		return true;
 	}
@@ -128,11 +133,12 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
 		lastTime = timestamp;
-		
-		if((a<= lastTime && lastTime <= b) && ((this.theHandles & 1<<handle) != 0))
+		if((a<= lastTime && lastTime <= b) && (theHandle  == (1<<handle)))
 		{
+			//converted data
 			ArrayList<Float> sensorData = new ArrayList<>();
 			
+			//hardcoded conversion
 			MultiBitBuffer mbb = new MultiBitBuffer(data);
 			int mbbOffset = 0;
 			
@@ -152,14 +158,11 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 	                	sensorData.add((float) temp);
 	                }
 	                
-	                
 				}else{
 					System.out.println("Measurement data encountered invalid sensor: " + (int) (cb));
 				}
-	                
-                
 			}
-			
+			//writing
 			out.print(timestamp+"");
 			for(Float tdata : sensorData){
 				out.print(tdata+"");
@@ -171,6 +174,13 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 		return false;
 	}
 
+	/**
+	 * affine transformation of data and round 
+	 * @param temp - raw data
+	 * @param k  - multipliyer
+	 * @param n - ad
+	 * @return k*temp+n rounded based on k
+	 */
 	private float calculateANDround(int temp, float k, float n) {
 		float r = k*temp + n;
 		int dec = 0;

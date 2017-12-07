@@ -11,40 +11,56 @@ import s2.S2.SensorDefinition;
 import s2.S2.StructDefinition;
 import s2.S2.TimestampDefinition;
 
-/**na željenem intervalu filtriramo vrstice glede na podatke/messege/meta ... in zapišemo v s2**/
+
+/**
+ * Callback for writing part of source S2 file to new S2 file
+ * @author janez
+ *
+ */
 public class OutS2Callback implements ReadLineCallbackInterface {
 	
+	final int VERSION = 1;
 	final int C = 0b1;
 	final int SM = 0b10;
 	final int MD = 0b100;
-	final int sensorD = 0b1000;
-	final int structD = 0b10000;
-	final int timeD = 0b100000;
+	//final int sensorD = 0b1000;
+	//final int structD = 0b10000;
+	//final int timeD = 0b100000;
 		
 	S2 inFile;
 	S2 outFile;
 	S2.StoreStatus storeS;
 	
-	long casZacetni;
-	long casKoncni;
+	long timeStart;
+	long timeEnd;
+	//for calculating offset in packetstreams
 	long timePrevious = (long) 0;
+	//for checking if we are on interval
 	long timeCurent = (long) 0;
 	
-	TimestampDefinition lastTimeDef = null;
+
 	public Map<Byte, TimestampDefinition> timestampDefinitions = new HashMap<Byte, TimestampDefinition>();
 	
 	long handles = Long.MAX_VALUE;
-	byte wantedData = Byte.MAX_VALUE;
+	byte wantedData = 0b111;
 	
-
-	public OutS2Callback(S2 file, long [] ab, long handles, byte dataT, String directory, String name) {
-		this.inFile = file;
+	/**
+	 * Creates callback for writing part of source S2 file to new S2 file
+	 * @param inFile - source S2 file
+	 * @param ab - interval of time
+	 * @param handles - handles of streams we want to keep/let go.
+	 * @param dataT - data types we want to keep/let go
+	 * @param directory - directory of new S2 file
+	 * @param name - name of new S2 file
+	 */
+	public OutS2Callback(S2 inFile, long [] ab, long handles, byte dataT, String directory, String name) {
+		this.inFile = inFile;
 		this.outFile = new S2();
 		this.storeS = this.outFile.store(new File(directory), name);
-		System.out.println("writing to " + directory + " " + name);
+		System.err.println("writing to " + directory + " " + name);
 		
-		this.casZacetni = ab[0];
-		this.casKoncni = ab[1];
+		this.timeStart = ab[0];
+		this.timeEnd = ab[1];
 		
 		//če je handles//dataT večji od 0 pomeni da želimo točno tiste handle//podatke
 		//če je handles//dataT manjši od 0 pomeni da tistih nočemo
@@ -54,17 +70,15 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 		
 	}
 	
+	
 	/**
-	 * @return true natanko tedaj, ko je zadnji prebrani čas večji od začetnega in manjši od končnega časa.
+	 * @return timeStart<=timeCurent<=timeEnd
 	 */
 	private boolean naIntervalu() {
-		return ((casZacetni<=timeCurent) && (timeCurent <= casKoncni));
+		return ((timeStart<=timeCurent) && (timeCurent <= timeEnd));
 	}
 
-	/**
-	 * če želimo komentarje jih zapiše v S2
-	 * @return true
-	 */
+	
 	@Override
 	public boolean onComment(String comment) {
 		//C = 1, zastavica za komentarje je na prvem mestu v citizens
@@ -75,11 +89,10 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 		return true;
 	}
 
-
 	@Override
 	public boolean onVersion(int versionInt, String version) {
-		if(versionInt > 1){
-			System.err.println("Version of S2 is higher than what this can read");}
+		if(versionInt > VERSION){
+			System.err.println("Version of source S2 is higher than what this can read");}
 		storeS.setVersion(versionInt, version);
 		return true;
 	}
@@ -154,7 +167,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 			long relative = timestamp - timePrevious;
 			long formatted = (long) (timestampDefinitions.get(handle).toImplementationFormat(
 					new Nanoseconds(relative)) );
-			// *,/ timestampDefinitions.get(handle).multiplier
+			// we asume source S2 file is corect therefore we dont need to check if we can store offset
 			
 			storeS.addSensorPacket(handle, formatted, data);
 			timePrevious = timestamp;

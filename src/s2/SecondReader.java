@@ -75,6 +75,10 @@ public class SecondReader implements ReadLineCallbackInterface {
 		
 	}
 	
+	/**
+	 * Called when we have read metadata with time and date.
+	 * calculate time diference betwen files and set first date and time for new S2
+	 */
 	public void parseSpecMeta()
 	{
 		String dateM1 = metadataFirstMap.get("date");
@@ -120,7 +124,6 @@ public class SecondReader implements ReadLineCallbackInterface {
 	@Override
 	public boolean onComment(String comment) {
 		storeS.addTextMessage(comment);
-		
 		return true;
 	}
 
@@ -171,7 +174,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 		metadataSecondMap.put(key, value);
 		if(!specialMeta.contains(key))
 			storeS.addMetadata(key+" 2", value);
-		
+		//date and time can only be one
 		if(!weHaveTime && metadataSecondMap.keySet().containsAll(specialMeta))
 			parseSpecMeta();
 		return true;
@@ -179,12 +182,16 @@ public class SecondReader implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onEndOfFile() {
+		System.err.println("Second S2 file contained " + unknownStreamPacketCounter + " unknownStreamPackets" );
+		System.err.println("Second S2 file contained " + errorCounter + " errors");
 		storeS.endFile();
 		return false;
 	}
 
 	@Override
 	public boolean onUnmarkedEndOfFile() {
+		System.err.println("Second S2 file contained " + unknownStreamPacketCounter + " unknownStreamPackets" );
+		System.err.println("Second S2 file contained " + errorCounter + " errors");
 		storeS.endFile();
 		return false;
 	}
@@ -209,13 +216,13 @@ public class SecondReader implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
-		
+		//TODO delete all this. we will create new timestamps when needed.
 		if(!weHaveTime)
 		{
 			System.err.println("First TimeStamp before metadata with date and time.");
 			return false;
 		}
-		
+		//if there are Packets
 		while(!streamPacketFirstQ.isEmpty() && 
 				(streamPacketFirstQ.peek().timestamp+nanoOffStrim1 < nanoSecondTimestamp+nanoOffStrim2))
 		{
@@ -246,11 +253,13 @@ public class SecondReader implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
+		//TODO check if you need boat lastTime and lastWriten Time hint:NO!!
 		if(!weHaveTime)
 		{
 			System.err.println("First StreamPacket before metadata with date and time.");
 			return false;
 		}
+		//if we have packets from first file before curent time we safe them first.
 		while(!streamPacketFirstQ.isEmpty() && 
 				(streamPacketFirstQ.peek().timestamp+nanoOffStrim1 < timestamp+nanoOffStrim2))
 		{

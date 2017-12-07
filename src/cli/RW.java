@@ -46,8 +46,8 @@ public class RW {
 		
 		Option handle = new Option("h",true ,"handles. Handli, ki jih želimo izpisati.Privzeto vsi. " +
 				"Če želimo i-ti handle mora biti na i+1 mestu argumenta v dvojiškem zapisu števka 1." +
-				"Če je drugi argument 0 bodo handli z 1 odstranjeni." +
-				" long flags");
+				"Če je drugi argument true bodo handli z 1 ohranjeni, če je false bodo odstranjeni." +
+				"long flags");
 		handle.setOptionalArg(true);
 		options.addOption(handle);
 		
@@ -60,7 +60,7 @@ public class RW {
 		try {
 			cmd = parser.parse(options, args);
 		} catch (ParseException e) {
-			System.out.println("vhodni podatki so napačni ali manjkajoči");
+			System.out.println("Input datas are wrong or missing");
 			return;
 		}
 		
@@ -91,15 +91,14 @@ public class RW {
 			file1 = new S2();
 			loadS1 = file1.load(inDirectory1, inFname1);
 		
-			//priprava vhodnih podatkov
-			
+			//default values			
 			long[] ab = new long[]{0,Long.MAX_VALUE};
 			String izhodDir = null;
 			String izhodName = null;
 			long handles = Long.MAX_VALUE;
 			byte dataT = Byte.MAX_VALUE;
 			
-			
+			//second input S2 file directory and name
 			if(cmd.hasOption("v"))
 			{
 				try
@@ -113,7 +112,7 @@ public class RW {
 					return;
 				}
 			}
-			
+			// time interval
 			if(cmd.hasOption("t"))
 			{
 				try{
@@ -131,7 +130,7 @@ public class RW {
 					return;
 				}
 			}
-			
+			//output direcotry and name 
 			if(cmd.hasOption("o"))
 			{
 				try{
@@ -143,26 +142,19 @@ public class RW {
 					return;
 				}
 			}
-			
+			//handle
 			if(cmd.hasOption("h"))
 			{
 				try{
-					handles = Long.parseLong(cmd.getOptionValue("h"));
+					handles = Long.parseLong(cmd.getOptionValues("h")[0]);
+					if(!Boolean.parseBoolean(cmd.getOptionValues("h")[1]))
+						handles *= -1;
 				}catch(NumberFormatException e){
 					System.out.println("argument od h mora biti stevilka");
 					return;
 				}
-				try
-				{
-					String s = cmd.getOptionValues("h")[2];
-					handles *= -1;
-					
-				}catch(ArrayIndexOutOfBoundsException e)
-				{
-					
-				}
 			}
-			
+			//"data types"
 			if(cmd.hasOption("d"))
 			{
 				try{
@@ -174,7 +166,6 @@ public class RW {
 			}
 			
 			//dodajanje callBackov
-			
 			if(cmd.hasOption("b") && cmd.hasOption("v") && cmd.hasOption("o"))
 			{
 				file2 = new S2();
@@ -187,23 +178,20 @@ public class RW {
 						"we need option -v (second S2 file) and -o(output S2 file)");
 				return;
 			}
-			
 			if(cmd.hasOption("s"))
 			{
 				outStatistics(file1, loadS1, izhodDir, izhodName);
 			}
-			
 			if(cmd.hasOption("c"))
 			{
 				outData(file1, loadS1, ab, izhodDir, izhodName, handles, dataT);
 			}
 			
 			
-		
+
 			
-			
-			System.err.println("using file "+file1.getFilePath()+"\n");
 			//preberemo prvi S2 in obdelamo
+			System.err.println("using file "+file1.getFilePath()+"\n");
 			boolean everythingOk = (loadS1.readAllLinesAndProcess());
 			
 			//samo opcija b potrebuje drugi file
@@ -249,35 +237,30 @@ public class RW {
 				ls.addReadLineCallback(callback);
 			}else
 			{
-				OutCSVCallback callback = new OutCSVCallback(file, ab, handles, izhodDir, izhodName, kon);
+				OutCSVCallback callback = new OutCSVCallback(file, ab, handles, izhodDir, izhodName);
 				ls.addReadLineCallback(callback);
 			}
 			
 		}else {
 				OutCSVCallback callback = new OutCSVCallback(file, ab, handles);
 				ls.addReadLineCallback(callback);
-		}
-		
-		//ls.addReadLineCallback(callback);
-		
+		}	
 	}
 
-	//izpiše osnovno statistiko
-	//                0              1             2                  3
-	//args = ["outstatistics","C:\\user\admin\","test.s2", system.out /\ dire  name ]    file= C:\\user out.txt
+	
 	private static void outStatistics(S2 file, LoadStatus ls, String outDirectory, String outName) {
 			
+		StatisticsCallback callback;
+		
 		if(outDirectory != null){
 			String directoryANDname = outDirectory + "\\" + outName;
-			StatisticsCallback callback = new StatisticsCallback(file, directoryANDname);
-			ls.addReadLineCallback(callback);
+			callback = new StatisticsCallback(file, directoryANDname);
+		}else 
+		{
+			callback = new StatisticsCallback(file);
 		}
 		
-		else {
-			StatisticsCallback callback = new StatisticsCallback(file);
-			ls.addReadLineCallback(callback);
-		}
-		
+		ls.addReadLineCallback(callback);
 	}
 
 
