@@ -10,3 +10,4 @@ commons-cli-1.4/
 *.zip
 
 *.txt
+src/cli/donkey.java
