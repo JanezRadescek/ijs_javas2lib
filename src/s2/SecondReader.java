@@ -42,8 +42,10 @@ public class SecondReader implements ReadLineCallbackInterface {
 	public Map<Byte, TimestampDefinition> timestampDefinitionFirst = new HashMap<Byte, TimestampDefinition>();
 	public Queue<Long> timestampFirstQ = new LinkedList<Long>();
 	public Queue<StreamPacket> streamPacketFirstQ = new LinkedList<StreamPacket>();
+	
 	//Second S2 file datas
 	public Map<String, String> metadataSecondMap = new HashMap<String, String>();
+	public Map<Byte, TimestampDefinition> timestampDefinitionSecond = new HashMap<Byte, TimestampDefinition>();
 	public int unknownStreamPacketCounter = 0;
 	public int errorCounter = 0;
 	
@@ -88,6 +90,10 @@ public class SecondReader implements ReadLineCallbackInterface {
 			date1 = format.parse(dateM1+" "+timeM1);
 			date2 = format.parse(dateM2+" "+timeM2);
 		} catch (ParseException e) {
+			System.out.println(dateM1);
+			System.out.println(timeM1);
+			System.out.println(dateM2);
+			System.out.println(timeM2);
 			System.err.println("We coudnt read date/time");
 			e.printStackTrace();
 		}	
@@ -251,10 +257,10 @@ public class SecondReader implements ReadLineCallbackInterface {
 			StreamPacket temp = streamPacketFirstQ.poll();
 			long maxBits = timestampDefinitionFirst.get(temp.handle).byteSize*8;
 			long writeReadyTime;
-			long formated = (long) (timestampDefinitionFirst.get(temp.handle).toImplementationFormat(
+			long formatted = (long) (timestampDefinitionFirst.get(temp.handle).toImplementationFormat(
 					new Nanoseconds(temp.timestamp+nanoOffStrim1 - lastWrittenTime)) / timestampDefinitionFirst.get(temp.handle).multiplier);
-			if(64 - Long.numberOfLeadingZeros(formated) <= maxBits){
-				writeReadyTime = formated;}
+			if(64 - Long.numberOfLeadingZeros(formatted) <= maxBits){
+				writeReadyTime = formatted;}
 			else
 			{
 				lastTime = temp.timestamp+nanoOffStrim1;
@@ -267,7 +273,11 @@ public class SecondReader implements ReadLineCallbackInterface {
 		}
 		
 		lastTime = timestamp;
-		storeS.addSensorPacket(handle, timestamp, data);
+		
+		long formatted = (long) (timestampDefinitionSecond.get(handle).toImplementationFormat(
+				new Nanoseconds(timestamp+nanoOffStrim1 - lastWrittenTime)) / timestampDefinitionSecond.get(handle).multiplier);
+		
+		storeS.addSensorPacket(handle, formatted, data);
 		
 		return true;
 	}

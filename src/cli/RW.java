@@ -45,7 +45,7 @@ public class RW {
 		options.addOption(output);
 		
 		Option handle = new Option("h",true ,"handles. Handli, ki jih želimo izpisati.Privzeto vsi. " +
-				"Če želimo i-ti handle mora biti na i+1 mestu argumenta števka 1." +
+				"Če želimo i-ti handle mora biti na i+1 mestu argumenta v dvojiškem zapisu števka 1." +
 				"Če je drugi argument 0 bodo handli z 1 odstranjeni." +
 				" long flags");
 		handle.setOptionalArg(true);
@@ -175,15 +175,16 @@ public class RW {
 			
 			//dodajanje callBackov
 			
-			if(cmd.hasOption("b") && cmd.hasOption("v"))
+			if(cmd.hasOption("b") && cmd.hasOption("v") && cmd.hasOption("o"))
 			{
 				file2 = new S2();
 				loadS2 = file2.load(inDirectory2, inFname2);
 				
 				build(file1, loadS1, file2, loadS2, izhodDir, izhodName);
-			}else if (cmd.hasOption("b") || cmd.hasOption("v"))
+			}else if (cmd.hasOption("b") && (cmd.hasOption("v") || cmd.hasOption("o")))
 			{
-				System.out.println("če izberemo b ali v moramo podati tudi drugega");
+				System.err.println("If we want to use -b(concat 2 S2 file)"+
+						"we need option -v (second S2 file) and -o(output S2 file)");
 				return;
 			}
 			
@@ -194,7 +195,7 @@ public class RW {
 			
 			if(cmd.hasOption("c"))
 			{
-				outData(file1, loadS1, ab,izhodDir, izhodName, handles, dataT);
+				outData(file1, loadS1, ab, izhodDir, izhodName, handles, dataT);
 			}
 			
 			

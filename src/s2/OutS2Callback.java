@@ -1,6 +1,9 @@
 package s2;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
 import s2.S2.MessageType;
 import s2.S2.Nanoseconds;
 import s2.S2.ReadLineCallbackInterface;
@@ -24,14 +27,14 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	
 	long casZacetni;
 	long casKoncni;
-	long casTrenutni = (long) 0;
-	long casTimestamp = (long) 0;
+	long timePrevious = (long) 0;
+	long timeCurent = (long) 0;
 	
-	TimestampDefinition lasttTimeDef = null;
-	
+	TimestampDefinition lastTimeDef = null;
+	public Map<Byte, TimestampDefinition> timestampDefinitions = new HashMap<Byte, TimestampDefinition>();
 	
 	long handles = Long.MAX_VALUE;
-	byte citizens = Byte.MAX_VALUE;
+	byte wantedData = Byte.MAX_VALUE;
 	
 
 	public OutS2Callback(S2 file, long [] ab, long handles, byte dataT, String directory, String name) {
@@ -47,7 +50,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 		//če je handles//dataT manjši od 0 pomeni da tistih nočemo
 		//na mestih v binarnem zapisu kjer so enke nam predstavljajo "izbrane"
 		this.handles = (handles>0) ? (this.handles & handles) : (this.handles & ~handles);
-		this.citizens = (byte) ((dataT>0) ? (this.citizens & dataT) : (this.citizens & ~dataT));
+		this.wantedData = (byte) ((dataT>0) ? (this.wantedData & dataT) : (this.wantedData & ~dataT));
 		
 	}
 	
@@ -55,7 +58,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	 * @return true natanko tedaj, ko je zadnji prebrani čas večji od začetnega in manjši od končnega časa.
 	 */
 	private boolean naIntervalu() {
-		return ((casZacetni<=casTrenutni) && (casTrenutni <= casKoncni));
+		return ((casZacetni<=timeCurent) && (timeCurent <= casKoncni));
 	}
 
 	/**
@@ -65,7 +68,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	@Override
 	public boolean onComment(String comment) {
 		//C = 1, zastavica za komentarje je na prvem mestu v citizens
-		if ((citizens & C) != 0)
+		if ((wantedData & C) != 0)
 		{
 			storeS.addTextMessage(comment);
 		}
@@ -83,7 +86,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onSpecialMessage(char who, char what, String message) {
-		if((SM & citizens) != 0)
+		if((wantedData & SM) != 0)
 		{
 			storeS.addSpecialTextMessage((byte)who, MessageType.convert((byte)what), message, -1);
 		}
@@ -92,7 +95,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onMetadata(String key, String value) {
-		if((MD & citizens) != 0)
+		if((wantedData & MD) != 0)
 		{
 			storeS.addMetadata(key, value);
 		}
@@ -125,18 +128,18 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onDefinition(byte handle, TimestampDefinition definition) {
-		lasttTimeDef = definition;
+		timestampDefinitions.put(handle, definition);
 		storeS.addDefinition(handle, definition);
 		return true;
 	}
 
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
-		casTrenutni = nanoSecondTimestamp;
-		casTimestamp = nanoSecondTimestamp;
+		timeCurent = nanoSecondTimestamp;
 		if(naIntervalu())
 		{
 			storeS.addTimestamp(new Nanoseconds(nanoSecondTimestamp));
+			timePrevious = nanoSecondTimestamp;
 			return true;
 		}
 		storeS.endFile(true);
@@ -145,13 +148,16 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
-		casTrenutni = timestamp;
+		timeCurent = timestamp;
 		if(naIntervalu() && ((this.handles & 1<<handle) != 0))
 		{
-			long relative = casTrenutni - casTimestamp;
-			long formatted = (long) (relative * lasttTimeDef.multiplier);
+			long relative = timestamp - timePrevious;
+			long formatted = (long) (timestampDefinitions.get(handle).toImplementationFormat(
+					new Nanoseconds(relative)) );
+			// *,/ timestampDefinitions.get(handle).multiplier
 			
 			storeS.addSensorPacket(handle, formatted, data);
+			timePrevious = timestamp;
 			return true;
 		}
 		storeS.endFile();

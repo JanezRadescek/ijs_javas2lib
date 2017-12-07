@@ -11,7 +11,9 @@ import s2.S2.StructDefinition;
 import s2.S2.TimestampDefinition;
 
 
-/**osnutek callbacka ki prešteje število vseh podatkov*/
+/**
+ * Callback for basic information about S2 file
+ * */
 public class StatisticsCallback implements ReadLineCallbackInterface{
 
 	S2 s2;
@@ -24,25 +26,40 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 	//shranjuje število podatkovnih paketov glede na handle
 	Map<Byte,Integer[]> packetCounters= new HashMap<Byte,Integer[]>();
 	
+	//start time and end time relative to time and date writen in meta 
 	long startTime;
 	long endTime;
+	//helps us with finding start time
 	boolean start = false;
-	//shrani meta podatke
-	Map<String,String> metaData = new HashMap<String, String>();
-	//shranjuje število posebnih mesegev glede na tip
-	Map<Character,Integer> special = new HashMap<Character,Integer>();
 	
-	public StatisticsCallback(S2 file)
+	//save meta for later output
+	Map<String,String> metaData = new HashMap<String, String>();
+	//special message counter based on type
+	Map<Character,Integer> special = new HashMap<Character,Integer>();
+	//version
+	int ver;
+	String extendedVer;
+	
+	/**
+	 * Create callback which will write basic information on STDOUT
+	 * @param s2 - S2 file from which we read
+	 */
+	public StatisticsCallback(S2 s2)
 	{
-		s2 = file;
+		this.s2 = s2;
 		this.out = System.out;
 	}
 	
-	public StatisticsCallback(S2 file, String directoryANDname)
+	/**
+	 * Create callback which will write basic information in txt file
+	 * @param s2 - S2 file from which we read
+	 * @param directoryANDname - the system-dependent filename
+	 */
+	public StatisticsCallback(S2 s2, String directoryANDname)
 	{
-		s2 = file;
+		this.s2 = s2;
 		try {
-			this.out = new PrintStream(new FileOutputStream(directoryANDname, true));
+			this.out = new PrintStream(new FileOutputStream(directoryANDname));
 			System.out.println("writing statistics into " + directoryANDname);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -52,14 +69,14 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 	
 	public boolean onComment(String comment)
 	{
-		
 		counters[0]++;
-		
 		return true;
 	}
 
 	public boolean onVersion(int versionInt, String extendedVersion)
     {
+		ver = versionInt;
+		this.extendedVer = extendedVersion;
     	return true;
     }
 
@@ -73,32 +90,19 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 		{
 			special.put(what, 1);
 		}
-		
 		return true;
 	}
 
 	public boolean onMetadata(String key, String value)
 	{
 		metaData.put(key, value);
-		
 		return true;
 	}
 
 	public boolean onEndOfFile()
 	{
 		out.println("End of file");
-		for(int podatek = 0;podatek<counters.length;podatek++){
-			out.println(countersNames[podatek] + " : " + counters[podatek]);
-		}
-		
-		return false;
-	}
-
-	@Override
-	public boolean onUnmarkedEndOfFile()
-	{
-		out.println("Unmarked End of file");
-		//time
+		out.println(ver + " " + extendedVer);
 		float trajanje = ((float)Math.round(((endTime - startTime) / 1000000)))/1000;
 		float st = ((float)(startTime/1000000))/1000;
 		float et = ((float)(endTime/1000000))/1000;
@@ -113,7 +117,6 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 			out.println("	" + key + " : " + metaData.get(key));
 		}
 		
-		
 		out.println("Special messeges");
 		for(char key:special.keySet())
 		{
@@ -124,16 +127,62 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 			out.println(countersNames[podatek] + " : " + counters[podatek]);
 		}
 		
-		
 		out.println("Number of streams : " + packetCounters.size());
+		//packets
+		out.println("Packets per stream: ");
+		for(Byte key:packetCounters.keySet())
+		{
+			out.println("	stream " + key + " : " + packetCounters.get(key)[0]);
+		}
+		//samples
+		out.println("Samples per stream: ");
+		for(Byte key:packetCounters.keySet())
+		{
+			out.println("	stream " + key + " : " + packetCounters.get(key)[1]);
+		}
 		
+		return false;
+	}
+
+	@Override
+	public boolean onUnmarkedEndOfFile()
+	{
+		out.println("Unmarked End of file");
+		out.println(ver + " " + extendedVer);
+		//time celling
+		float trajanje = ((float)Math.round(((endTime - startTime) / 1000000)))/1000;
+		float st = ((float)(startTime/1000000))/1000;
+		float et = ((float)(endTime/1000000))/1000;
+		out.println("Start Time at : " + st + "s");
+		out.println("End time at : " + et + "s");
+		out.println("Total time : " + trajanje + "s");
+		//metadata
+		out.println("metaData : ");
+		String[] potrebni = {"time", "date", "timezone"};
+		for(String key:potrebni)
+		{
+			out.println("	" + key + " : " + metaData.get(key));
+		}
+		//special M
+		out.println("Special messeges");
+		for(char key:special.keySet())
+		{
+			out.println("	" +  key + " : " + special.get(key));
+		}
+		
+		for(int podatek = 0;podatek<counters.length;podatek++){
+			out.println(countersNames[podatek] + " : " + counters[podatek]);
+		}
+		//streams
+		out.println("Number of streams : " + packetCounters.size());
+
 		//packets
 		out.println("Packets per stream: ");
 		for(Byte key:packetCounters.keySet())
 		{
 			out.println("	" + key + " : " + packetCounters.get(key)[0]);
 		}
-		
+		//samples
 		out.println("Samples per stream: ");
 		for(Byte key:packetCounters.keySet())
 		{
@@ -175,7 +224,6 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 	}
 
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte data[]) {
-		
 		endTime = timestamp;
 		int dataCounter = 0;
 		
@@ -205,6 +253,4 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 	{
 		return true;
 	}
-	
-	
 }
