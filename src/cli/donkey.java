@@ -5,7 +5,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class donkey {
@@ -27,6 +30,19 @@ public class donkey {
 			e.printStackTrace();
 		}		
 		System.out.println(date.getTime());
+		System.out.println(date);
+		System.out.println("");
+		
+		
+		Map<String, Integer> meta = new HashMap<String, Integer>();
+		meta.put("ha", 123);
+		meta.put("haha", 321);
+		meta.put("bo", 5670);
+		HashSet<String> iskani = new HashSet<String>();
+		iskani.add("ha");
+		iskani.add("haa");
+		System.out.println(meta.keySet().containsAll(iskani));
+		
 	}
 
 }
