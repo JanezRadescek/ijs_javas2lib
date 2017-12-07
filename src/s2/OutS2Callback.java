@@ -20,7 +20,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 		
 	S2 inFile;
 	S2 outFile;
-	S2.StoreStatus ss;
+	S2.StoreStatus storeS;
 	
 	long casZacetni;
 	long casKoncni;
@@ -37,27 +37,37 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	public OutS2Callback(S2 file, long [] ab, long handles, byte dataT, String directory, String name) {
 		this.inFile = file;
 		this.outFile = new S2();
-		this.ss = this.outFile.store(new File(directory), name);
+		this.storeS = this.outFile.store(new File(directory), name);
 		System.out.println("writing to " + directory + " " + name);
 		
 		this.casZacetni = ab[0];
 		this.casKoncni = ab[1];
 		
+		//če je handles//dataT večji od 0 pomeni da želimo točno tiste handle//podatke
+		//če je handles//dataT manjši od 0 pomeni da tistih nočemo
+		//na mestih v binarnem zapisu kjer so enke nam predstavljajo "izbrane"
 		this.handles = (handles>0) ? (this.handles & handles) : (this.handles & ~handles);
 		this.citizens = (byte) ((dataT>0) ? (this.citizens & dataT) : (this.citizens & ~dataT));
 		
 	}
 	
-
+	/**
+	 * @return true natanko tedaj, ko je zadnji prebrani čas večji od začetnega in manjši od končnega časa.
+	 */
 	private boolean naIntervalu() {
 		return ((casZacetni<=casTrenutni) && (casTrenutni <= casKoncni));
 	}
 
+	/**
+	 * če želimo komentarje jih zapiše v S2
+	 * @return true
+	 */
 	@Override
 	public boolean onComment(String comment) {
-		if ((C & citizens) != 0)
+		//C = 1, zastavica za komentarje je na prvem mestu v citizens
+		if ((citizens & C) != 0)
 		{
-			ss.addTextMessage(comment);
+			storeS.addTextMessage(comment);
 		}
 		return true;
 	}
@@ -65,7 +75,9 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onVersion(int versionInt, String version) {
-		ss.setVersion(versionInt, version);
+		if(versionInt > 1){
+			System.err.println("Version of S2 is higher than what this can read");}
+		storeS.setVersion(versionInt, version);
 		return true;
 	}
 
@@ -73,7 +85,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	public boolean onSpecialMessage(char who, char what, String message) {
 		if((SM & citizens) != 0)
 		{
-			ss.addSpecialTextMessage((byte)who, MessageType.convert((byte)what), message, -1);
+			storeS.addSpecialTextMessage((byte)who, MessageType.convert((byte)what), message, -1);
 		}
 		return true;
 	}
@@ -82,39 +94,39 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	public boolean onMetadata(String key, String value) {
 		if((MD & citizens) != 0)
 		{
-			ss.addMetadata(key, value);
+			storeS.addMetadata(key, value);
 		}
 		return true;
 	}
 
 	@Override
 	public boolean onEndOfFile() {
-		ss.endFile(true);
+		storeS.endFile(true);
 		return false;
 	}
 
 	@Override
 	public boolean onUnmarkedEndOfFile() {
-		ss.endFile(true);
+		storeS.endFile(true);
 		return false;
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
-		ss.addDefinition(handle, definition);
+		storeS.addDefinition(handle, definition);
 		return true;
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
-		ss.addDefinition(handle, definition);  
+		storeS.addDefinition(handle, definition);  
 		return true;
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, TimestampDefinition definition) {
 		lasttTimeDef = definition;
-		ss.addDefinition(handle, definition);
+		storeS.addDefinition(handle, definition);
 		return true;
 	}
 
@@ -124,10 +136,10 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 		casTimestamp = nanoSecondTimestamp;
 		if(naIntervalu())
 		{
-			ss.addTimestamp(new Nanoseconds(nanoSecondTimestamp));
+			storeS.addTimestamp(new Nanoseconds(nanoSecondTimestamp));
 			return true;
 		}
-		ss.endFile(true);
+		storeS.endFile(true);
 		return false;
 	}
 
@@ -139,10 +151,10 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 			long relative = casTrenutni - casTimestamp;
 			long formatted = (long) (relative * lasttTimeDef.multiplier);
 			
-			ss.addSensorPacket(handle, formatted, data);
+			storeS.addSensorPacket(handle, formatted, data);
 			return true;
 		}
-		ss.endFile();
+		storeS.endFile();
 		return false;
 	}
 

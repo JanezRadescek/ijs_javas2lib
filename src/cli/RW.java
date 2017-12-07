@@ -9,8 +9,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import s2.OutS2Callback;
-import s2.BuilderBob;
-import s2.Hermione;
+import s2.SecondReader;
+import s2.FirtstReader;
 import s2.OutCSVCallback;
 import s2.S2;
 import s2.S2.LoadStatus;
@@ -69,10 +69,10 @@ public class RW {
 		//priprava S2
 		S2 file1;
 		S2.LoadStatus loadS1;
-		S2 file2;
-		S2.LoadStatus loadS2;
+		S2 file2 = null;
+		S2.LoadStatus loadS2 = null;
 		
-		
+		//brez vhodne ne moremo delati
 		if(cmd.hasOption("i"))
 		{
 			File inDirectory1;
@@ -173,7 +173,7 @@ public class RW {
 				}
 			}
 			
-			//dodajanje callBackov //za bcall mormo vedt kje je zato ga damo na prvo mesto
+			//dodajanje callBackov
 			
 			if(cmd.hasOption("b") && cmd.hasOption("v"))
 			{
@@ -181,6 +181,10 @@ public class RW {
 				loadS2 = file2.load(inDirectory2, inFname2);
 				
 				build(file1, loadS1, file2, loadS2, izhodDir, izhodName);
+			}else if (cmd.hasOption("b") || cmd.hasOption("v"))
+			{
+				System.out.println("če izberemo b ali v moramo podati tudi drugega");
+				return;
 			}
 			
 			if(cmd.hasOption("s"))
@@ -196,10 +200,17 @@ public class RW {
 			
 		
 			
-			//preberemo S2 in obdelamo
-			System.err.println("using file "+file1.getFilePath()+"\n");
 			
+			System.err.println("using file "+file1.getFilePath()+"\n");
+			//preberemo prvi S2 in obdelamo
 			boolean everythingOk = (loadS1.readAllLinesAndProcess());
+			
+			//samo opcija b potrebuje drugi file
+			if (file2 != null && loadS2 != null)
+			{
+				System.err.println("using file "+file2.getFilePath()+"\n");
+				everythingOk &= loadS2.readAllLinesAndProcess();
+			}
 			
 	        if (everythingOk){
 	        	System.out.println("Končano");
@@ -216,9 +227,10 @@ public class RW {
 
 	private static void build(S2 file1, LoadStatus loadS1, S2 file2, LoadStatus loadS2, String izhodDir,
 			String izhodName) {
-		
-		BuilderBob bob = new BuilderBob(file2, izhodDir, izhodName);
-		Hermione gre = new Hermione(file1, bob);
+		//hermione prebere prvo datoteke in prebrane podatke zapiše v boba, slednji bo prebral še drugo datoteko in 
+		//podatke združil v nov S2
+		SecondReader bob = new SecondReader(file2, izhodDir, izhodName);
+		FirtstReader gre = new FirtstReader(file1, bob);
 		
 		loadS1.addReadLineCallback(gre);
 		loadS2.addReadLineCallback(bob);

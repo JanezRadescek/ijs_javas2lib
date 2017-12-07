@@ -107,7 +107,7 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 		out.println("Total time : " + trajanje + "s");
 		//metadata
 		out.println("metaData : ");
-		String[] potrebni = {"time", "date", "timezona"};
+		String[] potrebni = {"time", "date", "timezone"};
 		for(String key:potrebni)
 		{
 			out.println("	" + key + " : " + metaData.get(key));
