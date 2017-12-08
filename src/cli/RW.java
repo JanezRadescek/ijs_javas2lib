@@ -1,12 +1,9 @@
 package cli;
 
 import java.io.File;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import java.io.PrintWriter;
+
+import org.apache.commons.cli.*;
 
 import s2.OutS2Callback;
 import s2.SecondReader;
@@ -59,8 +56,19 @@ public class RW {
 		CommandLine cmd = null;
 		try {
 			cmd = parser.parse(options, args);
-		} catch (ParseException e) {
-			System.out.println("Input datas are wrong or missing");
+		} catch (UnrecognizedOptionException e) {
+            System.err.println("Unrecognized argument: "+e.getOption());
+
+            HelpFormatter formatter = new HelpFormatter();
+            PrintWriter pw = new PrintWriter(System.err);
+            formatter.printUsage(pw, 80, args[0], options);
+            pw.flush();
+            return;
+        } catch (ParseException e) {
+            {
+                System.err.println("Exception caught while parting input arguments:");
+                e.printStackTrace(System.err);
+            }
 			return;
 		}
 		
