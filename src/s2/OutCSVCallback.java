@@ -126,8 +126,7 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
-		lastTime = nanoSecondTimestamp;
-		return true;
+		return nanoSecondTimestamp<=b;
 	}
 
 	@Override
@@ -171,7 +170,7 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 			
 			return true;
 		}
-		return false;
+		return lastTime <= b;
 	}
 
 	/**

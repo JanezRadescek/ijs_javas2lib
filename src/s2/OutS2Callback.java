@@ -31,12 +31,10 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	S2 outFile;
 	S2.StoreStatus storeS;
 	
-	long timeStart;
-	long timeEnd;
+	long a;
+	long b;
 	//for calculating offset in packetstreams
-	long timePrevious = (long) 0;
-	//for checking if we are on interval
-	long timeCurent = (long) 0;
+	long lastTime = (long) 0;
 	
 
 	public Map<Byte, TimestampDefinition> timestampDefinitions = new HashMap<Byte, TimestampDefinition>();
@@ -59,8 +57,8 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 		this.storeS = this.outFile.store(new File(directory), name);
 		System.err.println("writing to " + directory + " " + name);
 		
-		this.timeStart = ab[0];
-		this.timeEnd = ab[1];
+		this.a = ab[0];
+		this.b = ab[1];
 		
 		//če je handles//dataT večji od 0 pomeni da želimo točno tiste handle//podatke
 		//če je handles//dataT manjši od 0 pomeni da tistih nočemo
@@ -72,10 +70,11 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	
 	
 	/**
+	 * @param timestamp 
 	 * @return timeStart<=timeCurent<=timeEnd
 	 */
-	private boolean naIntervalu() {
-		return ((timeStart<=timeCurent) && (timeCurent <= timeEnd));
+	private boolean naIntervalu(long timestamp) {
+		return ((a<=timestamp) && (timestamp <= b));
 	}
 
 	
@@ -148,33 +147,34 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
-		timeCurent = nanoSecondTimestamp;
-		if(naIntervalu())
-		{
-			storeS.addTimestamp(new Nanoseconds(nanoSecondTimestamp));
-			timePrevious = nanoSecondTimestamp;
-			return true;
-		}
-		storeS.endFile(true);
-		return false;
+		return nanoSecondTimestamp<=b;
 	}
 
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
-		timeCurent = timestamp;
-		if(naIntervalu() && ((this.handles & 1<<handle) != 0))
+		if(naIntervalu(timestamp) && ((this.handles & 1<<handle) != 0))
 		{
-			long relative = timestamp - timePrevious;
-			long formatted = (long) (timestampDefinitions.get(handle).toImplementationFormat(
-					new Nanoseconds(relative)) );
-			// we asume source S2 file is corect therefore we dont need to check if we can store offset
-			
-			storeS.addSensorPacket(handle, formatted, data);
-			timePrevious = timestamp;
+			int maxBits = timestampDefinitions.get(handle).byteSize * 8;
+			long diff = timestamp - lastTime;
+			long writeReadyDiff = timestampDefinitions.get(handle).toImplementationFormat(new Nanoseconds(diff));
+			if(64 - Long.numberOfLeadingZeros(writeReadyDiff) > maxBits)
+			{
+				storeS.addTimestamp(new Nanoseconds(timestamp));
+				writeReadyDiff = 0;
+			}
+			storeS.addSensorPacket(handle, writeReadyDiff, data);
+			lastTime = timestamp;
 			return true;
 		}
-		storeS.endFile();
-		return false;
+		if(timestamp<=b)
+		{
+			return true;
+		}
+		else
+		{
+			storeS.endFile();
+			return false;
+		}
 	}
 
 	@Override

@@ -236,41 +236,6 @@ public class SecondReader implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
-		//TODO delete all this. we will create new timestamps when needed.
-		/*
-		if(!weHaveTime)
-		{
-			System.err.println("First TimeStamp before metadata with date and time.");
-			return false;
-		}
-		//if there are Packets
-		while(!streamPacketFirstQ.isEmpty() && 
-				(streamPacketFirstQ.peek().timestamp+nanoOffStrim1 < nanoSecondTimestamp+nanoOffStrim2))
-		{
-			StreamPacket temp = streamPacketFirstQ.poll();
-			long maxBits = timestampDefinitionFirst.get(temp.handle).byteSize*8;
-			long writeReadyTime;
-			long formated = (long) (timestampDefinitionFirst.get(temp.handle).toImplementationFormat(
-					new Nanoseconds(temp.timestamp+nanoOffStrim1 - lastWrittenTime)) / timestampDefinitionFirst.get(temp.handle).multiplier);
-			if(64 - Long.numberOfLeadingZeros(formated) <= maxBits){
-				writeReadyTime = formated;}
-			else
-			{
-				lastTime = temp.timestamp+nanoOffStrim1;
-				lastWrittenTime = lastTime;
-				storeS.addTimestamp(new Nanoseconds(lastTime));
-				writeReadyTime = (long) 0;
-			}
-			storeS.addSensorPacket(temp.handle, writeReadyTime, temp.data);
-		}
-		
-		
-		
-		lastTime = nanoSecondTimestamp+nanoOffStrim2;
-		lastWrittenTime = lastTime;
-		storeS.addTimestamp(new Nanoseconds(lastTime));
-		
-		*/
 		return true;
 	}
 
@@ -288,41 +253,39 @@ public class SecondReader implements ReadLineCallbackInterface {
 				(streamPacketFirstQ.peek().timestamp+nanoOffStrim1 < timestamp+nanoOffStrim2))
 		{
 			StreamPacket temp = streamPacketFirstQ.poll();
+			
 			int maxBits = timestampDefinitionFirst.get(temp.handle).byteSize*8;
-			long writeReadyTime;
 			long newDiff = temp.timestamp+nanoOffStrim1 - newLastTime;
+			//for test purpose only delete after
+			long writeReadyDiff = timestampDefinitionFirst.get(temp.handle).toImplementationFormat(new Nanoseconds(newDiff));
 			//long formatted = (long) (timestampDefinitionFirst.get(temp.handle).toImplementationFormat(
 			//		new Nanoseconds(temp.timestamp+nanoOffStrim1 - newAbsoluteTime)) );
 					// / timestampDefinitionFirst.get(temp.handle).multiplier);
-			int newDiffBits = 64 - Long.numberOfLeadingZeros(newDiff);
-			if(newDiffBits > maxBits)
+			if(64 - Long.numberOfLeadingZeros(writeReadyDiff) > maxBits)
 			{
 				storeS.addTimestamp(new Nanoseconds(temp.timestamp+nanoOffStrim1));
-				newDiff = (long) 0;
+				writeReadyDiff = 0;
 			}
 			
-			writeReadyTime = timestampDefinitionFirst.get(temp.handle).toImplementationFormat(
-					new Nanoseconds(newDiff));
-			storeS.addSensorPacket(temp.handle, writeReadyTime, temp.data);
+			storeS.addSensorPacket(temp.handle, writeReadyDiff, temp.data);
 			newLastTime = temp.timestamp+nanoOffStrim1;
 		}
 		
 		//TODO popravi racunaje casa in kdaj je treba nov timestamp;
 		int maxBits = timestampDefinitionFirst.get(handle).byteSize*8;
-		long writeReadyTime;
 		long newDiff = timestamp+nanoOffStrim2 - newLastTime;
+		long writeReadyDiff = timestampDefinitionFirst.get(handle).toImplementationFormat(
+				new Nanoseconds(newDiff));
 		//long formatted = (long) (timestampDefinitionSecond.get(handle).toImplementationFormat(
 		//		new Nanoseconds(timestamp+nanoOffStrim2 - newAbsoluteTime)) / timestampDefinitionSecond.get(handle).multiplier);
-		int newDeffBits = 64 - Long.numberOfLeadingZeros(newDiff);
-		if(newDeffBits > maxBits)
+		if(64 - Long.numberOfLeadingZeros(writeReadyDiff) > maxBits)
 		{
 			storeS.addTimestamp(new Nanoseconds(timestamp+nanoOffStrim2));
-			newDiff = (long) 0;
+			writeReadyDiff = 0;
 		}
 		
-		writeReadyTime = timestampDefinitionFirst.get(handle).toImplementationFormat(
-				new Nanoseconds(newDiff));
-		storeS.addSensorPacket(handle, writeReadyTime, data);
+		
+		storeS.addSensorPacket(handle, writeReadyDiff, data);
 		newLastTime = timestamp + nanoOffStrim2;
 		
 		return true;

@@ -198,13 +198,13 @@ public class RW {
 			
 			//preberemo prvi S2 in obdelamo
 			System.err.println("using file "+file1.getFilePath()+"\n");
-			boolean everythingOk = (loadS1.readAllLinesAndProcess());
+			boolean everythingOk = (loadS1.readAndProcessFile());
 			
 			//samo opcija b potrebuje drugi file
 			if (file2 != null && loadS2 != null)
 			{
 				System.err.println("using file "+file2.getFilePath()+"\n");
-				everythingOk &= loadS2.readAllLinesAndProcess();
+				everythingOk &= loadS2.readAndProcessFile();
 			}
 			
 	        if (everythingOk){
