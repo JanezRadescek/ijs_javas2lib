@@ -24,13 +24,6 @@ import java.util.Map;
 public class S2 {
     public static final int MAX_DATA_SIZE = 253;
 
-    private long messageMask;
-    private String unit;
-
-    public void setMessageMask(long messageMask) {
-        this.messageMask = messageMask;
-    }
-
     public enum MESSAGE_TYPE{
         comment (0x0001),
         version (0x0002),
@@ -228,6 +221,7 @@ public class S2 {
         public float getResolution()  {
             return resolution;
         }
+
         public String getName(){
             return name;
         }
@@ -237,6 +231,11 @@ public class S2 {
         }
     }
 
+    /**
+     * Calculate the total bit size of the provided sensor entity (sensor may be scalar/vector, w/o padding, etc)
+     * @param sensorDefinition The input sensor
+     * @return the number of bits a single sensor entry takes
+     */
     static int totalBitSize(SensorDefinition sensorDefinition) {
         return (sensorDefinition.vectorSize * (sensorDefinition.resolution + sensorDefinition.scalarBitPadding)) + sensorDefinition.vectorBitPadding;
     }
@@ -250,6 +249,10 @@ public class S2 {
 
         public long getValue() {
             return value;
+        }
+
+        public static Nanoseconds fromSeconds(double s) {
+            return new Nanoseconds((long)(s*1e-9));
         }
     }
 
@@ -360,9 +363,9 @@ public class S2 {
 
     // notes to the user
     private String notes = "";
-    // number of errors encountered while processing e3b requests (should be 0 or the file might not be loaded/stored correctly)
+    // number of errors encountered while processing s2 requests (should be 0 or the file might not be loaded/stored correctly)
     int numErrors = 0;
-    // number of errors encountered while processing e3b requests (should be 0 or the file might not be loaded/stored correctly)
+    // number of errors encountered while processing s2 requests (should be 0 or the file might not be loaded/stored correctly)
     int numWarnings = 0;
     // internal state that can be returned to store caller
     StoreStatus storeStatus;
@@ -388,13 +391,18 @@ public class S2 {
     // file dialect (should apply to each version in a similar manner)
     int fileIntDialect; // unused for now
 
-    // time reset can be ordered with new value for 'last time' for all lines that use dt (difference in time); time is always reset at the beginning
-    // of the measurement; value 0 causes the first timestamp taken to be set as 'lastTimeResetValue'.
-    long lastTimeResetValue = 0;
-    long absoluteTimers[] = new long[256]; // array elements are always 0 after the allocation
+    @Deprecated
+    private long absoluteTimers[] = new long[256]; // array elements are always 0 after the allocation
+    // the last read timestamp from timestamps is stored here; variable is initialized to 0 to simplify its usage
+    private Nanoseconds lastTimestamp = new Nanoseconds(0);
 
     // when reading lines, current linenumber should be accessible from here
     long readingLineNum;
+    // line number of the last read timestamp (used for circumventing timestamp bug of MobECG < 1.7.8)
+    long lastTimestampLineNum = 0;
+
+    // flag (used when reading file) will be set if recording software is detected as MobECG < 1.7.8
+    boolean circumventTimestampBugOnRead = false;
 
     private static final int INVALID_HEADER = 0xFFFF;
     private static final byte NEWLINE = 0x0A; // 0x0A == \n
@@ -426,11 +434,27 @@ public class S2 {
     }
 
     /**
-     * Get the text notes (errors, warnings, ...) that were produced since the e3b was started up
+     * Get the text notes (errors, warnings, ...) that were produced since the s2 was started up
      * @return the string containing notes separated by newlines
      */
     public String getNotes() {
         return notes;
+    }
+
+    /**
+     * Query for the number of encountered warnings; warnings are part of notes and can be obtained via {@link #getNotes()}
+     * @return number of warnings in the notes
+     */
+    public int getNumWarnings() {
+        return numWarnings;
+    }
+
+    /**
+     * Query for the number of encountered errors; errors are part of notes and can be obtained via {@link #getNotes()}
+     * @return number of errors in the notes
+     */
+    public int getNumErrors() {
+        return numErrors;
     }
 
     // a registry of known versions in int
@@ -547,7 +571,7 @@ public class S2 {
         boolean onComment(String comment);
         boolean onVersion(int versionInt, String version);
         boolean onSpecialMessage(char who, char what, String message);
-        boolean onMetadata( String key,  String value);
+        boolean onMetadata(String key,  String value);
         boolean onEndOfFile();
         boolean onUnmarkedEndOfFile();
         boolean onDefinition(byte handle, SensorDefinition definition);
@@ -588,7 +612,7 @@ public class S2 {
             return (byte)3;
         }
         
-        public EntityCache[] getCachedHandles() {
+        public DataEntityCache[] getCachedHandles() {
             return cachedHandles;
         }
         
@@ -687,7 +711,7 @@ public class S2 {
         }
 
         /**
-         * Get the text notes (errors, warnings, ...) that were produced since the e3b was started up
+         * Get the text notes (errors, warnings, ...) that were produced since the s2 was started up
          * @return the string containing notes separated by newlines
          */
         public String getNotes() {
@@ -809,10 +833,10 @@ public class S2 {
             }
             writeLine(LineType.definition.byteId, buffer, (byte)intPos, -1);
 
-            EntityCache entity = cachedHandles[handle];
+            DataEntityCache entity = cachedHandles[handle];
             if (entity == null) {
                 // add a new handle
-                entity = new S2.EntityCache();
+                entity = new DataEntityCache();
                 cachedHandles[handle] = entity;
             }
             entity.copySensorDefinition(sensorDefinition);
@@ -839,13 +863,13 @@ public class S2 {
             }
             writeLine(LineType.definition.byteId, buffer, (byte) intPos, -1);
 
-            EntityCache entity = cachedHandles[handle];
+            DataEntityCache entity = cachedHandles[handle];
             if (entity == null) {
                 // add a new handle
-                entity = new S2.EntityCache();
+                entity = new DataEntityCache();
                 cachedHandles[handle] = entity;
             }
-            entity.copyStructDefinition(structDefinition, calculateBits(structDefinition.elementsInOrder));
+            entity.copyStructDefinition(structDefinition);
 
             return this;
         }
@@ -865,13 +889,13 @@ public class S2 {
             int size = addDoubleToArray(buffer, 4, timestampDefinition.multiplier);
             writeLine((byte)'d', buffer, (byte)size, -1);
 
-            EntityCache entity = cachedHandles[handle];
+            DataEntityCache entity = cachedHandles[handle];
             if (entity == null) {
                 // add a new handle
-                entity = new S2.EntityCache();
+                entity = new DataEntityCache();
                 cachedHandles[handle] = entity;
             }
-            entity.copyTimestampDefinition(timestampDefinition);
+            entity.copyTimestampDefinition(timestampDefinition, new Nanoseconds(0));
 
             return this;
         }
@@ -885,7 +909,7 @@ public class S2 {
          * @return self
          */
         public StoreStatus addSensorPacket(byte t, long writeReadyTime, byte[] data) {
-            EntityCache entity = cachedHandles[t];
+            DataEntityCache entity = cachedHandles[t];
             if (entity != null) {
                 byte buffer[] = new byte[255];
                 if (entity.timestampDefinition != null) {
@@ -920,7 +944,7 @@ public class S2 {
         public StoreStatus addSensorPacket(byte t, long writeReadyTime, List<Byte> data) {
             byte buffer[] = new byte[255];
 
-            EntityCache entity = cachedHandles[t];
+            DataEntityCache entity = cachedHandles[t];
             if (entity != null) {
                 if (entity.timestampDefinition != null) {
                     int pos = addIntToArray(buffer, 0, writeReadyTime, entity.timestampDefinition.byteSize);
@@ -944,25 +968,26 @@ public class S2 {
         }
 
 		public void addStreamPacketRelative(byte handle, long rawTimestamp, byte[] rawData, S2.StoreStatus s) {
+            // store data to streaming data file:
 			try {
-	           // store data to streaming data file:
-				long lastTimestamp = 0;
-				for(EntityCache ec : cachedHandles) {
-					if(ec!= null && ec.timestampDefinition != null) {
-						if(ec.lastAbsTimestamp != null) {
-							lastTimestamp = ec.lastAbsTimestamp.getValue();
-							ec.lastAbsTimestamp = new S2.Nanoseconds(rawTimestamp);
-						}
-					}
-				}
-				
+                // store data to streaming data file:
+				long previousTimestamp = 0;
+
+                // read previous timestamp value and cache new timestamp value
+                DataEntityCache dec = cachedHandles[handle];
+                if (dec != null) {
+                    previousTimestamp = dec.lastAbsTimestamp.getValue();
+                    dec.lastAbsTimestamp = new S2.Nanoseconds(rawTimestamp);
+                }
+
+                // TODO: make this work for all timestamp definitions (it should not be hardcoded)
 	            // calculate time difference
-	            long d = rawTimestamp - lastTimestamp;
-	            long dFormatted = (long)(d / 1000); //(long)(d * multiplier);
-	            if (dFormatted < 256*256*128) {
+	            long d = rawTimestamp - previousTimestamp;
+	            long dFormatted = (d / 1000L); //(long)(d * multiplier);
+	            if (dFormatted < 256L*256L*128L) {
 	                // timestamp diff can fit inside a normal message; offset is used here instead of the assignment (lastReceivedTime = receivedTime)
 	                // to account for the rounding effects of storing less precise times 
-	            	lastTimestamp = (Math.round(dFormatted/1000));
+	            	previousTimestamp = (Math.round(dFormatted/1000));
 	            } else {
 	                // timestamp diff is too large, add a timestamp (accurate one), then a sensor packet with offset 0
 	                //NanoTimeDiff offsetFromStart =  new NanoTimeDiff(firstReceivedTime, receivedTime);
@@ -1022,8 +1047,8 @@ public class S2 {
 
         /**
          * Write a line (type @link #t) to file with a single byte @link data as data
-         * @param t
-         * @param data
+         * @param t       type of the line
+         * @param data    raw data as a single byte
          */
         void writeLine(byte t, byte data) {
             byte buf[] = new byte[1];
@@ -1034,8 +1059,8 @@ public class S2 {
 
         /**
          * Write a line (type @link #t) to file with string @link #data as data
-         * @param t
-         * @param data
+         * @param t       type of the line
+         * @param data    raw data encoded as string
          */
         void writeLine(byte t, String data) {
             try {
@@ -1048,8 +1073,8 @@ public class S2 {
 
         /**
          * Write a line (type @link #t) to file with byte[] as data (size is determined from @link #data)
-         * @param t
-         * @param data
+         * @param t       type of the line (opcode)
+         * @param data    raw data (will be copied verbatim in full length)
          */
         void writeLine(byte t, byte data[]) {
             if (data.length > 255)
@@ -1057,6 +1082,11 @@ public class S2 {
             writeLine(t, data, (byte)data.length, -1);
         }
 
+        /**
+         * Query for the number of bytes that can be written to the stream at its current position.
+         *
+         * @return the number of bytes that may be written; only deferred write imposes limits on number of bytes
+         */
         int getWriteLineLimit() {
             // check if deferred write is active on this StoreStatus
             if (activeDeferredWrite != null) {
@@ -1065,7 +1095,6 @@ public class S2 {
             }
             return S2.MAX_DATA_SIZE;
         }
-        
 
         /**
          * Write a line (type @link #t) to file with byte[@link #dataSize] as data
@@ -1152,14 +1181,20 @@ public class S2 {
             }
             try {
                 byte byteDataSize = (byte)dataSize;
-                temp = new DeferredWriteBuffer(this, file.getFilePointer(), byteDataSize);
-                // write a dummy line
-                dataSize -= getLineOverhead();
-                if (dataSize == 0) {
-                    writeLine((byte) '#', "");
-                } else {
-                    byte dummyText[] = new byte[dataSize]; // filled with zeros, which is perfect
-                    writeLine((byte) '#', dummyText);
+                synchronized (file) {
+                        // synchronized this block to keep the newly created deferred write buffer in same location as the newly written comment line
+                        // since a bug was found, which manifested itself as if a data line was written just after the new DeferredWriteBuffer line and
+                        // before the writeLine('#') line
+                        // TODO: dummy line should be written by the DeferredWriteBuffer itself, and not done here!
+                    temp = new DeferredWriteBuffer(this, file.getFilePointer(), byteDataSize);
+                    // write a dummy line
+                    dataSize -= getLineOverhead();
+                    if (dataSize == 0) {
+                        writeLine((byte) '#', "");
+                    } else {
+                        byte dummyText[] = new byte[dataSize]; // filled with zeros, which is perfect
+                        writeLine((byte) '#', dummyText);
+                    }
                 }
             } catch (IOException e) {
                 addErrorNote("Error in StoredStatus.deferredWriteLine: "+e.getMessage());
@@ -1253,13 +1288,145 @@ public class S2 {
         }
     }
 
+    /**
+     * A helper class for parsing the raw byte data.
+     * TODO: make all process function use it internally and as a means of exposed input arguments
+     */
+    protected static class BufferParseState {
+        final int bufferLength;
+        final byte[] buffer;
+        int bufferIndex;
+        String error = null;
+
+        /**
+         * Basic constructor that sets all the variables and sets the buffer index to 0
+         * @param buffer    raw byte buffer (will not be copied but will also not modify the original)
+         * @param len       length of the buffer
+         */
+        public BufferParseState(final byte[] buffer, int len) {
+            this.buffer = buffer;
+            this.bufferIndex = 0;
+            this.bufferLength = len;
+        }
+
+        /**
+         * Basic constructor that sets all the variables
+         * @param buffer    raw byte buffer (will not be copied but will also not modify the original)
+         * @param len       length of the buffer
+         * @param index     starting index of the buffer
+         */
+        public BufferParseState(final byte[] buffer, int len, int index) {
+            this.buffer = buffer;
+            this.bufferIndex = index;
+            this.bufferLength = len;
+        }
+
+        /**
+         * Query whether an error is flagged; if it is no functions that report error will work.
+         * @return true if error flag is on
+         */
+        public boolean errorFlagged() {
+            return error != null;
+        }
+
+        /**
+         * Parse a non-empty string from buffer. String length must be the first element, followed by the string.
+         * Note that if error is set, then parsing will automatically fail.
+         *
+         * @return The parsed string; will be null on error. Also {@link #error} string will be filled with the description
+         */
+        public String parseString() {
+            if (error != null)
+                return null;
+
+            StringBuilder str = new StringBuilder();
+            // first sanity check (one could try parsing multiple strings without checking for error...)
+            if (bufferIndex < bufferLength) {
+                int strLen = buffer[bufferIndex];
+                bufferIndex++;
+                int maxIndex = strLen + bufferIndex;
+                if (maxIndex <= bufferLength) {
+                    for (; bufferIndex < maxIndex; bufferIndex++) {
+                        str.append((char) buffer[bufferIndex]);
+                    }
+                } else {
+                    error = ("Error in parsing a string: length of the string is specified as "+strLen+
+                            ", but the buffer only contains another "+(bufferLength-bufferIndex)+" bytes (total of"+
+                            bufferLength+").");
+                    return null;
+                }
+            } else {
+                error = ("Error in parsing a string: index inside the buffer is "+bufferIndex+
+                        ", while buffer length is "+bufferLength+".");
+                return null;
+            }
+            return str.toString();
+        }
+
+        /**
+         * Get the raw byte from the raw buffer; errors are not flagged.
+         * @return a byte that is on the indexed position of the buffer; 0 on error
+         */
+        public byte getByte() {
+            return (bufferIndex < bufferLength) ? buffer[bufferIndex++] : 0;
+        }
+
+        /**
+         * Get the raw byte from the raw buffer and encode it as char; errors are not flagged.
+         * @return a char (8-bit) that is on the indexed position of the buffer; 0 on error
+         */
+        public char get8bitChar() {
+            return (bufferIndex < bufferLength) ? (char)buffer[bufferIndex++] : '\0'; // TODO: could use a non 8bit char as error indication
+        }
+
+        /**
+         * Get a binary encoded float from the raw buffer; errors are not flagged.
+         * @return a float value that is on the indexed position of the buffer; NAN on error
+         */
+        public float getFloat() {
+            if (bufferIndex <= (bufferLength-4)) {
+                float f = ByteBuffer.wrap(buffer, bufferIndex, 4).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                bufferIndex += 4;
+                return f;
+            } else
+                return Float.NaN;
+        }
+
+        /**
+         * Get a binary encoded double from the raw buffer; errors are not flagged.
+         * @return a double value that is on the indexed position of the buffer; NAN on error
+         */
+        public double getDouble() {
+            if (bufferIndex <= (bufferLength-8)) {
+                double d = ByteBuffer.wrap(buffer, bufferIndex, 8).order(ByteOrder.LITTLE_ENDIAN).getDouble();
+                bufferIndex += 8;
+                return d;
+            } else
+                return Double.NaN;
+        }
+
+        /**
+         * Clear the error flag and error message; processing will be enabled again.
+         */
+        public void clearError() {
+            error = null;
+        }
+    }
+
     public class LoadStatus {
         BufferedInputStream file;
+        private long messageMask;
+
+        public void setMessageMask(long messageMask) {
+            this.messageMask = messageMask;
+        }
 
         // callbacks for processing lines when reading from s2 file
         private ArrayList<ReadLineCallbackInterface> callbacks = new ArrayList<ReadLineCallbackInterface>();
 
         LoadStatus() {
+            messageMask = Long.MAX_VALUE;
+
             try {
                 //file = new FileInputStream(filename);
                 file = new BufferedInputStream(new FileInputStream(filename));
@@ -1274,7 +1441,7 @@ public class S2 {
         }
 
         /**
-         * function that checks that the stream is valid to write to
+         * Check that the stream is valid to read from.
          * @return true if the stream is ok
          */
         public boolean isOk() {
@@ -1283,9 +1450,9 @@ public class S2 {
 
         /**
          * @brief Read a single line from file and process it
-         * @return
+         * @return true while there are more lines to read, false on marked and unmarked end of file
          */
-        public boolean processLine(Line line) {
+        boolean processLine(Line line) {
             if (line != null) {
                 // is this either a known line type or a registered sensor line?
                 if (isValidLine(line.op)) {
@@ -1350,13 +1517,16 @@ public class S2 {
         }
 
         /**
-         * Read all lines and process them
-         * return   false if an unrecoverable error occurs (file is not open, etc), true if everything is loaded smoothly (even if some lines are not recognised)
+         * Read lines from the file and process them; number of lines and amount of processing is predefined.
+         * To define the the line types to be processed, use {@link #setMessageMask(long)}.
+         * To define the callback (will be called after processing each line), use {@link #addReadLineCallback(ReadLineCallbackInterface)}
+         * return   false if an unrecoverable error occurs (file is not open, etc), true if everything is no exceptions occur
+         *          (even if some lines are not recognised)
          */
-        public boolean readAllLinesAndProcess() {
+        public boolean readAndProcessFile() {
             // first, determine if the file was loaded successfully and terminate gracefully if not
             if (file == null) {
-                addErrorNote("readAllLinesAndProcess failed, file was not loaded successfully");
+                addErrorNote("readAndProcessFile failed, file was not loaded successfully");
                 return false;
             }
             boolean endOfFile = false;
@@ -1370,28 +1540,41 @@ public class S2 {
         }
 
         /**
-         * @brief Use callbacks to parse information from lines that are properly fomratted, their types known, and also successfully read from input file
+         * Use callbacks to parse information from lines that are properly formatted, their types known, and successfully read from the input.
+         * Removing a callback is not supported (yet) as there is no known use case for it. There is an option of clearing all callbacks though
+         * by calling {@link #clearReadLineCallbacks()}.
+         *
+         * @param callback the callback for processing one line at a time
          */
         public void addReadLineCallback(ReadLineCallbackInterface callback) {
             callbacks.add(callback);
         }
 
-        public EntityCache getEntityHandles(byte handle) {
+        /**
+         * Get the entity with the supplied handle.
+         * @param handle a byte that defines the entity (its handle)
+         * @return the entity
+         */
+        DataEntityCache getDataEntity(byte handle) {
             return cachedHandles[handle];
         }
 
         /**
-         * @brief Remove all read line callbacks
+         * Remove all read line callbacks
          */
         public void clearReadLineCallbacks() {
             callbacks.clear();
         }
 
         /**
-         * @brief Convert the supplied relative timestamp (usually called dt) to an absolute timestamp. Warning: must not call this function with out-of-order timestamps!
+         * Convert the supplied relative timestamp (usually called dt) to an absolute timestamp and advance the absolute time.
+         * Warning: must not call this function with out-of-order timestamps!
+         *
          * @param dt The time difference from the previous registered timestamp (either relative or absolute)
-         * @return The 'absolute time', which is just time relative to the measurement start. All relative timestamps should be converted in the order that they appear in the file.
+         * @return  The 'absolute time', which is just time relative to the measurement start.
+         *          All relative timestamps should be converted in the order that they appear in the file.
          */
+        @Deprecated
         long relativeToAbsoluteTime(byte handle, long dt) {
             if (handle < absoluteTimers.length) {
                 absoluteTimers[handle] += dt;
@@ -1400,12 +1583,21 @@ public class S2 {
                 return 0;
         }
 
+        /**
+         * Single line of the S2 file
+         */
         class Line {
             byte op;
             int len;
             byte[] data;
             boolean success;
 
+            /**
+             * Define the line through raw data.
+             * @param op    operation code of the line; defines the line type
+             * @param len   length of the line
+             * @param data  the data payload of the line
+             */
             Line(byte op, int len, byte[] data) {
                 this.op = op;
                 this.len = (data == null ? 0 : (byte)data.length);
@@ -1414,68 +1606,113 @@ public class S2 {
                 this.data = data;
             }
 
+            /**
+             * Instantiate an uninitialized line
+             */
             Line() {
                 success = false;
                 data = null;
             }
         }
 
+        /**
+         * Read a single line from file; the number of bytes read is not known in advance
+         * @return the Line structure with the raw data
+         */
         Line readLine() {
             assert (fileOperation == FileOperation.op_load);
             assert (loadStatus != null);
             assert (maxLineBufferLength > 255);
 
             ++readingLineNum;
-            // read the 2-char header, which is always present
+            // read the 2-char header, which is present for all line types
             try {
                 byte header[] = new byte[2];
                 int numAvail = file.available();
+                // make sure that the 2 header bytes are available
                 if (numAvail >= 2) {
+                    // 2-byte header part of the line can be read
                     int numRead = file.read(header);
                     if (numRead != 2) {
-                        addErrorNote("Error in LoadStatus.readLine: could not read header of line; only " + numRead +
+                        // defensive coding - not sure if this situation can arise at all (after all, numAvail is >=2)
+                        addErrorNote("Error while reading line "+readingLineNum+": could not read header of line; only " + numRead +
                                 " bytes were read, although "+numAvail+" should be available.\n");
                         return new Line(LineType.invalid.byteId, numRead, (numRead > 0 ? Arrays.copyOf(header, numRead) : null));
                     }
-                    // read data
+
+                    // read data part of the line
                     int bufLength = ((int)header[1]) & 0xff;	// convert unsigned byte (length cannot be negative) to integer
                     byte buf[] = bufLength == 0 ? null : new byte[bufLength];
                     boolean readOk = (bufLength == 0) || (bufLength == file.read(buf));
                     if (readOk) {
                         // ignore the newline that follows the line
+                        // HACK: check if newline is read and if not, read until it is; TODO: fix this in a better way
+                        for (int iii = 0; iii < 512; ++iii) {
+                            if (file.available() == 0) {
+                                addWarning("Warning in line "+readingLineNum+"; missing newline.\n");
+                                break;
+                            }
+                            byte eol = (byte)file.read();
+                            if (eol == (byte)'\n') {
+                                if (iii > 0) {
+                                    addWarning("Warning in line "+readingLineNum+"; type="+
+                                            (header[0]>=32 ? ""+(char)header[0] : "#"+(int)header[0])+", len\n");
+                                    addErrorNote("Error in line "+readingLineNum+"; LoadStatus.readLine: declared " +
+                                            "line is "+iii+" bytes longer than declared ("+bufLength+")\n");
+                                }
+                                break;
+                            }
+                        }
+                        /*
+                        // old implementation - works ok, but cannot deal gracefully with a common error found in
+                        // MobECG generated s2 files
                         readOk = (1 == file.skip(1));
                         if (!readOk)
                             addErrorNote("Warning in LoadStatus.readLine: missing newline.\n");
+                         */
                     } else {
-                        addErrorNote("Error in LoadStatus.readLine: could not read full line (length="+(int)header[1]+" bytes.\n");
+                        addErrorNote("Error while reading line "+readingLineNum+": could not read full line (length="+(int)header[1]+" bytes.\n");
                     }
+
+                    //that's it, return the line
                     return new Line(header[0], bufLength, buf);
                 } else {
+                    // 2 bytes are not available; 2 different scenarios are possible - file was terminated incorrectly when writing or was damaged later on
                     if (numAvail == 0) {
-                        addWarning("Warning while reading line (LoadStatus.readLine): end of file was reached but the end was not marked; this indicates that the file is incomplete - write procedure was interrupted before it finished.\n");
+                        // very likely the file was written correctly up to this point but the program that was writing it
+                        // terminated unexpectedly and could not add end-of-file line
+                        addWarning("Warning while reading line "+readingLineNum+": end of file was reached but the end was not marked; this indicates that the file is incomplete - write procedure was interrupted before it finished.\n");
                         return null;
                     } else {
+                        // numAvail can only be 1 in this case, indicating a damaged file, since line header cannot be read but end-of-file line was not given yet
                         byte buf[] = new byte[numAvail];
                         int numRead = file.read(buf);
 
-                        addErrorNote("Error in LoadStatus.readLine: could not read header of line " + readingLineNum + "; only "+numAvail+"bytes were available.\n");
+                        addErrorNote("Error while reading line " + readingLineNum + ": could not read header, only "+numAvail+" bytes were available.\n");
                         return new Line(LineType.invalid.byteId, numRead, buf);
                     }
                 }
             } catch (IOException e) {
-                addErrorNote("Error in LoadStatus.readline: IOException caught.\n");
+                // IO errors, i.e. errors in processing java streams
+                addErrorNote("Error in LoadStatus.readline: IOException caught. readingLineNum="+readingLineNum+"\n");
                 return null;
             }
         }
 
-        boolean processUnknownLine(byte op, int len, byte buffer[]) {
-        	boolean ret = false;        // ok by default
-        	String data;
-        	try {
-    			data = new String(buffer, "UTF-8");
-    			for(ReadLineCallbackInterface callback : callbacks)
-            		ret &= callback.onUnknownLineType(op, len, buffer);
+        //region Functions for processing single line type
 
+        /**
+         * Process an unknown type of line - raw data is passed to the function which then forwards it unmodified to the callback.
+         * @param op        the opcode of line; line type
+         * @param len       length of the line data part
+         * @param buffer    raw byte buffer of the data part
+         * @return union (and operator) of returns from all callbacks
+         */
+        boolean processUnknownLine(byte op, int len, byte buffer[]) {
+        	boolean ret = true;
+        	try {
+    			for (ReadLineCallbackInterface callback : callbacks)
+            		ret &= callback.onUnknownLineType(op, len, buffer);
     		} catch (Exception e) {
     			addWarning("Error while processing unrecognised line");
             	ret = false;
@@ -1484,6 +1721,12 @@ public class S2 {
             return ret;
         }
 
+        /**
+         * Process a line that contains a comment.
+         * @param len       length of the buffer
+         * @param buffer    raw byte buffer
+         * @return union (and operator) of returns from all callbacks
+         */
         boolean processComment(int len, byte buffer []) {
             boolean ret = true;        // comments are always ok
             String comment;
@@ -1499,6 +1742,12 @@ public class S2 {
             return ret;
         }
 
+        /**
+         *
+         * @param len       length of the buffer
+         * @param buffer    raw byte buffer
+         * @return union (and operator) of returns from all callbacks
+         */
         boolean processSpecialMessage(int len, byte buffer []) {
             boolean ret = true;        // ok by default
             try {
@@ -1515,13 +1764,29 @@ public class S2 {
             return ret;
         }
 
+        /**
+         *
+         * @param len       length of the buffer
+         * @param buffer    raw byte buffer
+         * @return union (and operator) of returns from all callbacks
+         */
         boolean processMetadata(int len, byte buffer []) {
             boolean ret = true;        // ok by default
             try {
         		String metadata = len == 0 ? "" : new String(buffer, "UTF-8");
         		String[] keyValue = metadata.split("=");
-            	for(ReadLineCallbackInterface callback : callbacks)
+            	for (ReadLineCallbackInterface callback : callbacks)
             		ret &= callback.onMetadata(keyValue[0], keyValue[1]);
+
+                // catch buggy writing software here..
+                if (keyValue[0].equals("recording software")) {
+                    RecordingSoftware rs = new RecordingSoftware();
+                    rs.parse(keyValue[1]);
+                    // System.out.printf("sw=%s ver=%d.%d.%d %s\n", rs.software, rs.major, rs.minor, rs.revision, rs.other); // test RecordingSoftware parsing
+                    if (rs.software.equals("MobECG") && rs.versionBelow(1, 7, 8)) {
+                        circumventTimestampBugOnRead = true;
+                    }
+                }
             } catch (Exception e) {
                 addErrorNote("Error while processing metadata");
                 ret = false;
@@ -1530,6 +1795,12 @@ public class S2 {
             return ret;
         }
 
+        /**
+         *
+         * @param len       length of the buffer
+         * @param buffer    raw byte buffer
+         * @return union (and operator) of returns from all callbacks
+         */
         boolean processVersion(int len, byte buffer []) {
         	boolean ret = true;        // ok by default
 
@@ -1561,172 +1832,195 @@ public class S2 {
             return ret;
         }
 
-        boolean processDefinitionLeaf(byte handle, int len, byte buffer[]) {
+        /**
+         * Process a sensor definition line (called only from {@link #processDefinition(int, byte[])}).
+         *
+         * @param handle    the data entity handle
+         * @param ps        Parser state that contains buffer, its length and all other required info
+         * @return union (and operator) of returns from all callbacks
+         */
+        boolean processDefinitionLeaf(byte handle, BufferParseState ps) {
             boolean ret = true;
-            StringBuffer nameSensor = new StringBuffer();
-            StringBuffer unit = new StringBuffer();
 
-            int bufferIndex = 2;
-            int nameLengthSensor = buffer[2];
-            for (int i = 0; i < nameLengthSensor; i++)	// Getting name
-            {
-                nameSensor.append((char)buffer[++bufferIndex]);
+            // parse the name
+            String name = ps.parseString();
+            String unit = ps.parseString();
+
+            // parse the definitions
+            byte resolutionByte = ps.getByte();
+            byte bitPaddingByte = ps.getByte();
+            byte valueTypeByte = ps.getByte();
+            byte absoluteIdByte = ps.getByte();
+            byte vectorSizeByte = ps.getByte();
+            byte vectorBitPaddingByte = ps.getByte();
+
+            // parse frequency
+            float frequencyValue = ps.getFloat();
+            float kValue = ps.getFloat();
+            float nValue = ps.getFloat();
+
+            if (ps.error != null) {
+                processError("Error while parsing sensor definition for data entity #"+handle+": " + ps.error);
+                ret = false;
+            } else {
+
+                // copy the values found in the definition verbatim; do not check for correctness
+                SensorDefinition sd = new SensorDefinition(name);
+                sd.setUnit(unit, kValue, nValue);
+                sd.resolution = resolutionByte;
+                sd.scalarBitPadding = bitPaddingByte;
+                sd.valueType = valueTypeByte;
+                sd.absoluteId = absoluteIdByte;
+                sd.vectorSize = vectorSizeByte;
+                sd.vectorBitPadding = vectorBitPaddingByte;
+                sd.samplingFrequency = frequencyValue;
+
+                // add the definition to cache of data entries
+                DataEntityCache entity = cachedHandles[handle];
+                if (entity == null) {
+                    // add a new handle
+                    entity = new DataEntityCache();
+                    cachedHandles[handle] = entity;
+                }
+                entity.copySensorDefinition(sd);
+
+                // process callbacks
+                for (ReadLineCallbackInterface callback : callbacks)
+                    ret &= callback.onDefinition(handle, sd);
             }
-
-            int unitLength = buffer[++bufferIndex];
-            for (int i = 0; i < unitLength; i++)		// Getting unit
-            {
-                unit.append((char)buffer[++bufferIndex]);
-            }
-
-            byte resolutionByte = buffer[++bufferIndex];
-            byte bitPaddingByte = buffer[++bufferIndex];
-            byte valueTypeByte = buffer[++bufferIndex];
-            byte absoluteIdByte = buffer[++bufferIndex];
-            byte vectorSizeByte = buffer[++bufferIndex];
-            byte vectorBitPaddingByte = buffer[++bufferIndex];
-
-            //Get frequency
-            byte[] frequencyByte = new byte[4];
-            for (int i = 0; i < 4; i++)
-                frequencyByte[i] = (byte)buffer[++bufferIndex];
-
-            float frequencyValue = ByteBuffer.wrap(frequencyByte).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-
-            //Get k
-            byte[] kByte = new byte[4];
-            for (int i = 0; i < 4; i++)
-                kByte[i] = (byte)buffer[++bufferIndex];
-
-            float kValue = ByteBuffer.wrap(kByte).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-
-            //Get n
-            byte[] nByte = new byte[4];
-            for (int i = 0; i < 4; i++)
-                nByte[i] = (byte)buffer[++bufferIndex];
-
-            float nValue = ByteBuffer.wrap(nByte).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-
-            SensorDefinition sd = new SensorDefinition(nameSensor.toString());
-            sd.unit = unit.toString();
-            sd.resolution = resolutionByte;
-            sd.scalarBitPadding = bitPaddingByte;
-            sd.valueType = valueTypeByte;
-            sd.absoluteId = absoluteIdByte;
-            sd.vectorSize = vectorSizeByte;
-            sd.vectorBitPadding = vectorBitPaddingByte;
-            sd.samplingFrequency = frequencyValue;
-            sd.k = kValue;
-            sd.n = nValue;
-
-            EntityCache entity = cachedHandles[handle];
-            if (entity == null) {
-                // add a new handle
-                entity = new S2.EntityCache();
-                cachedHandles[handle] = entity;
-            }
-            entity.copySensorDefinition(sd);
-
-            for(ReadLineCallbackInterface callback : callbacks)
-                ret &= callback.onDefinition(buffer[0], sd);
             return ret;
         }
 
-        boolean processDefinitionStruct(byte handle, int len, byte buffer[]) {
+        /**
+         * Process a structure definition line (called only from {@link #processDefinition(int, byte[])}).
+         *
+         * @param handle    the data entity handle
+         * @param ps        Parser state that contains buffer, its length and all other required info
+         * @return union (and operator) of returns from all callbacks
+         */
+        boolean processDefinitionStruct(byte handle, BufferParseState ps) {
             boolean ret = true;
-            StringBuffer nameStruct = new StringBuffer();
-            StringBuffer elements = new StringBuffer();
 
-            int bufferIndexSensor = 2;
+            // parse structure name and its elements
+            String name = ps.parseString();
+            String elements = ps.parseString();
+            if (ps.errorFlagged()) {
+                processError("Error while parsing sensor structure for data entity #"+handle+": " + ps.error);
+                ret = false;
+            }
 
-            int nameLengthStruct = buffer[2];
-            for (int i = 0; i < nameLengthStruct; i++)	// Getting name
-                nameStruct.append((char)buffer[++bufferIndexSensor]);
-
-            int elementLength = buffer[++bufferIndexSensor];
-            for (int i = 0; i < elementLength; i++)		// Getting elements
-                elements.append((char)buffer[++bufferIndexSensor]);
-
-            StructDefinition sdef = new StructDefinition(nameStruct.toString(), elements.toString());
-            EntityCache entity = cachedHandles[handle];
+            // add the structure definition to the cache of data entities; no checking is performed for correctness of elements
+            StructDefinition sdef = new StructDefinition(name, elements);
+            DataEntityCache entity = cachedHandles[handle];
             if (entity == null) {
                 // add a new handle
-                entity = new S2.EntityCache();
+                entity = new DataEntityCache();
                 cachedHandles[handle] = entity;
             }
-            int length = len;	// Converts byte to int
-            entity.copyStructDefinition(sdef, length);
+            entity.copyStructDefinition(sdef);
 
-            for(ReadLineCallbackInterface callback : callbacks)
-                ret &= callback.onDefinition(buffer[0], sdef);
+            // process callbacks
+            for (ReadLineCallbackInterface callback : callbacks)
+                ret &= callback.onDefinition(handle, sdef);
             return ret;
         }
 
-        boolean processDefinitionTimestamp(byte handle, int len, byte buffer[]) {
+        /**
+         * Process a timestamp definition line (called only from {@link #processDefinition(int, byte[])}).
+         *
+         * @param handle    the data entity handle
+         * @param ps        Parser state that contains buffer, its length and all other required info
+         * @return union (and operator) of returns from all callbacks
+         */
+        boolean processDefinitionTimestamp(byte handle, BufferParseState ps) {
             boolean ret = true;
-            int bufferIndexTs = 2;
-            char absoluteIdChar = (char)buffer[bufferIndexTs];
-            byte byteSizeValue = buffer[++bufferIndexTs];
+            byte absoluteIdChar = ps.getByte();
+            byte byteSizeValue = ps.getByte();
+            double resolutionTs = ps.getDouble();
 
-            byte[] byteMultiplier = new byte[8];
-            for(int i = 0; i < 8; i++)		// Getting multiplier
-                byteMultiplier[i] = buffer[++bufferIndexTs];
+            if (ps.error != null) {
+                processError("Error while parsing timestamp definition for data entity #"+handle+": "+ps.error);
+                ret = false;
+            } else {
+                AbsoluteId ai = AbsoluteId.convert(absoluteIdChar);
+                TimestampDefinition td = new TimestampDefinition(ai, byteSizeValue, resolutionTs);
 
-            double resolutionTs = ByteBuffer.wrap(byteMultiplier).order(ByteOrder.LITTLE_ENDIAN).getDouble();
+                DataEntityCache entity = cachedHandles[handle];
+                if (entity == null) {
+                    // add a new handle
+                    entity = new DataEntityCache();
+                    cachedHandles[handle] = entity;
+                }
+                // set timestamp within the definition to last explicit timestamp (0 at the beginning)
+                // if circumventing the timestamp bug, then the definitions always start at time 0
+                entity.copyTimestampDefinition(td, circumventTimestampBugOnRead ? new Nanoseconds(0) : lastTimestamp);
 
-            AbsoluteId ai = AbsoluteId.convert((byte)absoluteIdChar);
-            TimestampDefinition td = new TimestampDefinition(ai, byteSizeValue, resolutionTs);
-
-            EntityCache entity = cachedHandles[handle];
-            if (entity == null) {
-                // add a new handle
-                entity = new S2.EntityCache();
-                cachedHandles[handle] = entity;
+                for (ReadLineCallbackInterface callback : callbacks)
+                    ret &= callback.onDefinition(handle, td);
             }
-            entity.copyTimestampDefinition(td);
-
-            for(ReadLineCallbackInterface callback : callbacks)
-                ret &= callback.onDefinition(buffer[0], td);
             return ret;
         }
 
+        /**
+         * Process a definition line type (subtype can be timestamp, struct or sensor).
+         * The function will call an appropriate processDefinitionX function
+         *
+         * @param len       length of the buffer
+         * @param buffer    raw byte buffer
+         * @return union (and operator) of returns from all callbacks
+         */
         boolean processDefinition(int len, byte buffer []) {
         	boolean ret = true;           // ok by default
-            byte handle = buffer[0];      // At position 0 is specified handle
-            DefinitionType dt = DefinitionType.convert(buffer[1]); // Type definition is specified in buffer at position 1
-        	try {
-        		switch (dt)	{
-        		case deftype_leaf:
-                    ret = processDefinitionLeaf(handle, len, buffer);
-        			break;
-        		case deftype_struct:
-                    ret = processDefinitionStruct(handle, len, buffer);
-        			break;
-        		case deftype_timestamp:
-        			ret = processDefinitionTimestamp(handle, len, buffer);
-        			break;
-        		}
-    		} catch (Exception e) {
-    			addErrorNote("Error while processing definition");
-            	ret = false;
-    		}
+
+            BufferParseState ps = new BufferParseState(buffer, len);
+            if (len < 2) {
+                ret = false;
+                processError("Error in definition line, data part of message is too short ("+len+" bytes long).");
+            } else {
+                byte handle = ps.getByte();      // At position 0 is specified the target handle
+                DefinitionType dt = DefinitionType.convert(ps.getByte()); // Type definition is specified in buffer at position 1
+                try {
+                    switch (dt) {
+                        case deftype_leaf:
+                            ret = processDefinitionLeaf(handle, ps);
+                            break;
+                        case deftype_struct:
+                            ret = processDefinitionStruct(handle, ps);
+                            break;
+                        case deftype_timestamp:
+                            ret = processDefinitionTimestamp(handle, ps);
+                            break;
+                    }
+                } catch (Exception e) {
+                    addErrorNote("Error while processing definition");
+                    ret = false;
+                }
+            }
 
             return ret;
         }
 
+        /**
+         * Process a timestamp line type.
+         *
+         * @param len       length of the buffer
+         * @param buffer    raw byte buffer
+         * @return union (and operator) of returns from all callbacks
+         */
         boolean processTimestamp(int len, byte buffer []) {
             boolean ret = true;        // ok by default
             //TODO this timestamp does not have handle but correct all timestamps for each handle in this value
             try {
-    			long timestampAbs = ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN).getLong();
-    			
-    			for(EntityCache c : cachedHandles)
-                    if(c!=null)
-    				    c.lastAbsTimestamp = new Nanoseconds(timestampAbs);
-    			
-    			//timestamp = timestampAbs;
-    			for(ReadLineCallbackInterface callback : callbacks)
-        			ret &= callback.onTimestamp(timestampAbs);
+                lastTimestamp = new Nanoseconds(ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN).getLong());
+                lastTimestampLineNum = readingLineNum;
+
+                // copy the timestamp to current timestamp values of all known sensors
+                // Note: sensor definition must be complete before the timestamp is recorded
+                if (!circumventTimestampBugOnRead)
+                    copyTimestampToDefinitions();
+
+    			for (ReadLineCallbackInterface callback : callbacks)
+        			ret &= callback.onTimestamp(lastTimestamp.getValue());
             } catch (Exception e) {
                 addErrorNote("Error while processing timestamp");
                 ret = false;
@@ -1735,6 +2029,13 @@ public class S2 {
             return ret;
         }
 
+        /**
+         * Process an end-of-file line. Processing will stop after this line, no more s2 lines can follow.
+         *
+         * @param len       length of the buffer
+         * @param buffer    raw byte buffer
+         * @return union (and operator) of returns from all callbacks
+         */
         boolean processEndOfFile(int len, byte buffer []) {
             boolean ret = true;
 
@@ -1753,6 +2054,11 @@ public class S2 {
             return ret;
         }
 
+        /**
+         * Process an unmarked end of file (that is, no more lines can be read but the end-of-file line is not present)
+         *
+         * @return union (and operator) of returns from all callbacks
+         */
         boolean processUnmarkedEndOfFile() {
             boolean ret = true;
 
@@ -1771,6 +2077,18 @@ public class S2 {
             return ret;
         }
 
+        // helper for debugging "negative" timestamps in the PCARD produced s2 files; set to < 0 to disable
+        // debugging so far - the timestamps in question seem to be produced by some MobECG development version
+        public long countNegativeTsPcard = -1;
+
+        /**
+         * Process a data line - this is the main part of the library, the actual data that is stored in file
+         *
+         * @param handle    the data entity handle
+         * @param len       length of the buffer
+         * @param buffer    raw byte buffer
+         * @return union (and operator) of returns from all callbacks
+         */
         boolean processDataLine(byte handle, int len, byte buffer []) {
         	boolean ret = true;        // ok by default
 
@@ -1785,7 +2103,21 @@ public class S2 {
                 long timestampRead = 0; // timestamp is max 8 bytes long
         		for(int i = 0; i < td.byteSize; i++)
         			timestampRead += (0x00FF & (int)buffer[i]) << ((i)*8L);
-        		
+
+                //System.err.println((int)buffer[0]+"."+(int)buffer[1]+"."+(int)buffer[2]+" -| "+readingLineNum);
+                if ((countNegativeTsPcard >= 0) && (timestampRead > 16600000)) {
+                    countNegativeTsPcard++;
+                    if (countNegativeTsPcard < 2)
+                        System.err.println("  error line  " + readingLineNum + " |- " + timestampRead + " : " +
+                            String.format("0x%08x", (0x0FF & (int)buffer[0])+(((int)buffer[1]<<8) & 0xFF00)+(((int)buffer[2]<<16) & 0xFF0000)) + " -> " +
+                            (16777216 - timestampRead)
+                    );
+                }
+
+                // if circumventing the timestamp bug of the old MobECGs, copy the explicitly set timestamp to definitions here
+                if ((circumventTimestampBugOnRead) && (readingLineNum == (lastTimestampLineNum+1)))
+                    copyTimestampToDefinitions();
+
     			if (specifiesRelativeValue(td.absoluteId))
     				cachedHandles[handle].lastAbsTimestamp.value += timestampRead*td.getNanoMultiplier();
     			else if (specifiesAbsoluteValue(td.absoluteId))
@@ -1793,7 +2125,7 @@ public class S2 {
     			else // this should never happen though, if it was checked when loading timestamp definition
     				addErrorNote("Absolute id of timestamp definition for handle " + (int)handle + " is invalid");
 
-                if((messageMask & MESSAGE_TYPE.streamPacket.mask) > 0)
+                if ((messageMask & MESSAGE_TYPE.streamPacket.mask) > 0)
     			    for (ReadLineCallbackInterface callback : callbacks)
         	            ret &= callback.onStreamPacket(handle, cachedHandles[handle].lastAbsTimestamp.value, len-td.byteSize, Arrays.copyOfRange(buffer, td.byteSize, len));
     		} catch (Exception e) {
@@ -1804,37 +2136,93 @@ public class S2 {
             return ret;
         }
 
+        /**
+         * Pass an error to the callbacks; TODO currently it is unused
+         * @param err       length of the buffer
+         * @return union (and operator) of returns from all callbacks
+         */
         boolean processError(String err) {
             boolean ret = true;
+            // add the error as a note to the S2 instance
+            addErrorNote(err);
 
+            // process error callbacks
             try {
                 for (ReadLineCallbackInterface callback : callbacks)
                     ret &= callback.onError((int)readingLineNum, err);
-                return ret;
             } catch (Exception e) {
                 addErrorNote("Error while processing error (isn't it ironic?)");
                 ret = false;
             }
             return ret;
         }
+
+        /**
+         * Copy the last received absolute timestamp to sensor definitions
+         */
+        void copyTimestampToDefinitions() {
+            for (DataEntityCache c : cachedHandles)
+                if (c != null)
+                    c.lastAbsTimestamp = lastTimestamp;
+        }
+
+        class RecordingSoftware {
+            public String software;
+            public int major, minor, revision;
+            public String other;
+
+            void parse(String value) {
+                String[] words = value.trim().split("\\s+", 2);      // split on all whitespace
+                if (words.length > 0) {
+                    software = words[0];
+                    major = minor = revision = 0;
+                    other = "";
+                    if (words.length > 1) {
+                        try {
+                            String[] vers = words[1].split("\\.", 3);
+                            // warning, exception might be frown from the following three sentences (number format mismatch)
+                            major = vers.length > 0 ? Integer.parseInt(vers[0]) : 0;
+                            minor = vers.length > 1 ? Integer.parseInt(vers[1]) : 0;
+                            if (vers.length > 2) {
+                                String[] others = vers[2].split("[^\\d]", 2); // split to two parts on first non-numeric character
+                                revision = others.length > 0 ? Integer.parseInt(others[0]) : 0;
+                                other = others.length > 1 ? others[1] : "";
+                            }
+                        } catch (Exception e) {
+                            // do nothing
+                        }
+                    }
+                }
+            }
+
+            boolean versionBelow(int mj, int mi, int re) {
+                return (major < mj) || (
+                        (major == mj) && (
+                                (minor < mi) || (
+                                        (minor == mi) && (revision < re)
+                                )
+                        )
+                );
+            }
+        }
     }
 
-    // all registered entity handles are cached (entity = sensor or struct)
-    public class EntityCache {
+    // all registered entity handles are cached (data entity = sensor datum or a structure comprising data entities)
+    public class DataEntityCache {
         String name = "";
         String elementsInOrder = "";
         int bitSize = 0;
-        public Nanoseconds lastAbsTimestamp = null;
-        public Nanoseconds lastRelativeTime = null;
+
+        Nanoseconds lastAbsTimestamp = new Nanoseconds(0);  // initialized to simplify and speed up processing
         TimestampDefinition timestampDefinition = null;
         SensorDefinition sensorDefinition = null;
         StructDefinition structDefinition = null;
 
-        void copyStructDefinition(StructDefinition sd, int bitSize) {
+        void copyStructDefinition(StructDefinition sd) {
             structDefinition = sd;
             name = sd.name;
             elementsInOrder = sd.elementsInOrder;
-            this.bitSize = bitSize;
+            this.bitSize = calculateBits(elementsInOrder);
         }
 
         void copySensorDefinition(SensorDefinition sd) {
@@ -1844,10 +2232,9 @@ public class S2 {
             sensorDefinition = sd;
         }
 
-        void copyTimestampDefinition(TimestampDefinition td) {
+        void copyTimestampDefinition(TimestampDefinition td, Nanoseconds absTime) {
             timestampDefinition = td;
-            lastAbsTimestamp = new Nanoseconds(0);
-            lastRelativeTime = new Nanoseconds(0);
+            lastAbsTimestamp = absTime;
         }
 
         /**
@@ -1863,9 +2250,9 @@ public class S2 {
             return sensorDefinition != null;
         }
     };
-    EntityCache cachedHandles[];
+    DataEntityCache cachedHandles[];
     
-    public EntityCache getEntityHandles(byte handle) {
+    public DataEntityCache getEntityHandles(byte handle) {
     	return cachedHandles[handle];
     }
 
@@ -1893,9 +2280,8 @@ public class S2 {
             }
         }
 
-        messageMask = Long.MAX_VALUE;
         fileOperation = FileOperation.op_none;
-        cachedHandles = new EntityCache[256];
+        cachedHandles = new DataEntityCache[256];
     }
 
     /**
@@ -1918,8 +2304,9 @@ public class S2 {
             return null;
         }
     }
+
     /**
-     * @brief Start loading from the provided file
+     * Start loading from the provided file
      * @param fname the filename (including path)
      * @return @link #LoadStatus object, which should be accessed to access load-related functionality
      */
@@ -1938,8 +2325,9 @@ public class S2 {
             return null;
         }
     }
+
     /**
-     * @brief Get the LoadStatus if load was called before.
+     * Get the LoadStatus if load was called before.
      * @return the load status object (provided load function has been called before)
      */
     public LoadStatus getLoadStatus() {
@@ -1947,14 +2335,14 @@ public class S2 {
     }
 
     /**
-     * @brief Caluclates the number of bits required for storage of the provided structure
+     * Calculates the number of bits required for storage of the provided structure
      * @param elementsInOrder The input elements (handles) of the struct
      * @return the number of bits required to store the provided struct elements
      */
     int calculateBits(String elementsInOrder) {
         int sum = 0;
         for (int i = 0; i < elementsInOrder.length(); ++i) {
-            EntityCache it = cachedHandles[(byte) elementsInOrder.charAt(i)];
+            DataEntityCache it = cachedHandles[(byte) elementsInOrder.charAt(i)];
 
             if (it != null) {
                 if (it.bitSize > 0) {
@@ -1969,25 +2357,6 @@ public class S2 {
                 throw new RuntimeException("Error: unknown entity encountered when processing elements: " + (int)elementsInOrder.charAt(i));
         }
         return sum;
-    }
-
-    /**
-     * @brief Checks that the supplied time is within the bit limit provided by #numBits; also updates the last-reset-time if needed
-     * @param t timestamp [ns]
-     * @param numBits is the number of bits that are available - if (t - ref) takes more bits, then false will be returned
-     * @return true if the time is within limits
-     */
-    boolean checkTime(Long ref, long t, int numBits) {
-        if (lastTimeResetValue == 0) {
-            lastTimeResetValue = t;
-            ref = t;
-        }
-
-        return ((t - ref) & (0xFFFFFFFF << numBits)) == 0;
-    }
-
-    void timeReset() {
-        lastTimeResetValue = 0;
     }
 
     boolean isPossibleSensorHandle(byte handle)  {
@@ -2006,7 +2375,7 @@ public class S2 {
 
     //private long timestamp = 0; // Global variable timestamp for adding new timestamp values to current timestamp value.
     
-    public EntityCache[] getCachedHandles()
+    public DataEntityCache[] getCachedHandles()
     {
     	return cachedHandles;
     }
