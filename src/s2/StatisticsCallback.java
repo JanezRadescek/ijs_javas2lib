@@ -19,8 +19,8 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 	S2 s2;
 	PrintStream out;
 	
-	int counters[] = new int[3];
-	String countersNames[] = {"Comments", "Definitions", "Timestamps"};
+	int counters[] = new int[5];
+	String countersNames[] = {"Comments", "Definitions", "Timestamps", "Unknown", "Error"};
 	
 
 	//shranjuje število podatkovnih paketov glede na handle
@@ -103,7 +103,7 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 	{
 		out.println("End of file");
 		out.println(ver + " " + extendedVer);
-		float trajanje = ((float)Math.round(((endTime - startTime) / 1000000)))/1000;
+		float trajanje = ((float)((endTime - startTime) / 1000000))/1000;
 		float st = ((float)(startTime/1000000))/1000;
 		float et = ((float)(endTime/1000000))/1000;
 		out.println("Start Time at : " + st + "s");
@@ -139,6 +139,12 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 		for(Byte key:packetCounters.keySet())
 		{
 			out.println("	stream " + key + " : " + packetCounters.get(key)[1]);
+		}
+		
+		if(counters[3]>0 || counters[4]>0)
+		{
+			out.println("Unknown Lines : "  + counters[3]);
+			out.println("Errors : " + counters[4]);
 		}
 		
 		return false;
@@ -187,6 +193,12 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 		for(Byte key:packetCounters.keySet())
 		{
 			out.println("	" + key + " : " + packetCounters.get(key)[1]);
+		}
+		
+		if(counters[3]>0 || counters[4]>0)
+		{
+			out.println("Unknown Lines : "  + counters[3]);
+			out.println("Errors : " + counters[4]);
 		}
 		
 		return false;
@@ -246,11 +258,13 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 
 	public boolean onUnknownLineType(byte type, int len, byte data[])
 	{
+		counters[3]++;
 		return true;
 	}
 
 	public boolean onError(int lineNum,  String error)
 	{
+		counters[4]++;
 		return true;
 	}
 }
