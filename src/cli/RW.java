@@ -43,9 +43,9 @@ public class RW {
 		
 		Option handle = new Option("h",true ,"handles. Handli, ki jih želimo izpisati.Privzeto vsi. " +
 				"Če želimo i-ti handle mora biti na i+1 mestu argumenta v dvojiškem zapisu števka 1." +
-				"Če je drugi argument true bodo handli z 1 ohranjeni, če je false bodo odstranjeni." +
+				"Če je argument pozitiven bodo handli z 1 ohranjeni, če je negativen bodo odstranjeni." +
 				"long flags");
-		handle.setOptionalArg(true);
+		//handle.setArgs(2);
 		options.addOption(handle);
 		
 		Option dataTypes = new Option("d",true, "datatype. Tipi vrstic, ki jih želimo izpustiti.Privzeto vsi. 1števka=comment, 2števka=Special, 3števka=meta");
@@ -111,8 +111,8 @@ public class RW {
 			{
 				try
 				{
-					inDirectory2 = new File(cmd.getOptionValues("i")[0]);
-					inFname2 = cmd.getOptionValues("i")[1];
+					inDirectory2 = new File(cmd.getOptionValues("v")[0]);
+					inFname2 = cmd.getOptionValues("v")[1];
 				}
 				catch(Error r)
 				{
@@ -154,9 +154,7 @@ public class RW {
 			if(cmd.hasOption("h"))
 			{
 				try{
-					handles = Long.parseLong(cmd.getOptionValues("h")[0]);
-					if(!Boolean.parseBoolean(cmd.getOptionValues("h")[1]))
-						handles *= -1;
+					handles = Long.parseLong(cmd.getOptionValue("h"));
 				}catch(NumberFormatException e){
 					System.out.println("argument od h mora biti stevilka");
 					return;

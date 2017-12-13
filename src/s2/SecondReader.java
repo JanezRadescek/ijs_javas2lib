@@ -1,18 +1,14 @@
 package s2;
 
 import java.io.File;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.TimeZone;
-
 import s2.FirtstReader.SpecialMessage;
 import s2.FirtstReader.StreamPacket;
 import s2.FirtstReader.Version;
@@ -57,8 +53,8 @@ public class SecondReader implements ReadLineCallbackInterface {
 	
 	public Set<Byte> usedHandlesFirst = new HashSet<Byte>();
 	
-	public long lastTime = 0;
-	public long lastWrittenTime = 0;
+	//public long lastTime = 0;
+	public long newLastTime = 0;
 	
 	public SecondReader(S2 file2, String outDir, String outName) 
 	{
@@ -68,6 +64,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 		
 		specialMeta.add("date");
 		specialMeta.add("time");
+		specialMeta.add("timezone");
 	}
 	
 	public void onFirstReaderEnd()
@@ -83,38 +80,51 @@ public class SecondReader implements ReadLineCallbackInterface {
 	{
 		String dateM1 = metadataFirstMap.get("date");
 		String timeM1 = metadataFirstMap.get("time");
+		String zoneM1 = metadataFirstMap.get("timezone");
 		String dateM2 = metadataSecondMap.get("date");
 		String timeM2 = metadataSecondMap.get("time");
+		String zoneM2 = metadataSecondMap.get("timezone");
 		
-		DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-		format.setTimeZone(TimeZone.getTimeZone("UTC"));
-		Date date1 = null;
-		Date date2 = null;
-		try {
-			date1 = format.parse(dateM1+" "+timeM1);
-			date2 = format.parse(dateM2+" "+timeM2);
-		} catch (ParseException e) {
-			System.out.println(dateM1);
-			System.out.println(timeM1);
-			System.out.println(dateM2);
-			System.out.println(timeM2);
-			System.err.println("We coudnt read date/time");
-			e.printStackTrace();
-		}	
-		long razlika = date2.getTime() - date1.getTime(); 
-		//če je večja je drugi kasneje
-		if(razlika > 0)
+		ZonedDateTime date1;
+		ZonedDateTime date2;
+		try
+		{
+			date1 = ZonedDateTime.parse(dateM1+"T"+timeM1+zoneM1);
+			date2 = ZonedDateTime.parse(dateM2+"T"+timeM2+zoneM2);
+		}
+		catch(java.time.format.DateTimeParseException e)
+		{
+			zoneM1 = zoneM1.substring(0, 3) + ":" + zoneM1.substring(3, zoneM1.length());
+			zoneM2 = zoneM2.substring(0, 3) + ":" + zoneM2.substring(3, zoneM2.length());
+			date1 = ZonedDateTime.parse(dateM1+"T"+timeM1+zoneM1);
+			date2 = ZonedDateTime.parse(dateM2+"T"+timeM2+zoneM2);
+		}
+		/*
+		finally
+		{
+			if(date1 == null || date2 == null)
+			{
+				System.err.println("Cant read date/time/zone : " + dateM1 + " " + timeM1 + " " + zoneM1);
+				System.err.println("Cant read date/time/zone : " + dateM2 + " " + timeM2 + " " + zoneM2);
+			}
+		}*/
+		
+		Duration difference = Duration.between(date1, date2);
+		//če ni negatina je prvi datum prvi
+		if(!difference.isNegative())
 		{
 			storeS.addMetadata("date", dateM1);
 			storeS.addMetadata("time", timeM1);
+			storeS.addMetadata("timezone", zoneM1);
 			nanoOffStrim1 = (long)0;
-			nanoOffStrim2 = razlika*1000000;
+			nanoOffStrim2 = (long) (difference.getSeconds()*Math.pow(10,9) + difference.getNano());
 		}
 		else
 		{
 			storeS.addMetadata("date", dateM2);
 			storeS.addMetadata("time", timeM2);
-			nanoOffStrim1 = razlika*1000000;
+			storeS.addMetadata("timezone", zoneM2);
+			nanoOffStrim1 = (long) (difference.getSeconds()*Math.pow(10,9) + difference.getNano());
 			nanoOffStrim2 = (long)0;
 		}
 		weHaveTime = true;
@@ -182,16 +192,25 @@ public class SecondReader implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onEndOfFile() {
-		System.err.println("Second S2 file contained " + unknownStreamPacketCounter + " unknownStreamPackets" );
-		System.err.println("Second S2 file contained " + errorCounter + " errors");
+		if(unknownStreamPacketCounter > 0 || errorCounter > 0)
+		{
+			System.err.println("Second S2 file contained ");
+			System.err.println(unknownStreamPacketCounter + " unknownStreamPackets" );
+			System.err.println(errorCounter + " errors");
+		}
+		
 		storeS.endFile();
 		return false;
 	}
 
 	@Override
 	public boolean onUnmarkedEndOfFile() {
-		System.err.println("Second S2 file contained " + unknownStreamPacketCounter + " unknownStreamPackets" );
-		System.err.println("Second S2 file contained " + errorCounter + " errors");
+		if(unknownStreamPacketCounter > 0 || errorCounter > 0)
+		{
+			System.err.println("Second S2 file contained ");
+			System.err.println(unknownStreamPacketCounter + " unknownStreamPackets" );
+			System.err.println(errorCounter + " errors");
+		}
 		storeS.endFile();
 		return false;
 	}
@@ -204,6 +223,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
+		//TODO dodeli razlicne handle novim
 		storeS.addDefinition(handle, definition);
 		return true;
 	}
@@ -217,6 +237,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
 		//TODO delete all this. we will create new timestamps when needed.
+		/*
 		if(!weHaveTime)
 		{
 			System.err.println("First TimeStamp before metadata with date and time.");
@@ -248,12 +269,15 @@ public class SecondReader implements ReadLineCallbackInterface {
 		lastTime = nanoSecondTimestamp+nanoOffStrim2;
 		lastWrittenTime = lastTime;
 		storeS.addTimestamp(new Nanoseconds(lastTime));
+		
+		*/
 		return true;
 	}
 
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
-		//TODO check if you need boat lastTime and lastWriten Time hint:NO!!
+		//TODO popravi prevec timestampov
+		
 		if(!weHaveTime)
 		{
 			System.err.println("First StreamPacket before metadata with date and time.");
@@ -264,29 +288,42 @@ public class SecondReader implements ReadLineCallbackInterface {
 				(streamPacketFirstQ.peek().timestamp+nanoOffStrim1 < timestamp+nanoOffStrim2))
 		{
 			StreamPacket temp = streamPacketFirstQ.poll();
-			long maxBits = timestampDefinitionFirst.get(temp.handle).byteSize*8;
+			int maxBits = timestampDefinitionFirst.get(temp.handle).byteSize*8;
 			long writeReadyTime;
-			long formatted = (long) (timestampDefinitionFirst.get(temp.handle).toImplementationFormat(
-					new Nanoseconds(temp.timestamp+nanoOffStrim1 - lastWrittenTime)) / timestampDefinitionFirst.get(temp.handle).multiplier);
-			if(64 - Long.numberOfLeadingZeros(formatted) <= maxBits){
-				writeReadyTime = formatted;}
-			else
+			long newDiff = temp.timestamp+nanoOffStrim1 - newLastTime;
+			//long formatted = (long) (timestampDefinitionFirst.get(temp.handle).toImplementationFormat(
+			//		new Nanoseconds(temp.timestamp+nanoOffStrim1 - newAbsoluteTime)) );
+					// / timestampDefinitionFirst.get(temp.handle).multiplier);
+			int newDiffBits = 64 - Long.numberOfLeadingZeros(newDiff);
+			if(newDiffBits > maxBits)
 			{
-				lastTime = temp.timestamp+nanoOffStrim1;
-				lastWrittenTime = lastTime;
-				storeS.addTimestamp(new Nanoseconds(lastTime));
-				writeReadyTime = (long) 0;
+				storeS.addTimestamp(new Nanoseconds(temp.timestamp+nanoOffStrim1));
+				newDiff = (long) 0;
 			}
-				
+			
+			writeReadyTime = timestampDefinitionFirst.get(temp.handle).toImplementationFormat(
+					new Nanoseconds(newDiff));
 			storeS.addSensorPacket(temp.handle, writeReadyTime, temp.data);
+			newLastTime = temp.timestamp+nanoOffStrim1;
 		}
 		
-		lastTime = timestamp;
+		//TODO popravi racunaje casa in kdaj je treba nov timestamp;
+		int maxBits = timestampDefinitionFirst.get(handle).byteSize*8;
+		long writeReadyTime;
+		long newDiff = timestamp+nanoOffStrim2 - newLastTime;
+		//long formatted = (long) (timestampDefinitionSecond.get(handle).toImplementationFormat(
+		//		new Nanoseconds(timestamp+nanoOffStrim2 - newAbsoluteTime)) / timestampDefinitionSecond.get(handle).multiplier);
+		int newDeffBits = 64 - Long.numberOfLeadingZeros(newDiff);
+		if(newDeffBits > maxBits)
+		{
+			storeS.addTimestamp(new Nanoseconds(timestamp+nanoOffStrim2));
+			newDiff = (long) 0;
+		}
 		
-		long formatted = (long) (timestampDefinitionSecond.get(handle).toImplementationFormat(
-				new Nanoseconds(timestamp+nanoOffStrim1 - lastWrittenTime)) / timestampDefinitionSecond.get(handle).multiplier);
-		
-		storeS.addSensorPacket(handle, formatted, data);
+		writeReadyTime = timestampDefinitionFirst.get(handle).toImplementationFormat(
+				new Nanoseconds(newDiff));
+		storeS.addSensorPacket(handle, writeReadyTime, data);
+		newLastTime = timestamp + nanoOffStrim2;
 		
 		return true;
 	}

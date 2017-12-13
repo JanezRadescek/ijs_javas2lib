@@ -227,6 +227,7 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 		if (!start)
 		{
 			startTime = nanoSecondTimestamp;
+			endTime = nanoSecondTimestamp;
 			start = true;
 		}
 		else{
@@ -236,7 +237,16 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 	}
 
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte data[]) {
-		endTime = timestamp;
+		
+		if (!start)
+		{
+			startTime = timestamp;
+			endTime = timestamp;
+			start = true;
+		}
+		else{
+			endTime = timestamp;
+		}
 		int dataCounter = 0;
 		
 		for (int i = 0; i < s2.getEntityHandles(handle).elementsInOrder.length(); ++i) {

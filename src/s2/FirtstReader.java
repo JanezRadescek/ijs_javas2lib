@@ -85,20 +85,28 @@ public class FirtstReader implements ReadLineCallbackInterface {
 	@Override
 	public boolean onMetadata(String key, String value) {
 		bob.metadataFirstMap.put(key, value);
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean onEndOfFile() {
-		System.err.println("First S2 file contained " + unknownStreamPacketCounter + " unknownStreamPackets" );
-		System.err.println("First S2 file contained " + errorCounter + " errors");
+		if(unknownStreamPacketCounter > 0 || errorCounter > 0)
+		{
+			System.err.println("First S2 file contained ");
+			System.err.println(unknownStreamPacketCounter + " unknownStreamPackets" );
+			System.err.println(errorCounter + " errors");
+		}
 		return false;
 	}
 
 	@Override
 	public boolean onUnmarkedEndOfFile() {
-		System.err.println("First S2 file contained " + unknownStreamPacketCounter + " unknownStreamPackets" );
-		System.err.println("First S2 file contained " + errorCounter + " errors");
+		if(unknownStreamPacketCounter > 0 || errorCounter > 0)
+		{
+			System.err.println("First S2 file contained ");
+			System.err.println(unknownStreamPacketCounter + " unknownStreamPackets" );
+			System.err.println(errorCounter + " errors");
+		}
 		return false;
 	}
 
@@ -130,7 +138,7 @@ public class FirtstReader implements ReadLineCallbackInterface {
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
 		bob.streamPacketFirstQ.add(new StreamPacket(handle,timestamp,len,data));
-		return false;
+		return true;
 	}
 
 	@Override
