@@ -107,22 +107,24 @@ public class SecondReader implements ReadLineCallbackInterface {
 		
 		Duration difference = Duration.between(date1, date2);
 		//če ni negatina je prvi datum prvi
+		Long diff = (long) (difference.getSeconds()*Math.pow(10,9) + difference.getNano());
 		if(!difference.isNegative())
 		{
 			storeS.addMetadata("date", dateM1);
 			storeS.addMetadata("time", timeM1);
 			storeS.addMetadata("timezone", zoneM1);
 			nanoOffStrim1 = (long)0;
-			nanoOffStrim2 = (long) (difference.getSeconds()*Math.pow(10,9) + difference.getNano());
+			nanoOffStrim2 = diff;
 		}
 		else
 		{
 			storeS.addMetadata("date", dateM2);
 			storeS.addMetadata("time", timeM2);
 			storeS.addMetadata("timezone", zoneM2);
-			nanoOffStrim1 = (long) (difference.getSeconds()*Math.pow(10,9) + difference.getNano());
+			nanoOffStrim1 = diff;
 			nanoOffStrim2 = (long)0;
 		}
+		System.out.println(diff);
 		weHaveTime = true;
 		
 	}

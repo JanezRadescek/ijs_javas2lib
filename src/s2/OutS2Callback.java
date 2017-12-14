@@ -34,7 +34,9 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	long a;
 	long b;
 	//for calculating offset in packetstreams
-	long lastTime = (long) 0;
+	Map<Byte,Long> lastTime = new HashMap<Byte,Long>();
+	long lastTimestamp = (long)0;
+	boolean lastTimestampWriten = true;
 	
 
 	public Map<Byte, TimestampDefinition> timestampDefinitions = new HashMap<Byte, TimestampDefinition>();
@@ -147,6 +149,8 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
+		lastTimestamp = nanoSecondTimestamp;
+		lastTimestampWriten = false;
 		return nanoSecondTimestamp<=b;
 	}
 
@@ -154,16 +158,25 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
 		if(naIntervalu(timestamp) && ((this.handles & 1<<handle) != 0))
 		{
+			if (!lastTimestampWriten)
+			{
+				storeS.addTimestamp(new Nanoseconds(lastTimestamp));
+				lastTimestampWriten = true;
+				for(byte t:lastTime.keySet())
+					lastTime.replace(t, lastTimestamp);
+			}
+			
 			int maxBits = timestampDefinitions.get(handle).byteSize * 8;
-			long diff = timestamp - lastTime;
+			long diff = timestamp - lastTime.get(handle);
 			long writeReadyDiff = timestampDefinitions.get(handle).toImplementationFormat(new Nanoseconds(diff));
+			//time stampe iz prvotne ohranjamo.
 			if(64 - Long.numberOfLeadingZeros(writeReadyDiff) > maxBits)
 			{
 				storeS.addTimestamp(new Nanoseconds(timestamp));
 				writeReadyDiff = 0;
 			}
 			storeS.addSensorPacket(handle, writeReadyDiff, data);
-			lastTime = timestamp;
+			lastTime.replace(handle, timestamp);
 			return true;
 		}
 		if(timestamp<=b)

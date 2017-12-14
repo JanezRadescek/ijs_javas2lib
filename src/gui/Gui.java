@@ -6,6 +6,10 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JSplitPane;
+import java.awt.BorderLayout;
+import javax.swing.BoxLayout;
+import javax.swing.JInternalFrame;
 
 public class Gui {
 
@@ -53,5 +57,6 @@ public class Gui {
 		
 		JMenuItem mntmExit = new JMenuItem("Exit");
 		File.add(mntmExit);
+		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.X_AXIS));
 	}
 }

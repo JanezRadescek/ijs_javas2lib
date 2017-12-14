@@ -264,7 +264,7 @@ public class S2 {
         long getNanoMultiplier() { return (long)(multiplier*1e9 + 0.5); }
         /// transform the given timestamp to nanoseconds
         Nanoseconds toNanoSeconds(long stamp) { return new Nanoseconds(getNanoMultiplier() * stamp); }
-        long toImplementationFormat(Nanoseconds nanoStamp) { return nanoStamp.getValue() / getNanoMultiplier(); }
+        public long toImplementationFormat(Nanoseconds nanoStamp) { return nanoStamp.getValue() / getNanoMultiplier(); }
         public TimestampDefinition(AbsoluteId absoluteId, byte byteSize, double multiplier) {
             this.absoluteId = absoluteId.byteId;
             this.byteSize = byteSize;
