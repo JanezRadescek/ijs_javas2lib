@@ -5,13 +5,13 @@ import java.io.PrintWriter;
 
 import org.apache.commons.cli.*;
 
-import s2.OutS2Callback;
 import s2.SecondReader;
+import s2.StatisticsCallback;
 import s2.FirtstReader;
 import s2.OutCSVCallback;
+import s2.OutS2Callback;
 import s2.S2;
 import s2.S2.LoadStatus;
-import s2.StatisticsCallback;
 
 /**bere , izrezuje, ... s2 file */
 public class RW {
@@ -22,7 +22,8 @@ public class RW {
 		Options options = new Options();
 		
 		options.addOption("s", false, "statistics. izpisi statistiko na izhod");
-		options.addOption("c", false, "cut. izrezi del in izpisi na izhod");
+		options.addOption("c", false, "cut. izrezi del in izpisi na izhod v S2");
+		options.addOption("r", false, "read. izrezi del in izpisi na izhod v CSV in human readable form");
 		options.addOption("b", false, "build. sestavi 2 datoteki skupaj");
 		
 		Option time = new Option("t", "time. zacetni in koncni cas izseka, ki nas zanima -t zacetni koncni");
@@ -190,7 +191,17 @@ public class RW {
 			}
 			if(cmd.hasOption("c"))
 			{
-				outData(file1, loadS1, ab, izhodDir, izhodName, handles, dataT);
+				if(izhodDir != null && izhodName != null)
+				{
+					outS2(file1, loadS1, ab, handles, dataT, izhodDir, izhodName);
+				}else
+				{
+					System.err.println("Option c-cut need option o-out(directory and name of output file)");
+				}
+			}
+			if(cmd.hasOption("r"))
+			{
+				outData(file1, loadS1, ab, handles, izhodDir, izhodName);
 			}
 			
 			
@@ -220,6 +231,15 @@ public class RW {
 	
 	}
 
+	/**
+	 * Merges 2 S2 files into 1 S2 file
+	 * @param file1 - first S2 file
+	 * @param loadS1 - load status of first file
+	 * @param file2 - second S2 file
+	 * @param loadS2 - load status of second file
+	 * @param izhodDir - directory of new S2 file
+	 * @param izhodName - name of new S2 file
+	 */
 	private static void build(S2 file1, LoadStatus loadS1, S2 file2, LoadStatus loadS2, String izhodDir,
 			String izhodName) {
 		//hermione prebere prvo datoteke in prebrane podatke zapiše v boba, slednji bo prebral še drugo datoteko in 
@@ -232,10 +252,18 @@ public class RW {
 		
 	}
 
-	private static void outData(S2 file, LoadStatus ls, long []ab, String izhodDir, String izhodName, long handles, byte dataT) {
-	
-		
+	/**
+	 * Writes data in CSV file in human readable form
+	 * @param file - input S2 file
+	 * @param ls - load status of S2
+	 * @param ab - pair of numbers represanting time interval
+	 * @param izhodDir - directory of CSV file
+	 * @param izhodName - name of CSV
+	 * @param handles - handle we want to write(we can only write one handle)
+	 */
+	private static void outData(S2 file, LoadStatus ls, long []ab, long handles, String izhodDir, String izhodName) {
 		if(izhodDir != null && izhodName != null){
+			/*
 			String kon = izhodName.split("\\.")[1];
 			if(kon.equals("s2"))
 			{
@@ -245,19 +273,26 @@ public class RW {
 			{
 				OutCSVCallback callback = new OutCSVCallback(file, ab, handles, izhodDir, izhodName);
 				ls.addReadLineCallback(callback);
-			}
+			}*/
+			OutCSVCallback callback = new OutCSVCallback(file, ab, handles, izhodDir, izhodName);
+			ls.addReadLineCallback(callback);
 			
-		}else {
-				OutCSVCallback callback = new OutCSVCallback(file, ab, handles);
-				ls.addReadLineCallback(callback);
+		}else 
+		{
+			OutCSVCallback callback = new OutCSVCallback(file, ab, handles);
+			ls.addReadLineCallback(callback);
 		}	
+	}
+	
+	private static void outS2(S2 file, LoadStatus ls, long []ab, long handles, byte dataT, String directory, String name)
+	{
+		OutS2Callback callback = new OutS2Callback(file, ab, handles, dataT, directory, name);
+		ls.addReadLineCallback(callback);
 	}
 
 	
 	private static void outStatistics(S2 file, LoadStatus ls, String outDirectory, String outName) {
-			
 		StatisticsCallback callback;
-		
 		if(outDirectory != null){
 			String directoryANDname = outDirectory + "\\" + outName;
 			callback = new StatisticsCallback(file, directoryANDname);
@@ -265,7 +300,6 @@ public class RW {
 		{
 			callback = new StatisticsCallback(file);
 		}
-		
 		ls.addReadLineCallback(callback);
 	}
 

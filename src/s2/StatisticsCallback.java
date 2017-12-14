@@ -249,10 +249,15 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 		}
 		int dataCounter = 0;
 		
+		//deprecated
+		/*
 		for (int i = 0; i < s2.getEntityHandles(handle).elementsInOrder.length(); ++i) {
             byte cb = (byte) s2.getEntityHandles(handle).elementsInOrder.charAt(i);
+            //TODO spremeni stetje
             if (cb == 'e'){dataCounter++;}
-		}
+		}*/
+		
+		dataCounter = s2.getEntityHandles(handle).elementsInOrder.length();
 		
 		if (packetCounters.containsKey(handle))
 		{

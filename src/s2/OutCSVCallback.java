@@ -62,7 +62,7 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 		this(s2, ab, handle);
 		try {
 			this.out = new CsvStream(new FileOutputStream(directory+"\\"+name));
-			System.out.println("writing data into file " + directory+"\\"+name);
+			System.err.println("writing data into file " + directory+"\\"+name);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}

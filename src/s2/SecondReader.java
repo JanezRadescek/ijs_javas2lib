@@ -51,9 +51,9 @@ public class SecondReader implements ReadLineCallbackInterface {
 	long nanoOffStrim1;
 	long nanoOffStrim2;
 	
-	public Set<Byte> usedHandlesFirst = new HashSet<Byte>();
+	public Set<Byte> usedHandles = new HashSet<Byte>();
+	public Map<Byte,Byte> HandlesSecondConverter = new HashMap<Byte,Byte>();
 	
-	//public long lastTime = 0;
 	public long newLastTime = 0;
 	
 	public SecondReader(S2 file2, String outDir, String outName) 
@@ -67,11 +67,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 		specialMeta.add("timezone");
 	}
 	
-	public void onFirstReaderEnd()
-	{
-		
-	}
-	
+
 	/**
 	 * Called when we have read metadata with time and date.
 	 * calculate time diference betwen files and set first date and time for new S2
@@ -128,6 +124,35 @@ public class SecondReader implements ReadLineCallbackInterface {
 			nanoOffStrim2 = (long)0;
 		}
 		weHaveTime = true;
+		
+	}
+
+	public byte convertHandle(byte handle,byte reqDepth)
+	{
+		if(usedHandles.contains(handle))
+		{
+			if(0<=handle && handle < 32)
+			{
+				if(reqDepth >= 32)
+				{
+					System.err.println("Not enought handles. Information from handle" + handle + "has been overwritten");
+					return handle;
+				}
+				return convertHandle((byte)((handle+1)%32),(byte)(reqDepth+1));
+			}
+			else
+			{
+				byte abc = Byte.MAX_VALUE + 1 - 32;
+				if(reqDepth>= abc)
+				{
+					System.err.println("Not enought handles. Information from handle" + handle + "has been overwritten");
+					return handle;
+				}
+				return convertHandle((byte)((handle+1-32)%abc+32),(byte)(reqDepth+1));
+			}
+		}
+		else
+			return handle;
 		
 	}
 
@@ -217,20 +242,44 @@ public class SecondReader implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
-		storeS.addDefinition(handle, definition);
+		byte newHandle = convertHandle(handle,(byte)0);
+		usedHandles.add(newHandle);
+		HandlesSecondConverter.put(handle, newHandle);
+		storeS.addDefinition(newHandle, definition);
 		return true;
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
-		//TODO dodeli razlicne handle novim
-		storeS.addDefinition(handle, definition);
+		byte newHandle;
+		if(HandlesSecondConverter.containsKey(handle))
+		{
+			newHandle = HandlesSecondConverter.get(handle);
+		}
+		else
+		{
+			newHandle = convertHandle(handle,(byte)0);
+			usedHandles.add(newHandle);
+			HandlesSecondConverter.put(handle, newHandle);
+		}
+		storeS.addDefinition(newHandle, definition);
 		return true;
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, TimestampDefinition definition) {
-		storeS.addDefinition(handle, definition);
+		byte newHandle;
+		if(HandlesSecondConverter.containsKey(handle))
+		{
+			newHandle = HandlesSecondConverter.get(handle);
+		}
+		else
+		{
+			newHandle = convertHandle(handle,(byte)0);
+			usedHandles.add(newHandle);
+			HandlesSecondConverter.put(handle, newHandle);
+		}
+		storeS.addDefinition(newHandle, definition);
 		return true;
 	}
 
@@ -241,8 +290,6 @@ public class SecondReader implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
-		//TODO popravi prevec timestampov
-		
 		if(!weHaveTime)
 		{
 			System.err.println("First StreamPacket before metadata with date and time.");
@@ -271,7 +318,8 @@ public class SecondReader implements ReadLineCallbackInterface {
 			newLastTime = temp.timestamp+nanoOffStrim1;
 		}
 		
-		//TODO popravi racunaje casa in kdaj je treba nov timestamp;
+		//we use new handle only for writing
+		//byte newHandle = HandlesSecondConverter.get(handle);
 		int maxBits = timestampDefinitionFirst.get(handle).byteSize*8;
 		long newDiff = timestamp+nanoOffStrim2 - newLastTime;
 		long writeReadyDiff = timestampDefinitionFirst.get(handle).toImplementationFormat(
@@ -285,7 +333,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 		}
 		
 		
-		storeS.addSensorPacket(handle, writeReadyDiff, data);
+		storeS.addSensorPacket(HandlesSecondConverter.get(handle), writeReadyDiff, data);
 		newLastTime = timestamp + nanoOffStrim2;
 		
 		return true;

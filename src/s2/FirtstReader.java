@@ -113,13 +113,14 @@ public class FirtstReader implements ReadLineCallbackInterface {
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
 		bob.sensorDefinitionFirst.put(handle, definition);
-		bob.usedHandlesFirst.add(handle);
+		bob.usedHandles.add(handle);
 		return true;
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
 		bob.structDefinitionFirst.put(handle, definition);
+		bob.usedHandles.add(handle);
 		return true;
 	}
 
