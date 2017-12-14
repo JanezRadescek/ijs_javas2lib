@@ -26,7 +26,7 @@ public class RW {
 		options.addOption("r", false, "read. izrezi del in izpisi na izhod v CSV in human readable form");
 		options.addOption("b", false, "build. sestavi 2 datoteki skupaj");
 		
-		Option time = new Option("t", "time. zacetni in koncni cas izseka, ki nas zanima -t zacetni koncni");
+		Option time = new Option("t", "time. zacetni in koncni cas izseka, ki nas zanima -t zacetni koncni. Defaul all");
 		time.setArgs(2);
 		options.addOption(time);
 		

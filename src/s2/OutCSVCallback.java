@@ -34,7 +34,8 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 	 * Creates callback for writing human-readable data in CSV
 	 * @param s2 - S2 file we are reading from 
 	 * @param ab - interval for which we write data
-	 * @param handle - handle of stream we will write 
+	 * @param handle - number of stream we will write 
+	 * (if handle has more than one 1 in binary it may cause incorect output) 
 	 */
 	public OutCSVCallback(S2 s2, long[] ab, long handle) {
 		this.s2 = s2;
@@ -106,7 +107,7 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
 		//writes "data format"
-		if(theHandle == (1<<handle))
+		if((theHandle & (1<<handle)) != 0)
 		{
 			char[] zaporedje = definition.elementsInOrder.toCharArray();
 			this.out.print("TimeStamp");
@@ -132,7 +133,7 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
 		lastTime = timestamp;
-		if((a<= lastTime && lastTime <= b) && (theHandle  == (1<<handle)))
+		if((a<= lastTime && lastTime <= b) && ((theHandle & (1<<handle)) != 0))
 		{
 			//converted data
 			ArrayList<Float> sensorData = new ArrayList<>();
