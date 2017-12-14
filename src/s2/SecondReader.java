@@ -54,7 +54,10 @@ public class SecondReader implements ReadLineCallbackInterface {
 	public Set<Byte> usedHandles = new HashSet<Byte>();
 	public Map<Byte,Byte> HandlesSecondConverter = new HashMap<Byte,Byte>();
 	
+	//time
 	public long newLastTime = 0;
+	public long newLastTimestamp = 0;
+	boolean TimeStampWriten = true;
 	
 	public SecondReader(S2 file2, String outDir, String outName) 
 	{
@@ -287,11 +290,20 @@ public class SecondReader implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
+		//TODO dokoncaj spodnje v skladu z OUTS2 zapisovanjem časa
+		/*
+		while(!streampacketsfirst.isempty)
+		{
+		}
+		*/
+		
+		storeS.addTimestamp(new Nanoseconds(nanoSecondTimestamp));
 		return true;
 	}
 
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
+		//TODO popravi cas skladno z OutS2
 		if(!weHaveTime)
 		{
 			System.err.println("First StreamPacket before metadata with date and time.");
