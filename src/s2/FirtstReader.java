@@ -15,6 +15,8 @@ public class FirtstReader implements ReadLineCallbackInterface {
 	public int unknownStreamPacketCounter = 0;
 	public int errorCounter = 0;
 	
+	long lastTime = 0;
+	
 
 	public FirtstReader(S2 file1, SecondReader bob) {
 		this.file1 = file1;
@@ -35,30 +37,58 @@ public class FirtstReader implements ReadLineCallbackInterface {
 		}
 	}
 	
-	public class SpecialMessage
+	public class TimeData
+	{
+		long timestamp;
+		public TimeData(long timestamp)
+		{
+			this.timestamp = timestamp;
+		}
+	}
+	
+	public class Comment extends TimeData
+	{
+		String comment;
+		public Comment(long timestamp, String comment) {
+			super(timestamp);
+			this.comment = comment;
+		}
+		
+	}
+	
+	public class SpecialMessage extends TimeData
 	{
 		char who;
 		char what;
 		String message;
-		public SpecialMessage(char who, char what, String message)
+		public SpecialMessage(long timestamp, char who, char what, String message)
 		{
+			super(timestamp);
 			this.who = who;
 			this.what = what;
 			this.message = message;
 		}
 	}
 	
-	public class StreamPacket
+	public class TimeStamp extends TimeData
+	{
+
+		public TimeStamp(long timestamp) {
+			super(timestamp);
+		}
+		
+	}
+	
+	public class StreamPacket extends TimeData
 	{
 		byte handle;
-		long timestamp;
 		int len;
 		byte[] data;
 		
 		public StreamPacket(byte handle, long timestamp, int len, byte[] data)
 		{
+			super(timestamp);
 			this.handle = handle;
-			this.timestamp = timestamp;
 			this.len = len;
 			this.data = data;
 		}
@@ -66,7 +96,7 @@ public class FirtstReader implements ReadLineCallbackInterface {
 	
 	@Override
 	public boolean onComment(String comment) {
-		bob.commentFirstQ.add(comment);
+		bob.timeDataQ.add(new Comment(lastTime,comment));
 		return true;
 	}
 
@@ -78,7 +108,7 @@ public class FirtstReader implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onSpecialMessage(char who, char what, String message) {
-		bob.specialMessageFirstQ.add(new SpecialMessage(who, what, message));
+		bob.timeDataQ.add(new SpecialMessage(lastTime, who, what, message));
 		return true;
 	}
 
@@ -132,13 +162,15 @@ public class FirtstReader implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
-		bob.timestampFirstQ.add(nanoSecondTimestamp);
+		bob.timeDataQ.add(new TimeStamp(nanoSecondTimestamp));
+		lastTime = nanoSecondTimestamp;
 		return true;
 	}
 
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
-		bob.streamPacketFirstQ.add(new StreamPacket(handle,timestamp,len,data));
+		bob.timeDataQ.add(new StreamPacket(handle,timestamp,len,data));
+		lastTime = timestamp;
 		return true;
 	}
 

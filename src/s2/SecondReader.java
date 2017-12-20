@@ -10,8 +10,12 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+
+import s2.FirtstReader.Comment;
 import s2.FirtstReader.SpecialMessage;
 import s2.FirtstReader.StreamPacket;
+import s2.FirtstReader.TimeData;
+import s2.FirtstReader.TimeStamp;
 import s2.FirtstReader.Version;
 import s2.S2.MessageType;
 import s2.S2.Nanoseconds;
@@ -19,6 +23,7 @@ import s2.S2.ReadLineCallbackInterface;
 import s2.S2.SensorDefinition;
 import s2.S2.StructDefinition;
 import s2.S2.TimestampDefinition;
+
 
 public class SecondReader implements ReadLineCallbackInterface {
 	//najvišja verzija, ki jo še znamo brati/pisati
@@ -31,14 +36,16 @@ public class SecondReader implements ReadLineCallbackInterface {
 	
 	//First S2 file datas
 	public Version versionFirst;
-	public Queue<String> commentFirstQ = new LinkedList<>();
-	public Queue<SpecialMessage> specialMessageFirstQ = new LinkedList<SpecialMessage>();
+	//public Queue<Comment> commentFirstQ = new LinkedList<Comment>();
+	//public Queue<SpecialMessage> specialMessageFirstQ = new LinkedList<SpecialMessage>();
 	public Map<String, String> metadataFirstMap = new HashMap<String, String>();
 	public Map<Byte, SensorDefinition> sensorDefinitionFirst = new HashMap<Byte, SensorDefinition>();
 	public Map<Byte, StructDefinition> structDefinitionFirst = new HashMap<Byte, StructDefinition>(); 
 	public Map<Byte, TimestampDefinition> timestampDefinitionFirst = new HashMap<Byte, TimestampDefinition>();
-	public Queue<Long> timestampFirstQ = new LinkedList<Long>();
-	public Queue<StreamPacket> streamPacketFirstQ = new LinkedList<StreamPacket>();
+	//public Queue<Long> timestampFirstQ = new LinkedList<Long>();
+	//public Queue<StreamPacket> streamPacketFirstQ = new LinkedList<StreamPacket>();
+	public Queue<TimeData> timeDataQ = new LinkedList<TimeData>();
+	
 	
 	//Second S2 file datas
 	public Map<String, String> metadataSecondMap = new HashMap<String, String>();
@@ -133,33 +140,50 @@ public class SecondReader implements ReadLineCallbackInterface {
 		
 	}
 
-	public byte convertHandle(byte handle,byte reqDepth)
+	public byte convertHandle(byte handle)
 	{
-		if(usedHandles.contains(handle))
+		
+		if(HandlesSecondConverter.keySet().contains(handle))
 		{
+			return HandlesSecondConverter.get(handle);
+		}
+		else
+		{	
 			if(0<=handle && handle < 32)
 			{
-				if(reqDepth >= 32)
+				for(int i = 0;i<32;i++)
 				{
-					System.err.println("Not enought handles. Information from handle" + handle + "has been overwritten");
-					return handle;
+					byte temp = (byte) ((handle+i)%32);
+					if(!usedHandles.contains(temp))
+					{
+						HandlesSecondConverter.put(handle, temp);
+						usedHandles.add(temp);
+						return temp;
+					}
 				}
-				return convertHandle((byte)((handle+1)%32),(byte)(reqDepth+1));
+				
+				System.err.println("Not enought handles. Information from handle" + handle + "has been overwritten");
+				return handle;
 			}
 			else
 			{
 				byte abc = Byte.MAX_VALUE + 1 - 32;
-				if(reqDepth>= abc)
+				for(int i =0;i<abc+1;i++)
 				{
-					System.err.println("Not enought handles. Information from handle" + handle + "has been overwritten");
-					return handle;
+					byte temp = (byte) ((handle+i-32)%abc + 32);
+					if(!usedHandles.contains(temp))
+					{
+						HandlesSecondConverter.put(handle, temp);
+						usedHandles.add(temp);
+						return temp;
+					}
 				}
-				return convertHandle((byte)((handle+1-32)%abc+32),(byte)(reqDepth+1));
+				
+				System.err.println("Not enought handles. Information from handle" + handle + "has been overwritten");
+				return handle;
 			}
-		}
-		else
-			return handle;
-		
+
+		}	
 	}
 
 	@Override
@@ -182,10 +206,6 @@ public class SecondReader implements ReadLineCallbackInterface {
 			storeS.setVersion(versionInt, version);
 		
 		//storing timeindepend data of first file
-		for(String c : commentFirstQ)
-			storeS.addTextMessage(c);
-		for(SpecialMessage sm : specialMessageFirstQ)
-			storeS.addSpecialTextMessage((byte)sm.who,MessageType.convert((byte)sm.what),sm.message,-1);
 		for(String key : metadataFirstMap.keySet())
 		{
 			if(!specialMeta.contains(key))
@@ -248,28 +268,15 @@ public class SecondReader implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
-		//TODO teh morda ni treba konvertat
-		byte newHandle = HandlesSecondConverter.get(handle);
+		byte newHandle = convertHandle(handle);
 		storeS.addDefinition(newHandle, definition);
 		return true;
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
-		byte newHandle;
-		if(HandlesSecondConverter.containsKey(handle))
-		{
-			newHandle = HandlesSecondConverter.get(handle);
-		}
-		else
-		{
-			newHandle = convertHandle(handle,(byte)0);
-			usedHandles.add(newHandle);
-			HandlesSecondConverter.put(handle, newHandle);
-		}
-		
+		byte newHandle = convertHandle(handle);
 		corectDefinition(definition);
-		
 		storeS.addDefinition(newHandle, definition);
 		return true;
 	}
@@ -280,26 +287,16 @@ public class SecondReader implements ReadLineCallbackInterface {
 		char[] elements = old.elementsInOrder.toCharArray();
 		for(int i =0;i<le;i++)
 		{
-			byte temp = convertHandle((byte) elements[i], (byte)0);
-			usedHandles.add(temp);
+			byte temp = convertHandle((byte) elements[i]);
 			elements[i] = (char) temp;
 		}
-		old.elementsInOrder = elements.toString();
+		old.elementsInOrder = new String(elements);
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, TimestampDefinition definition) {
-		byte newHandle;
-		if(HandlesSecondConverter.containsKey(handle))
-		{
-			newHandle = HandlesSecondConverter.get(handle);
-		}
-		else
-		{
-			newHandle = convertHandle(handle,(byte)0);
-			usedHandles.add(newHandle);
-			HandlesSecondConverter.put(handle, newHandle);
-		}
+		byte newHandle = convertHandle(handle);
+		
 		storeS.addDefinition(newHandle, definition);
 		timestampDefinitionSecond.put(newHandle, definition);
 		return true;
@@ -307,8 +304,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
-		//TODO dokoncaj spodnje v skladu z OUTS2 zapisovanjem časa
-		addOldPackets(nanoSecondTimestamp);
+		addOldTimeData(nanoSecondTimestamp);
 		
 		newLastTimestamp = nanoSecondTimestamp+nanoOffStrim2;
 		Arrays.fill(newLastTime, newLastTimestamp);
@@ -325,7 +321,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 			return false;
 		}
 		//if we have packets from first file before curent time we safe them first.
-		addOldPackets(timestamp);
+		addOldTimeData(timestamp);
 		
 		//for time releate ting we use new handle
 		byte newHandle = HandlesSecondConverter.get(handle);
@@ -355,16 +351,26 @@ public class SecondReader implements ReadLineCallbackInterface {
 		return true;
 	}
 	
-	private void addOldPackets(long timestamp)
+	private void addOldTimeData(long timestamp)
 	{
-		while(!streamPacketFirstQ.isEmpty() && 
-				(streamPacketFirstQ.peek().timestamp+nanoOffStrim1 < timestamp+nanoOffStrim2))
+		while(!timeDataQ.isEmpty() && 
+				(timeDataQ.peek().timestamp+nanoOffStrim1 < timestamp+nanoOffStrim2))
 		{
-			StreamPacket temp = streamPacketFirstQ.poll();
+			TimeData temp = timeDataQ.poll();
 			
-			while(!timestampFirstQ.isEmpty() && (timestampFirstQ.peek() <= temp.timestamp))
+			if(temp instanceof Comment)
 			{
-				long tempTime = timestampFirstQ.poll() + nanoOffStrim1;
+				Comment tempC = (Comment) temp;
+				storeS.addTextMessage(tempC.comment);
+			}
+			else if(temp instanceof SpecialMessage)
+			{
+				SpecialMessage tempMSG = (SpecialMessage) temp;
+				storeS.addSpecialTextMessage((byte)tempMSG.who,MessageType.convert((byte)tempMSG.what),tempMSG.message,-1);
+			}
+			else if(temp instanceof TimeStamp)
+			{
+				long tempTime = temp.timestamp + nanoOffStrim1;
 				if(tempTime > newLastTimestamp)
 				{
 					newLastTimestamp = tempTime;
@@ -372,18 +378,24 @@ public class SecondReader implements ReadLineCallbackInterface {
 					storeS.addTimestamp(new Nanoseconds(newLastTimestamp));
 				}
 			}
-			
-			//int maxBits = timestampDefinitionFirst.get(temp.handle).byteSize*8;
-			long newDiff = temp.timestamp+nanoOffStrim1 - newLastTime[temp.handle];
+			else if(temp instanceof StreamPacket)
+			{
+				StreamPacket tempPacket = (StreamPacket) temp;
+				//int maxBits = timestampDefinitionFirst.get(temp.handle).byteSize*8;
+				long newDiff = tempPacket.timestamp+nanoOffStrim1 - newLastTime[tempPacket.handle];
 
-			long writeReadyDiff = timestampDefinitionFirst.get(temp.handle).toImplementationFormat(new Nanoseconds(newDiff));
+				long writeReadyDiff = timestampDefinitionFirst.get(tempPacket.handle).toImplementationFormat(new Nanoseconds(newDiff));
+				
+				storeS.addSensorPacket(tempPacket.handle, writeReadyDiff, tempPacket.data);
+				
+				newLastTime[tempPacket.handle] += writeReadyDiff* timestampDefinitionFirst.get(tempPacket.handle).getNanoMultiplier();
+				//newLastTime[temp.handle] = temp.timestamp+nanoOffStrim1;
+			}
+			else
+			{
+				System.err.println("First file saved something wrong in timeDataQ");
+			}
 			
-			storeS.addSensorPacket(temp.handle, writeReadyDiff, temp.data);
-			
-			newLastTime[temp.handle] += writeReadyDiff* timestampDefinitionFirst.get(temp.handle).getNanoMultiplier();
-			//newLastTime[temp.handle] = temp.timestamp+nanoOffStrim1;
-			
-			int waitt = 0;
 		}
 	}
 
