@@ -3,6 +3,7 @@ package s2;
 import java.io.File;
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -55,7 +56,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 	public Map<Byte,Byte> HandlesSecondConverter = new HashMap<Byte,Byte>();
 	
 	//time
-	public long newLastTime = 0;
+	public long[] newLastTime = new long[32];
 	public long newLastTimestamp = 0;
 	boolean TimeStampWriten = true;
 	
@@ -229,7 +230,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 			System.err.println(errorCounter + " errors");
 		}
 		
-		storeS.endFile();
+		storeS.endFile(true);
 		return false;
 	}
 
@@ -241,15 +242,14 @@ public class SecondReader implements ReadLineCallbackInterface {
 			System.err.println(unknownStreamPacketCounter + " unknownStreamPackets" );
 			System.err.println(errorCounter + " errors");
 		}
-		storeS.endFile();
+		storeS.endFile(true);
 		return false;
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
-		byte newHandle = convertHandle(handle,(byte)0);
-		usedHandles.add(newHandle);
-		HandlesSecondConverter.put(handle, newHandle);
+		//TODO teh morda ni treba konvertat
+		byte newHandle = HandlesSecondConverter.get(handle);
 		storeS.addDefinition(newHandle, definition);
 		return true;
 	}
@@ -267,8 +267,24 @@ public class SecondReader implements ReadLineCallbackInterface {
 			usedHandles.add(newHandle);
 			HandlesSecondConverter.put(handle, newHandle);
 		}
+		
+		corectDefinition(definition);
+		
 		storeS.addDefinition(newHandle, definition);
 		return true;
+	}
+	
+	private void corectDefinition(StructDefinition old)
+	{
+		int le = old.elementsInOrder.length();
+		char[] elements = old.elementsInOrder.toCharArray();
+		for(int i =0;i<le;i++)
+		{
+			byte temp = convertHandle((byte) elements[i], (byte)0);
+			usedHandles.add(temp);
+			elements[i] = (char) temp;
+		}
+		old.elementsInOrder = elements.toString();
 	}
 
 	@Override
@@ -285,19 +301,18 @@ public class SecondReader implements ReadLineCallbackInterface {
 			HandlesSecondConverter.put(handle, newHandle);
 		}
 		storeS.addDefinition(newHandle, definition);
+		timestampDefinitionSecond.put(newHandle, definition);
 		return true;
 	}
 
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
 		//TODO dokoncaj spodnje v skladu z OUTS2 zapisovanjem časa
-		/*
-		while(!streampacketsfirst.isempty)
-		{
-		}
-		*/
+		addOldPackets(nanoSecondTimestamp);
 		
-		storeS.addTimestamp(new Nanoseconds(nanoSecondTimestamp));
+		newLastTimestamp = nanoSecondTimestamp+nanoOffStrim2;
+		Arrays.fill(newLastTime, newLastTimestamp);
+		storeS.addTimestamp(new Nanoseconds(newLastTimestamp));
 		return true;
 	}
 
@@ -310,45 +325,20 @@ public class SecondReader implements ReadLineCallbackInterface {
 			return false;
 		}
 		//if we have packets from first file before curent time we safe them first.
-		while(!streamPacketFirstQ.isEmpty() && 
-				(streamPacketFirstQ.peek().timestamp+nanoOffStrim1 < timestamp+nanoOffStrim2))
-		{
-			StreamPacket temp = streamPacketFirstQ.poll();
-			
-			int maxBits = timestampDefinitionFirst.get(temp.handle).byteSize*8;
-			long newDiff = temp.timestamp+nanoOffStrim1 - newLastTime;
-			//for test purpose only delete after
-			long writeReadyDiff = timestampDefinitionFirst.get(temp.handle).toImplementationFormat(new Nanoseconds(newDiff));
-			//long formatted = (long) (timestampDefinitionFirst.get(temp.handle).toImplementationFormat(
-			//		new Nanoseconds(temp.timestamp+nanoOffStrim1 - newAbsoluteTime)) );
-					// / timestampDefinitionFirst.get(temp.handle).multiplier);
-			if(64 - Long.numberOfLeadingZeros(writeReadyDiff) > maxBits)
-			{
-				storeS.addTimestamp(new Nanoseconds(temp.timestamp+nanoOffStrim1));
-				writeReadyDiff = 0;
-			}
-			
-			storeS.addSensorPacket(temp.handle, writeReadyDiff, temp.data);
-			newLastTime = temp.timestamp+nanoOffStrim1;
-		}
+		addOldPackets(timestamp);
 		
-		//we use new handle only for writing
-		//byte newHandle = HandlesSecondConverter.get(handle);
-		int maxBits = timestampDefinitionFirst.get(handle).byteSize*8;
-		long newDiff = timestamp+nanoOffStrim2 - newLastTime;
-		long writeReadyDiff = timestampDefinitionFirst.get(handle).toImplementationFormat(
+		//for time releate ting we use new handle
+		byte newHandle = HandlesSecondConverter.get(handle);
+		
+		//int maxBits = timestampDefinitionFirst.get(handle).byteSize*8;
+		long newDiff = timestamp+nanoOffStrim2 - newLastTime[newHandle];
+		TimestampDefinition td = timestampDefinitionSecond.get(newHandle);
+		long writeReadyDiff = td.toImplementationFormat(
 				new Nanoseconds(newDiff));
-		//long formatted = (long) (timestampDefinitionSecond.get(handle).toImplementationFormat(
-		//		new Nanoseconds(timestamp+nanoOffStrim2 - newAbsoluteTime)) / timestampDefinitionSecond.get(handle).multiplier);
-		if(64 - Long.numberOfLeadingZeros(writeReadyDiff) > maxBits)
-		{
-			storeS.addTimestamp(new Nanoseconds(timestamp+nanoOffStrim2));
-			writeReadyDiff = 0;
-		}
 		
-		
-		storeS.addSensorPacket(HandlesSecondConverter.get(handle), writeReadyDiff, data);
-		newLastTime = timestamp + nanoOffStrim2;
+		storeS.addSensorPacket(newHandle, writeReadyDiff, data);
+		newLastTime[newHandle] += writeReadyDiff * td.getNanoMultiplier();
+		//newLastTime[newHandle] = timestamp + nanoOffStrim2;
 		
 		return true;
 	}
@@ -363,6 +353,38 @@ public class SecondReader implements ReadLineCallbackInterface {
 	public boolean onError(int lineNum, String error) {
 		errorCounter++;
 		return true;
+	}
+	
+	private void addOldPackets(long timestamp)
+	{
+		while(!streamPacketFirstQ.isEmpty() && 
+				(streamPacketFirstQ.peek().timestamp+nanoOffStrim1 < timestamp+nanoOffStrim2))
+		{
+			StreamPacket temp = streamPacketFirstQ.poll();
+			
+			while(!timestampFirstQ.isEmpty() && (timestampFirstQ.peek() <= temp.timestamp))
+			{
+				long tempTime = timestampFirstQ.poll() + nanoOffStrim1;
+				if(tempTime > newLastTimestamp)
+				{
+					newLastTimestamp = tempTime;
+					Arrays.fill(newLastTime, newLastTimestamp);
+					storeS.addTimestamp(new Nanoseconds(newLastTimestamp));
+				}
+			}
+			
+			//int maxBits = timestampDefinitionFirst.get(temp.handle).byteSize*8;
+			long newDiff = temp.timestamp+nanoOffStrim1 - newLastTime[temp.handle];
+
+			long writeReadyDiff = timestampDefinitionFirst.get(temp.handle).toImplementationFormat(new Nanoseconds(newDiff));
+			
+			storeS.addSensorPacket(temp.handle, writeReadyDiff, temp.data);
+			
+			newLastTime[temp.handle] += writeReadyDiff* timestampDefinitionFirst.get(temp.handle).getNanoMultiplier();
+			//newLastTime[temp.handle] = temp.timestamp+nanoOffStrim1;
+			
+			int waitt = 0;
+		}
 	}
 
 }
