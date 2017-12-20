@@ -1,5 +1,6 @@
 package s2;
 
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -247,6 +248,10 @@ public class S2 {
             value = val;
         }
 
+        public Nanoseconds(Nanoseconds copyFrom) {
+            value = copyFrom.value;
+        }
+
         public long getValue() {
             return value;
         }
@@ -261,7 +266,7 @@ public class S2 {
         byte byteSize;
         double multiplier;     // multiply timestamp with this value to get seconds
 
-        long getNanoMultiplier() { return (long)(multiplier*1e9 + 0.5); }
+        public long getNanoMultiplier() { return (long)(multiplier*1e9 + 0.5); }
         /// transform the given timestamp to nanoseconds
         Nanoseconds toNanoSeconds(long stamp) { return new Nanoseconds(getNanoMultiplier() * stamp); }
         public long toImplementationFormat(Nanoseconds nanoStamp) { return nanoStamp.getValue() / getNanoMultiplier(); }
@@ -590,7 +595,7 @@ public class S2 {
         boolean onStreamPacket(byte handle, long timestamp, int len, byte data[]);
         boolean onUnknownLineType(byte type, int len, byte data[]);
         boolean onError(int lineNum, String error);
-    };
+    }
 
     public class StoreStatus {
         // write buffer 'owned' by the writeLine function
@@ -2163,7 +2168,7 @@ public class S2 {
         void copyTimestampToDefinitions() {
             for (DataEntityCache c : cachedHandles)
                 if (c != null)
-                    c.lastAbsTimestamp = lastTimestamp;
+                    c.lastAbsTimestamp = new Nanoseconds(lastTimestamp);
         }
 
         class RecordingSoftware {
@@ -2212,7 +2217,6 @@ public class S2 {
         String name = "";
         String elementsInOrder = "";
         int bitSize = 0;
-
         Nanoseconds lastAbsTimestamp = new Nanoseconds(0);  // initialized to simplify and speed up processing
         TimestampDefinition timestampDefinition = null;
         SensorDefinition sensorDefinition = null;
