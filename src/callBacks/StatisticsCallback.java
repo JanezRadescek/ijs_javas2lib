@@ -38,6 +38,9 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 	Map<String,String> metaData = new HashMap<String, String>();
 	//special message counter based on type
 	Map<Character,Integer> special = new HashMap<Character,Integer>();
+	//save representation of structdefinition
+	Map<Byte,String> structDefinitions = new HashMap<Byte, String>();
+	
 	//version
 	int ver;
 	String extendedVer;
@@ -130,6 +133,14 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 		}
 		
 		out.println("Number of streams : " + packetCounters.size());
+		
+		//stream represantation
+		out.println("Stream represantation: ");
+		for(byte key:structDefinitions.keySet())
+		{
+			out.println("	stream " + key +" : " + structDefinitions.get(key));
+		}
+		
 		//packets
 		out.println("Packets per stream: ");
 		for(Byte key:packetCounters.keySet())
@@ -184,17 +195,24 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 		//streams
 		out.println("Number of streams : " + packetCounters.size());
 
+		//stream represantation
+		out.println("Stream represantation: ");
+		for(byte key:structDefinitions.keySet())
+		{
+			out.println("	stream " + key +" : " + structDefinitions.get(key));
+		}
+		
 		//packets
 		out.println("Packets per stream: ");
 		for(Byte key:packetCounters.keySet())
 		{
-			out.println("	" + key + " : " + packetCounters.get(key)[0]);
+			out.println("	stream " + key + " : " + packetCounters.get(key)[0]);
 		}
 		//samples
 		out.println("Samples per stream: ");
 		for(Byte key:packetCounters.keySet())
 		{
-			out.println("	" + key + " : " + packetCounters.get(key)[1]);
+			out.println("	stream " + key + " : " + packetCounters.get(key)[1]);
 		}
 		
 		if(counters[3]>0 || counters[4]>0)
@@ -214,6 +232,7 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 
 	public boolean onDefinition(byte handle, StructDefinition definition)
 	{
+		structDefinitions.put(handle, definition.elementsInOrder);
 		counters[1]++;
 		return true;
 	}
