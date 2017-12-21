@@ -1,7 +1,8 @@
 bin/
 commons-cli-1.4/
 UnitTests/
-src/donkey
+src/donkey/
+Original/
 
 *.class
 *.s2
