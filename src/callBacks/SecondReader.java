@@ -35,45 +35,46 @@ public class SecondReader implements ReadLineCallbackInterface {
 	S2 inFile;
 	S2 outFile;
 	StoreStatus storeS;
+	boolean mergeStreams;
 	
 	//First S2 file datas
 	public Version versionFirst;
-	//public Queue<Comment> commentFirstQ = new LinkedList<Comment>();
-	//public Queue<SpecialMessage> specialMessageFirstQ = new LinkedList<SpecialMessage>();
 	public Map<String, String> metadataFirstMap = new HashMap<String, String>();
 	public Map<Byte, SensorDefinition> sensorDefinitionFirst = new HashMap<Byte, SensorDefinition>();
 	public Map<Byte, StructDefinition> structDefinitionFirst = new HashMap<Byte, StructDefinition>(); 
 	public Map<Byte, TimestampDefinition> timestampDefinitionFirst = new HashMap<Byte, TimestampDefinition>();
-	//public Queue<Long> timestampFirstQ = new LinkedList<Long>();
-	//public Queue<StreamPacket> streamPacketFirstQ = new LinkedList<StreamPacket>();
 	public Queue<TimeData> timeDataQ = new LinkedList<TimeData>();
 	
 	
 	//Second S2 file datas
 	public Map<String, String> metadataSecondMap = new HashMap<String, String>();
 	public Map<Byte, TimestampDefinition> timestampDefinitionSecond = new HashMap<Byte, TimestampDefinition>();
+	public Map<Byte, StructDefinition> structDefinitionSecondQ = new HashMap<Byte, StructDefinition>();
 	public int unknownStreamPacketCounter = 0;
 	public int errorCounter = 0;
 	
 	//date releated 
 	HashSet<String> specialMeta = new HashSet<String>();
-	boolean weHaveTime = false;
+	boolean weHaveDate = false;
 	long nanoOffStrim1;
 	long nanoOffStrim2;
 	
+	//handles
 	public Set<Byte> usedHandles = new HashSet<Byte>();
 	public Map<Byte,Byte> HandlesSecondConverter = new HashMap<Byte,Byte>();
+	boolean checkStructDefinitions = true;
 	
 	//time
 	public long[] newLastTime = new long[32];
 	public long newLastTimestamp = 0;
 	boolean TimeStampWriten = true;
 	
-	public SecondReader(S2 file2, String outDir, String outName) 
+	public SecondReader(S2 file2, String outDir, String outName, boolean merge) 
 	{
 		this.inFile = file2;
 		this.outFile = new S2();
 		this.storeS = this.outFile.store(new File(outDir), outName);
+		this.mergeStreams = merge;
 		
 		specialMeta.add("date");
 		specialMeta.add("time");
@@ -139,8 +140,8 @@ public class SecondReader implements ReadLineCallbackInterface {
 			nanoOffStrim1 = diff;
 			nanoOffStrim2 = (long)0;
 		}
-		System.out.println(diff);
-		weHaveTime = true;
+		System.out.println("razlika med zacetnima datuma = " + diff);
+		weHaveDate = true;
 		
 	}
 
@@ -245,7 +246,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 		if(!specialMeta.contains(key))
 			storeS.addMetadata(key+" 2", value);
 		//date and time can only be one
-		if(!weHaveTime && metadataSecondMap.keySet().containsAll(specialMeta))
+		if(!weHaveDate && metadataSecondMap.keySet().containsAll(specialMeta))
 			parseSpecMeta();
 		return true;
 	}
@@ -277,40 +278,84 @@ public class SecondReader implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
+		if(mergeStreams)
+		{	
+			for(byte i:sensorDefinitionFirst.keySet())
+			{
+				SensorDefinition tempHAHA = sensorDefinitionFirst.get(i);
+				if(definition.equalValues(sensorDefinitionFirst.get(i)))
+				{
+					HandlesSecondConverter.put(handle, i);
+					break;
+				}
+			}
+		}
 		byte newHandle = convertHandle(handle);
-		storeS.addDefinition(newHandle, definition);
+		if(!mergeStreams)
+		{
+			storeS.addDefinition(newHandle, definition);
+		}
 		return true;
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
-		byte newHandle = convertHandle(handle);
-		corectDefinition(definition);
-		storeS.addDefinition(newHandle, definition);
+		if(mergeStreams)
+		{
+			structDefinitionSecondQ.put(handle, definition);
+			//TODO premakni na prvi podatkovni paket
+			
+		}else
+		{
+			byte newHandle = convertHandle(handle);
+			corectDefinition(definition);
+			storeS.addDefinition(newHandle, definition);
+		}
 		return true;
 	}
 	
 	/**
-	 * Takes elementsInOrder from old and replace them with new one.
-	 * @param old
+	 * Takes elementsInOrder from definition and replace them with new one.
+	 * @param definition
 	 */
-	private void corectDefinition(StructDefinition old)
+	private void corectDefinition(StructDefinition definition)
 	{
-		int le = old.elementsInOrder.length();
-		char[] elements = old.elementsInOrder.toCharArray();
+		int le = definition.elementsInOrder.length();
+		char[] elements = definition.elementsInOrder.toCharArray();
 		for(int i =0;i<le;i++)
 		{
 			byte temp = convertHandle((byte) elements[i]);
 			elements[i] = (char) temp;
 		}
-		old.elementsInOrder = new String(elements);
+		definition.elementsInOrder = new String(elements);
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, TimestampDefinition definition) {
+		if(mergeStreams)
+		{
+			if(timestampDefinitionFirst.containsKey(handle))
+			{
+				if(!definition.equalValues(timestampDefinitionFirst.get(handle)))
+				{
+					System.err.println("input files have diferent TimestampDefinition on handle " + handle 
+							+ ". Program terminated, output file corupted");
+					return false;
+				}
+				else
+				{
+					HandlesSecondConverter.put(handle, handle);
+				}
+			}else
+			{
+				storeS.addDefinition(handle, definition);
+			}
+		}
 		byte newHandle = convertHandle(handle);
-		
-		storeS.addDefinition(newHandle, definition);
+		if(!mergeStreams)
+		{
+			storeS.addDefinition(newHandle, definition);
+		}
 		timestampDefinitionSecond.put(newHandle, definition);
 		return true;
 	}
@@ -327,19 +372,53 @@ public class SecondReader implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
-		//TODO popravi cas skladno z OutS2
-		if(!weHaveTime)
+		if(!weHaveDate)
 		{
 			System.err.println("First StreamPacket before metadata with date and time.");
 			return false;
 		}
+		if(checkStructDefinitions)
+		{
+			//TODO neki ne dela popravi
+			checkStructDefinitions = false;
+			
+			for(byte key:structDefinitionSecondQ.keySet())
+			{
+				StructDefinition tempSD = structDefinitionSecondQ.get(key);
+				corectDefinition(tempSD);
+				if(structDefinitionFirst.containsKey(key))
+				{
+					if(!tempSD.equalValues(structDefinitionFirst.get(key)))
+					{
+						System.err.println("input files have diferent StructDefinition on handle " + key 
+								+ ". Program terminated, output file corupted");
+						System.out.println(tempSD.elementsInOrder + " " + tempSD.name);
+						System.out.println(structDefinitionFirst.get(key).elementsInOrder + " " + structDefinitionFirst.get(key).name);
+						return false;
+					}else
+					{
+						HandlesSecondConverter.put(key, key);
+					}
+				}else
+				{
+					storeS.addDefinition(key, tempSD);
+				}
+			}
+			
+		}
+		
+		if(timestamp == 1109781707617L)
+		{
+			int haha = 5;
+		}
+		
 		//if we have packets from first file before curent time we safe them first.
 		addOldTimeData(timestamp);
 		
-		//for time releate ting we use new handle
+		//for everything we use new handle
 		byte newHandle = HandlesSecondConverter.get(handle);
 		
-		//int maxBits = timestampDefinitionFirst.get(handle).byteSize*8;
+		
 		long newDiff = timestamp+nanoOffStrim2 - newLastTime[newHandle];
 		TimestampDefinition td = timestampDefinitionSecond.get(newHandle);
 		long writeReadyDiff = td.toImplementationFormat(
@@ -367,7 +446,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 	private void addOldTimeData(long timestamp)
 	{
 		while(!timeDataQ.isEmpty() && 
-				(timeDataQ.peek().timestamp+nanoOffStrim1 < timestamp+nanoOffStrim2))
+				(timeDataQ.peek().timestamp+nanoOffStrim1 <= timestamp+nanoOffStrim2))
 		{
 			TimeData temp = timeDataQ.poll();
 			

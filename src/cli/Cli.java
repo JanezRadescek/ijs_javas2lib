@@ -24,7 +24,9 @@ public class Cli {
 		options.addOption("s", false, "statistics. Output statistics. ");
 		options.addOption("c", false, "cut. cut/filter S2");
 		options.addOption("r", false, "read. izrezi del in izpisi na izhod v CSV in human readable form");
-		options.addOption("b", false, "build. sestavi 2 datoteki skupaj");
+		options.addOption("b", true, "build. Combines two S2 files in one S2 file. Has mendatory argument."
+				+ " If true streams with same hendels will be merged,"
+				+ " else strems from second file will get new one where needed");
 		options.addOption("help", false, "Help");
 		
 		Option time = new Option("t", "time. zacetni in koncni cas izseka, ki nas zanima -t zacetni koncni. Defaul all");
@@ -187,18 +189,21 @@ public class Cli {
 			{
 				file2 = new S2();
 				loadS2 = file2.load(inDirectory2, inFname2);
+				boolean merge = Boolean.parseBoolean(cmd.getOptionValue("b"));
+				build(file1, loadS1, file2, loadS2, izhodDir, izhodName, merge);
 				
-				build(file1, loadS1, file2, loadS2, izhodDir, izhodName);
 			}else if (cmd.hasOption("b") && (cmd.hasOption("v") || cmd.hasOption("o")))
 			{
 				System.err.println("If we want to use -b(concat 2 S2 file)"+
 						"we need option -v (second S2 file) and -o(output S2 file)");
 				return;
 			}
+			
 			if(cmd.hasOption("s"))
 			{
 				outStatistics(file1, loadS1, izhodDir, izhodName);
 			}
+			
 			if(cmd.hasOption("c"))
 			{
 				if(izhodDir != null && izhodName != null)
@@ -209,6 +214,7 @@ public class Cli {
 					System.err.println("Option c-cut need option o-out(directory and name of output file)");
 				}
 			}
+			
 			if(cmd.hasOption("r"))
 			{
 				outData(file1, loadS1, ab, handles, izhodDir, izhodName);
@@ -250,12 +256,13 @@ public class Cli {
 	 * @param loadS2 - load status of second file
 	 * @param izhodDir - directory of new S2 file
 	 * @param izhodName - name of new S2 file
+	 * @param merge 
 	 */
 	private static void build(S2 file1, LoadStatus loadS1, S2 file2, LoadStatus loadS2, String izhodDir,
-			String izhodName) {
+			String izhodName, boolean merge) {
 		//hermione prebere prvo datoteke in prebrane podatke zapiše v boba, slednji bo prebral še drugo datoteko in 
 		//podatke združil v nov S2
-		SecondReader bob = new SecondReader(file2, izhodDir, izhodName);
+		SecondReader bob = new SecondReader(file2, izhodDir, izhodName, merge);
 		FirtstReader gre = new FirtstReader(file1, bob);
 		
 		loadS1.addReadLineCallback(gre);
