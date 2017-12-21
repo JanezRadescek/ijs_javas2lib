@@ -37,8 +37,10 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	long b;
 	//for calculating offset in packetstreams
 	Map<Byte,Long> lastTime = new HashMap<Byte,Long>();
-	long lastTimestamp = (long)0;
+	long lastTimestamp = 0;
 	boolean lastTimestampWriten = true;
+	//for data without time, last time we got from anywhere.
+	long apriximateTime = 0;
 	
 
 	public Map<Byte, TimestampDefinition> timestampDefinitions = new HashMap<Byte, TimestampDefinition>();
@@ -85,7 +87,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	@Override
 	public boolean onComment(String comment) {
 		//C = 1, zastavica za komentarje je na prvem mestu v citizens
-		if ((wantedData & C) != 0)
+		if (a<=apriximateTime && (wantedData & C) != 0)
 		{
 			storeS.addTextMessage(comment);
 		}
@@ -102,7 +104,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onSpecialMessage(char who, char what, String message) {
-		if((wantedData & SM) != 0)
+		if(a<=apriximateTime && (wantedData & SM) != 0)
 		{
 			storeS.addSpecialTextMessage((byte)who, MessageType.convert((byte)what), message, -1);
 		}
@@ -138,7 +140,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
-		storeS.addDefinition(handle, definition);  
+		storeS.addDefinition(handle, definition);
 		return true;
 	}
 
@@ -146,18 +148,28 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	public boolean onDefinition(byte handle, TimestampDefinition definition) {
 		timestampDefinitions.put(handle, definition);
 		storeS.addDefinition(handle, definition);
+		lastTime.put(handle, (long) 0);
 		return true;
 	}
 
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
-		lastTimestamp = nanoSecondTimestamp;
-		lastTimestampWriten = false;
-		return nanoSecondTimestamp<=b;
+		if(nanoSecondTimestamp<=b)
+		{
+			lastTimestamp = nanoSecondTimestamp;
+			lastTimestampWriten = false;
+			apriximateTime = nanoSecondTimestamp;
+			return true;
+		}else
+		{
+			storeS.endFile(true);
+			return false;
+		}
 	}
 
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
+		apriximateTime = timestamp;
 		if(naIntervalu(timestamp) && ((this.handles & 1<<handle) != 0))
 		{
 			if (!lastTimestampWriten)
@@ -187,7 +199,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 		}
 		else
 		{
-			storeS.endFile();
+			storeS.endFile(true);
 			return false;
 		}
 	}

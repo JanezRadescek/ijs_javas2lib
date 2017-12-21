@@ -165,8 +165,6 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 			}
 			//writing
 			out.print(timestamp+"");
-			//TODO odkomentiraj
-			
 			for(Float tdata : sensorData){
 				out.print(tdata+"");
 			}
