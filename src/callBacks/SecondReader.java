@@ -282,7 +282,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 		{	
 			for(byte i:sensorDefinitionFirst.keySet())
 			{
-				SensorDefinition tempHAHA = sensorDefinitionFirst.get(i);
+				sensorDefinitionFirst.get(i);
 				if(definition.equalValues(sensorDefinitionFirst.get(i)))
 				{
 					HandlesSecondConverter.put(handle, i);
@@ -405,11 +405,6 @@ public class SecondReader implements ReadLineCallbackInterface {
 				}
 			}
 			
-		}
-		
-		if(timestamp == 1109781707617L)
-		{
-			int haha = 5;
 		}
 		
 		//if we have packets from first file before curent time we safe them first.

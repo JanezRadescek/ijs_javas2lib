@@ -11,3 +11,5 @@ commons-cli-1.4/
 
 *.txt
 src/cli/donkey.java
+
+UnitTests/
