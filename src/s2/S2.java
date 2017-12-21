@@ -173,6 +173,27 @@ public class S2 {
             k = 1;
             n = 0;
         }
+        
+        public boolean equalValues(Object o)
+        {
+        	boolean r = false;
+        	if(o instanceof SensorDefinition)
+        	{
+        		SensorDefinition sd = (SensorDefinition) o;
+        		r  = this.absoluteId == sd.absoluteId;
+        		r &= this.k == sd.k;
+        		r &= this.n == sd.n;
+        		r &= this.name.equals(sd.name);
+        		r &= this.resolution == sd.resolution;
+        		r &= this.samplingFrequency == sd.samplingFrequency;
+        		r &= this.scalarBitPadding == sd.scalarBitPadding;
+        		r &= this.unit.equals(sd.unit);
+        		r &= this.valueType == sd.valueType;
+        		r &= this.vectorBitPadding == sd.vectorBitPadding;
+        		r &= this.vectorSize == sd.vectorSize;
+        	}
+        	return r;
+        }
 
         public void setUnit(String unit, float k, float n) {
             this.unit = unit;
@@ -275,6 +296,19 @@ public class S2 {
             this.byteSize = byteSize;
             this.multiplier = multiplier;
         }
+        
+        public boolean equalValues(Object o)
+        {
+        	boolean r = false;
+        	if(o instanceof TimestampDefinition)
+        	{
+        		TimestampDefinition td = (TimestampDefinition) o;
+        		r  = this.absoluteId == td.absoluteId;
+        		r &= this.byteSize == td.byteSize;
+        		r &= this.multiplier == td.multiplier;
+        	}
+        	return r;
+        }
     }
 
     public static class StructDefinition {
@@ -284,6 +318,18 @@ public class S2 {
         public StructDefinition(String name, String elementsInOrder) {
             this.name = name;
             this.elementsInOrder = elementsInOrder;
+        }
+        
+        public boolean equalValues(Object o)
+        {
+        	boolean r = false;
+        	if(o instanceof StructDefinition)
+        	{
+        		StructDefinition sd = (StructDefinition) o;
+        		r = this.name.equals(sd.name);
+        		r &= this.elementsInOrder.equals(sd.elementsInOrder);
+        	}
+        	return r;
         }
     }
 
