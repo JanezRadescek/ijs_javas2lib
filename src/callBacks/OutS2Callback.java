@@ -1,13 +1,15 @@
-package s2;
+package callBacks;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import s2.S2;
 import s2.S2.MessageType;
 import s2.S2.Nanoseconds;
 import s2.S2.ReadLineCallbackInterface;
 import s2.S2.SensorDefinition;
+import s2.S2.StoreStatus;
 import s2.S2.StructDefinition;
 import s2.S2.TimestampDefinition;
 
@@ -29,7 +31,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 		
 	S2 inFile;
 	S2 outFile;
-	S2.StoreStatus storeS;
+	StoreStatus storeS;
 	
 	long a;
 	long b;

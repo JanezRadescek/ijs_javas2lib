@@ -1,5 +1,6 @@
-package s2;
+package callBacks;
 
+import s2.S2;
 import s2.S2.ReadLineCallbackInterface;
 import s2.S2.SensorDefinition;
 import s2.S2.StructDefinition;

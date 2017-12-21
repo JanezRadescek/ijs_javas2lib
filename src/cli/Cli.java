@@ -5,24 +5,24 @@ import java.io.PrintWriter;
 
 import org.apache.commons.cli.*;
 
-import s2.SecondReader;
-import s2.StatisticsCallback;
-import s2.FirtstReader;
-import s2.OutCSVCallback;
-import s2.OutS2Callback;
+import callBacks.FirtstReader;
+import callBacks.OutCSVCallback;
+import callBacks.OutS2Callback;
+import callBacks.SecondReader;
+import callBacks.StatisticsCallback;
 import s2.S2;
 import s2.S2.LoadStatus;
 
 /**bere , izrezuje, ... s2 file */
-public class RW {
+public class Cli {
 
 	public static void main(String[] args){
 		
 		//parsanje vhodnih podatkov haahah
 		Options options = new Options();
 		
-		options.addOption("s", false, "statistics. izpisi statistiko na izhod");
-		options.addOption("c", false, "cut. izrezi del in izpisi na izhod v S2");
+		options.addOption("s", false, "statistics. Output statistics. ");
+		options.addOption("c", false, "cut. cut/filter S2");
 		options.addOption("r", false, "read. izrezi del in izpisi na izhod v CSV in human readable form");
 		options.addOption("b", false, "build. sestavi 2 datoteki skupaj");
 		

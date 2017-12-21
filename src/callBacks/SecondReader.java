@@ -1,4 +1,4 @@
-package s2;
+package callBacks;
 
 import java.io.File;
 import java.time.Duration;
@@ -11,16 +11,18 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import s2.FirtstReader.Comment;
-import s2.FirtstReader.SpecialMessage;
-import s2.FirtstReader.StreamPacket;
-import s2.FirtstReader.TimeData;
-import s2.FirtstReader.TimeStamp;
-import s2.FirtstReader.Version;
+import callBacks.FirtstReader.Comment;
+import callBacks.FirtstReader.SpecialMessage;
+import callBacks.FirtstReader.StreamPacket;
+import callBacks.FirtstReader.TimeData;
+import callBacks.FirtstReader.TimeStamp;
+import callBacks.FirtstReader.Version;
+import s2.S2;
 import s2.S2.MessageType;
 import s2.S2.Nanoseconds;
 import s2.S2.ReadLineCallbackInterface;
 import s2.S2.SensorDefinition;
+import s2.S2.StoreStatus;
 import s2.S2.StructDefinition;
 import s2.S2.TimestampDefinition;
 
@@ -32,7 +34,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 	
 	S2 inFile;
 	S2 outFile;
-	S2.StoreStatus storeS;
+	StoreStatus storeS;
 	
 	//First S2 file datas
 	public Version versionFirst;
@@ -76,6 +78,8 @@ public class SecondReader implements ReadLineCallbackInterface {
 		specialMeta.add("date");
 		specialMeta.add("time");
 		specialMeta.add("timezone");
+		
+		System.err.println("writing to file " + outDir + outName);
 	}
 	
 
@@ -140,6 +144,11 @@ public class SecondReader implements ReadLineCallbackInterface {
 		
 	}
 
+	/**
+	 * If first file already contains given handle than it finds new one else return same one
+	 * @param handle - convert this
+	 * @return - converted handle
+	 */
 	public byte convertHandle(byte handle)
 	{
 		
@@ -281,6 +290,10 @@ public class SecondReader implements ReadLineCallbackInterface {
 		return true;
 	}
 	
+	/**
+	 * Takes elementsInOrder from old and replace them with new one.
+	 * @param old
+	 */
 	private void corectDefinition(StructDefinition old)
 	{
 		int le = old.elementsInOrder.length();

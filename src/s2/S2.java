@@ -150,7 +150,7 @@ public class S2 {
     public static class SensorDefinition {
         String name;
         String unit;
-        byte resolution;         // in bits per sample
+        public byte resolution;         // in bits per sample
         byte scalarBitPadding;   // if resolution is not multiple of 8, then bits might be padded to each sample to get to multiple of 8 bit size - or bits might be padded for other reasons. In any case the number of bits padded (in MSB area) is specified here.
         byte valueType;          // integer, float, ...
         byte absoluteId;         // absolute, relative, ...
@@ -263,7 +263,7 @@ public class S2 {
 
     public static class TimestampDefinition {
         byte absoluteId;
-        byte byteSize;
+        public byte byteSize;
         double multiplier;     // multiply timestamp with this value to get seconds
 
         public long getNanoMultiplier() { return (long)(multiplier*1e9 + 0.5); }
@@ -305,7 +305,7 @@ public class S2 {
             this.humanReadableName = humanReadableName;
         }
 
-        static MessageType convert(byte input) {
+        public static MessageType convert(byte input) {
             switch (input) {
                 case 'w': return mt_warning;
                 case 'e': return mt_error;
@@ -2215,11 +2215,11 @@ public class S2 {
     // all registered entity handles are cached (data entity = sensor datum or a structure comprising data entities)
     public class DataEntityCache {
         String name = "";
-        String elementsInOrder = "";
+        public String elementsInOrder = "";
         int bitSize = 0;
         Nanoseconds lastAbsTimestamp = new Nanoseconds(0);  // initialized to simplify and speed up processing
         TimestampDefinition timestampDefinition = null;
-        SensorDefinition sensorDefinition = null;
+        public SensorDefinition sensorDefinition = null;
         StructDefinition structDefinition = null;
 
         void copyStructDefinition(StructDefinition sd) {

@@ -1,10 +1,11 @@
-package s2;
+package callBacks;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
+import s2.S2;
 import s2.S2.ReadLineCallbackInterface;
 import s2.S2.SensorDefinition;
 import s2.S2.StructDefinition;
@@ -165,10 +166,10 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 			//writing
 			out.print(timestamp+"");
 			//TODO odkomentiraj
-			/*
+			
 			for(Float tdata : sensorData){
 				out.print(tdata+"");
-			}*/
+			}
 			out.println(handle);
 			
 			return true;
