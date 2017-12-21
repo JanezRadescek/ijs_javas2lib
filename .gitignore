@@ -1,15 +1,12 @@
-bin/
-
-
+bin/
 commons-cli-1.4/
+UnitTests/
+
+
 *.class
 *.s2
-
 *.csv
-
 *.zip
-
 *.txt
-src/cli/donkey.java
 
-UnitTests/
+
