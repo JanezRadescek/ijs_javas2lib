@@ -25,6 +25,7 @@ public class Cli {
 		options.addOption("c", false, "cut. cut/filter S2");
 		options.addOption("r", false, "read. izrezi del in izpisi na izhod v CSV in human readable form");
 		options.addOption("b", false, "build. sestavi 2 datoteki skupaj");
+		options.addOption("help", false, "Help");
 		
 		Option time = new Option("t", "time. zacetni in koncni cas izseka, ki nas zanima -t zacetni koncni. Defaul all");
 		time.setArgs(2);
@@ -55,21 +56,30 @@ public class Cli {
 		CommandLineParser parser = new DefaultParser();
 		
 		CommandLine cmd = null;
+		HelpFormatter formatter = new HelpFormatter();
+		String header = "Do something with S2 file";
+		String footer = "footer";
 		try {
 			cmd = parser.parse(options, args);
 		} catch (UnrecognizedOptionException e) {
             System.err.println("Unrecognized argument: "+e.getOption());
 
-            HelpFormatter formatter = new HelpFormatter();
+            
             PrintWriter pw = new PrintWriter(System.err);
             formatter.printUsage(pw, 80, args[0], options);
             pw.flush();
             return;
         } catch (ParseException e) {
-            {
-                System.err.println("Exception caught while parting input arguments:");
-                e.printStackTrace(System.err);
-            }
+            
+        	formatter.printHelp("Cli",header,options,footer);
+            System.err.println("Exception caught while parting input arguments:");
+            e.printStackTrace(System.err);
+            
+			return;
+		}
+		if(cmd.hasOption("help"))
+		{
+			formatter.printHelp("Cli",header,options,footer);
 			return;
 		}
 		
@@ -94,7 +104,7 @@ public class Cli {
 				inFname1 = cmd.getOptionValues("i")[1];
 			}catch(Error e)
 			{
-				System.out.println("vhodni argument potrebuje pot in ime");
+				System.out.println("Option i need directory and name of input S2 file");
 				return;
 			}
 			file1 = new S2();
@@ -117,7 +127,7 @@ public class Cli {
 				}
 				catch(Error r)
 				{
-					System.out.println("v potrebuje pot in ime");
+					System.out.println("Option v needs directory and name of second input file");
 					return;
 				}
 			}
@@ -130,12 +140,12 @@ public class Cli {
 				ab[0] = (long) aa;
 				ab[1] = (long) bb;
 				}catch(NumberFormatException e){
-					System.out.println("Argumenta pri t morata biti float");
+					System.out.println("Arguments at t must be float");
 					return;
 				}
 				if (ab[0]>=ab[1])
 				{
-					System.out.println("Zacetni cas mora biti mansi od koncnega");
+					System.out.println("Starting time must be lower than ending");
 					return;
 				}
 			}
@@ -147,7 +157,7 @@ public class Cli {
 					izhodName = cmd.getOptionValues("o")[1];
 				} catch(Error e)
 				{
-					System.out.println("o potrebuje pot in ime");
+					System.out.println("Option o needs file directory and name");
 					return;
 				}
 			}
@@ -157,7 +167,7 @@ public class Cli {
 				try{
 					handles = Long.parseLong(cmd.getOptionValue("h"));
 				}catch(NumberFormatException e){
-					System.out.println("argument od h mora biti stevilka");
+					System.out.println("argument of h must be a number");
 					return;
 				}
 			}
@@ -167,7 +177,7 @@ public class Cli {
 				try{
 					dataT = Byte.parseByte(cmd.getOptionValue("h"));
 				}catch(NumberFormatException e){
-					System.out.println("argument od d mora biti stevilka");
+					System.out.println("argument of d must be a number");
 					return;
 				}
 			}
@@ -219,14 +229,15 @@ public class Cli {
 			}
 			
 	        if (everythingOk){
-	        	System.out.println("Končano");
+	        	System.out.println("THE END");
 	        } else {
-	        	System.out.println("Napaka, najbrž napačna vhodna datoteka");
+	        	System.err.println("Error in procesing S2 file");
 	        }
 		}
 		else
 		{
-			System.out.println("ni vhodnih podatkov");
+			System.out.println("Input is mandatory");
+			formatter.printHelp("Cli",header,options,footer);
 		}
 	
 	}
