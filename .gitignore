@@ -13,3 +13,5 @@ Original/
 
 
 src/cli/CliDonkey.java
+*.aux
+*.gz
