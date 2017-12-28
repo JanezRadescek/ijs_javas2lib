@@ -16,7 +16,7 @@ public class CliTest {
 	String inFile;
 	String koren;
 
-	String inDir = "C:\\Users\\janez\\workspace\\S2_rw\\IO\\Original";
+	String inDir  = "C:\\Users\\janez\\workspace\\S2_rw\\Original";
 	String outDir = "C:\\Users\\janez\\workspace\\S2_rw\\UnitTests";
 
 
@@ -56,7 +56,7 @@ public class CliTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		assertEquals(isTwoEqual, true);
+		assertEquals(true, isTwoEqual);
 		
 	}
 
@@ -82,14 +82,10 @@ public class CliTest {
 		
 		File file1 = new File(outDir + "\\" + koren + "IzpisOriginala.csv");
 		File file2 = new File(outDir + "\\" + koren + "IzpisSestavljene.csv");
-		File file3 = new File(inDir + "\\" + "izhodSESTA.csv");
 		
 		try {
 			boolean isTwoEqual = FileUtils.contentEquals(file1, file2);
-			boolean notEqual = FileUtils.contentEquals(file1, file3);
-			
-			assertEquals(isTwoEqual, true);
-			assertEquals(notEqual, false);
+			assertEquals(true, isTwoEqual);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
