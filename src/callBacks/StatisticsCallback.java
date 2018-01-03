@@ -72,39 +72,7 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 	}
 	
 	
-	public boolean onComment(String comment)
-	{
-		counters[0]++;
-		return true;
-	}
-
-	public boolean onVersion(int versionInt, String extendedVersion)
-    {
-		ver = versionInt;
-		this.extendedVer = extendedVersion;
-    	return true;
-    }
-
-	public boolean onSpecialMessage(char who, char what, String message)
-	{
-		if (special.containsKey(what))
-		{
-			special.put(what, special.get(what) + 1);
-		}
-		else
-		{
-			special.put(what, 1);
-		}
-		return true;
-	}
-
-	public boolean onMetadata(String key, String value)
-	{
-		metaData.put(key, value);
-		return true;
-	}
-
-	public boolean onEndOfFile()
+	private void izpisi()
 	{
 		out.println("End of file");
 		out.println(ver + " " + extendedVer);
@@ -160,66 +128,53 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 			out.println("Errors : " + counters[4]);
 		}
 		
+		out.close();
+	}
+	
+	
+	public boolean onComment(String comment)
+	{
+		counters[0]++;
+		return true;
+	}
+
+	public boolean onVersion(int versionInt, String extendedVersion)
+    {
+		ver = versionInt;
+		this.extendedVer = extendedVersion;
+    	return true;
+    }
+
+	public boolean onSpecialMessage(char who, char what, String message)
+	{
+		if (special.containsKey(what))
+		{
+			special.put(what, special.get(what) + 1);
+		}
+		else
+		{
+			special.put(what, 1);
+		}
+		return true;
+	}
+
+	public boolean onMetadata(String key, String value)
+	{
+		metaData.put(key, value);
+		return true;
+	}
+
+	public boolean onEndOfFile()
+	{
+		izpisi();
+		
 		return false;
 	}
 
 	@Override
 	public boolean onUnmarkedEndOfFile()
 	{
-		out.println("Unmarked End of file");
-		out.println(ver + " " + extendedVer);
-		//time celling
-		float trajanje = ((float)Math.round(((endTime - startTime) / 1000000)))/1000;
-		float st = ((float)(startTime/1000000))/1000;
-		float et = ((float)(endTime/1000000))/1000;
-		out.println("Start Time at : " + st + "s");
-		out.println("End time at : " + et + "s");
-		out.println("Total time : " + trajanje + "s");
-		//metadata
-		out.println("metaData : ");
-		String[] potrebni = {"time", "date", "timezone"};
-		for(String key:potrebni)
-		{
-			out.println("	" + key + " : " + metaData.get(key));
-		}
-		//special M
-		out.println("Special messeges");
-		for(char key:special.keySet())
-		{
-			out.println("	" +  key + " : " + special.get(key));
-		}
-		
-		for(int podatek = 0;podatek<counters.length;podatek++){
-			out.println(countersNames[podatek] + " : " + counters[podatek]);
-		}
-		//streams
-		out.println("Number of streams : " + packetCounters.size());
-
-		//stream represantation
-		out.println("Stream represantation: ");
-		for(byte key:structDefinitions.keySet())
-		{
-			out.println("	stream " + key +" : " + structDefinitions.get(key));
-		}
-		
-		//packets
-		out.println("Packets per stream: ");
-		for(Byte key:packetCounters.keySet())
-		{
-			out.println("	stream " + key + " : " + packetCounters.get(key)[0]);
-		}
-		//samples
-		out.println("Samples per stream: ");
-		for(Byte key:packetCounters.keySet())
-		{
-			out.println("	stream " + key + " : " + packetCounters.get(key)[1]);
-		}
-		
-		if(counters[3]>0 || counters[4]>0)
-		{
-			out.println("Unknown Lines : "  + counters[3]);
-			out.println("Errors : " + counters[4]);
-		}
+		izpisi();
 		
 		return false;
 	}

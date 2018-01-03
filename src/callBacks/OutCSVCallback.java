@@ -93,11 +93,13 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 
 	@Override
 	public boolean onEndOfFile() {
+		out.close();
 		return false;
 	}
 
 	@Override
 	public boolean onUnmarkedEndOfFile() {
+		out.close();
 		return false;
 	}
 
@@ -129,7 +131,13 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
-		return nanoSecondTimestamp<b;
+		if(nanoSecondTimestamp<b)
+			return true;
+		else
+		{
+			out.close();
+			return false;
+		}
 	}
 
 	@Override
@@ -173,7 +181,14 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 			
 			return true;
 		}
-		return lastTime < b;
+		if(lastTime < b)
+			return true;
+		else
+		{
+			out.close();
+			return false;
+		}
+			
 	}
 
 	/**

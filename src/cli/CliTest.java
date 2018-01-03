@@ -16,7 +16,7 @@ public class CliTest {
 	String inFile;
 	String koren;
 
-	String inDir  = "C:\\Users\\janez\\workspace\\S2_rw\\IO";
+	String inDir  = "C:\\Users\\janez\\workspace\\S2_rw\\Original";
 	String outDir = "C:\\Users\\janez\\workspace\\S2_rw\\UnitTests";
 
 
@@ -28,8 +28,9 @@ public class CliTest {
 
 	@Parameterized.Parameters
 	public static String[] data() {
-		return new String[]{"test1.s2", "test2.s2", "test3.s2"};
+		//return new String[]{"test1.s2", "test2.s2", "test3.s2"};
 		//return new String[]{"test2.s2"};
+		return new String[]{"generated.s2"};
 
 	}
 
