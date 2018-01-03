@@ -16,7 +16,7 @@ public class CliTest {
 	String inFile;
 	String koren;
 
-	String inDir  = "C:\\Users\\janez\\workspace\\S2_rw\\Original";
+	String inDir  = "C:\\Users\\janez\\workspace\\S2_rw\\IO";
 	String outDir = "C:\\Users\\janez\\workspace\\S2_rw\\UnitTests";
 
 
@@ -29,6 +29,7 @@ public class CliTest {
 	@Parameterized.Parameters
 	public static String[] data() {
 		return new String[]{"test1.s2", "test2.s2", "test3.s2"};
+		//return new String[]{"test2.s2"};
 
 	}
 
@@ -43,7 +44,7 @@ public class CliTest {
 		//-c -i C:\Users\janez\workspace\S2_rw\IO test2.s2 -o C:\Users\janez\workspace\S2_rw\IO izrezek.s2
 		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-o", outDir, koren + "KopijaOriginala.s2"});
 
-		Cli.main(new String[]{"-r", "-i", inDir, koren + "KopijaOriginala.s2",
+		Cli.main(new String[]{"-r", "-i", outDir, koren + "KopijaOriginala.s2",
 				"-o", outDir, koren + "IzpisKopije.csv"});
 		
 		
@@ -69,14 +70,14 @@ public class CliTest {
 		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-t", "0", "100",
 				"-o", outDir, koren + "izrezek1.s2"});
 
-		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-t", "100", "2000",
+		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-t", "100", "20000000",
 				"-o", outDir, koren + "izrezek2.s2"});
 
-		Cli.main(new String[]{"-b", "true", "-i", inDir, koren + "izrezek1.s2",
-				"-v", inDir, koren + "izrezek2.s2",
+		Cli.main(new String[]{"-m", "true", "-i", outDir, koren + "izrezek1.s2",
+				"-v", outDir, koren + "izrezek2.s2",
 				"-o", outDir, koren + "Sestavljena.s2"});
 
-		Cli.main(new String[]{"-r", "-i", inDir, koren + "Sestavljena.s2",
+		Cli.main(new String[]{"-r", "-i", outDir, koren + "Sestavljena.s2",
 				"-o", outDir, koren + "IzpisSestavljene.csv"});
 
 		

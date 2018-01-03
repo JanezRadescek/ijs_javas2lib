@@ -1,3 +1,4 @@
+
 package callBacks;
 
 import java.io.FileNotFoundException;
@@ -44,7 +45,7 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 		this.b = ab[1];
 		this.theHandle = handle;
 		if ((handle & (--handle)) != 0)
-			System.err.println("Handle is not power off 2");
+			System.out.println("Handle is not power off 2");
 		this.out = System.out;
 		
 	}
@@ -64,7 +65,7 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 		this(s2, ab, handle);
 		try {
 			this.out = new CsvStream(new FileOutputStream(directory+"\\"+name));
-			System.err.println("writing data into file " + directory+"\\"+name);
+			System.out.println("writing data into file " + directory+"\\"+name);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -128,13 +129,13 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
-		return nanoSecondTimestamp<=b;
+		return nanoSecondTimestamp<b;
 	}
 
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
 		lastTime = timestamp;
-		if((a<= lastTime && lastTime <= b) && ((theHandle & (1<<handle)) != 0))
+		if((a<= lastTime && lastTime < b) && ((theHandle & (1<<handle)) != 0))
 		{
 			//converted data
 			ArrayList<Float> sensorData = new ArrayList<>();
@@ -172,7 +173,7 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 			
 			return true;
 		}
-		return lastTime <= b;
+		return lastTime < b;
 	}
 
 	/**

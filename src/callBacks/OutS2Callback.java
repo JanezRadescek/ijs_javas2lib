@@ -51,7 +51,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	/**
 	 * Creates callback for writing part of source S2 file to new S2 file
 	 * @param inFile - source S2 file
-	 * @param ab - interval of time
+	 * @param ab - interval of time [a,b)
 	 * @param handles - handles of streams we want to keep/let go.
 	 * @param dataT - data types we want to keep/let go
 	 * @param directory - directory of new S2 file
@@ -61,7 +61,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 		this.inFile = inFile;
 		this.outFile = new S2();
 		this.storeS = this.outFile.store(new File(directory), name);
-		System.err.println("writing to " + directory + " " + name);
+		System.out.println("writing to " + directory + " " + name);
 		
 		this.a = ab[0];
 		this.b = ab[1];
@@ -80,7 +80,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	 * @return timeStart<=timeCurent<=timeEnd
 	 */
 	private boolean naIntervalu(long timestamp) {
-		return ((a<=timestamp) && (timestamp <= b));
+		return ((a<=timestamp) && (timestamp < b));
 	}
 
 	
@@ -154,7 +154,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
-		if(nanoSecondTimestamp<=b)
+		if(nanoSecondTimestamp<b)
 		{
 			lastTimestamp = nanoSecondTimestamp;
 			lastTimestampWriten = false;
@@ -193,7 +193,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 			lastTime.replace(handle, timestamp);
 			return true;
 		}
-		if(timestamp<=b)
+		if(timestamp<b)
 		{
 			return true;
 		}
