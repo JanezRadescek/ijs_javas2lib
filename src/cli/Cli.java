@@ -24,10 +24,11 @@ public class Cli {
 		options.addOption("s", false, "statistics. Output statistics. ");
 		options.addOption("c", false, "cut. cut/filter S2");
 		options.addOption("r", false, "read. izrezi del in izpisi na izhod v CSV in human readable form");
-		options.addOption("b", true, "build. Combines two S2 files in one S2 file. Has mendatory argument."
+		options.addOption("m", true, "mearge. Combines two S2 files in one S2 file. Has mendatory argument."
 				+ " If true streams with same hendels will be merged,"
 				+ " else strems from second file will get new one where needed");
 		options.addOption("help", false, "Help");
+		//TODO add.option b build create s2 file from csv
 		
 		Option time = new Option("t", "time. zacetni in koncni cas izseka, ki nas zanima -t zacetni koncni. Defaul all");
 		time.setArgs(2);
@@ -185,16 +186,16 @@ public class Cli {
 			}
 			
 			//dodajanje callBackov
-			if(cmd.hasOption("b") && cmd.hasOption("v") && cmd.hasOption("o"))
+			if(cmd.hasOption("m") && cmd.hasOption("v") && cmd.hasOption("o"))
 			{
 				file2 = new S2();
 				loadS2 = file2.load(inDirectory2, inFname2);
-				boolean merge = Boolean.parseBoolean(cmd.getOptionValue("b"));
+				boolean merge = Boolean.parseBoolean(cmd.getOptionValue("m"));
 				build(file1, loadS1, file2, loadS2, izhodDir, izhodName, merge);
 				
-			}else if (cmd.hasOption("b") && (cmd.hasOption("v") || cmd.hasOption("o")))
+			}else if (cmd.hasOption("m") && (cmd.hasOption("v") || cmd.hasOption("o")))
 			{
-				System.err.println("If we want to use -b(concat 2 S2 file)"+
+				System.err.println("If we want to use -m(concat 2 S2 files)"+
 						"we need option -v (second S2 file) and -o(output S2 file)");
 				return;
 			}

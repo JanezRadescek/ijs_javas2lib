@@ -12,25 +12,97 @@ This article provides some information about Cli alongside with examples on how 
 
 \section{Info}
 
-Cli provide tools to some simple S2 file manipulation. In its curent form it can generate basic information about S2 file, generate CSV file from data in S2 file, select desirable part of S2 file and merge two S2 files into one s2 file.
+Cli provide tools to some simple S2 file manipulation. In its current form it can generate basic information about S2 file, generate CSV file from data in S2 file, select desirable part of S2 file and merge two S2 files into one s2 file.
+We control program with flags and their arguments.
 
-\subsection{information}
+\subsection{Flags}
+Whenever we run Cli there are two mandatory flags, task flag and input flag, followed by additional flags. Only one task flag can be used at the same time. Flags arguments must follow directly after flag and in correct order.
 
-\subsection{CSV}
 
-\subsection{Cut}
+\subsubsection{statistics}
+\textbf{-s} provides us with some statistics. It is task flag. It has no arguments. By default it will write result to standard output. If we provide \textbf{-o} it will write result to this file instead. We will get  version; total time of measurement; date, time and zone of the beginning; no.\ of special messages, comments,   definitions, time stamps, unknown, errors, streams,packets per stream,samples per stream.
 
-\subsection{Merge}
+\subsubsection{CSV}
+\textbf{-r} partially convert S2 file into CSV format(it is irreversible). It is task flag. Has no arguments. By default it will 
+\begin{itemize}
+\item  write result to standard output,
+\item use all handles,
+\item start from time 0 and end on Long.MAXVALUE = 9,223,372,036,854,775,807.
+\end{itemize}
+
+If we provide \textbf{-o} it will write result to this file instead.
+If we provide \textbf{-h} it will only use those handles.
+If we provide \textbf{-t} it will only use data from that time interval.
+
+We will get time stamps, data, and handles.
+
+\subsubsection{Cut}
+ \textbf{-c} cut original S2 file and save new one. It is task flag. Has no arguments. It is mandatory to accompany this flag with flag \textbf{-o}.
+By default it will 
+\begin{itemize}
+\item use all handles,
+\item start from time 0 and end on Long.MAXVALUE = 9,223,372,036,854,775,807.
+\item keep comments, special messages,...
+\end{itemize}
+
+If we provide \textbf{-h} it will only use those handles.
+If we provide \textbf{-t} it will only use data from that time interval.
+If we provide \textbf{-d} it will only use those additional data types.
+
+\subsubsection{Merge}
+ \textbf{-m} merges two original S2 files and save them into new one. It is task flag. It has mandatory argument. If argument is true it check if files correspond and if they do it will merge them on same handles. If false it will give second file new handles. It is mandatory to accompany this flag with flags \textbf{-v, -o}.
+
+
+\subsubsection{Input}
+
+ \textbf{-i} is primary input flag. It has 2 mandatory arguments. First argument is directory and second one is name of input S2 file.
+\textbf{-v} is additional input flag. It has 2 mandatory arguments.  First argument is directory and second one is name of input S2 file.
+
+\subsubsection{Output}
+\textbf{-o} is additional flag. It has 2 mandatory arguments. First argument is directory and second one is name of output file.
+When used with
+\begin{itemize}
+\item \textbf{-s} file, extension must be \textbf{.txt}
+\item \textbf{-r} file, extension must be \textbf{.csv}
+\item \textbf{-c} file, extension must be \textbf{.s2}
+\item \textbf{-m} file, extension must be \textbf{.s2}
+\end{itemize}
+
+\subsubsection{Handles}
+ \textbf{-h} is additional flag. It has mandatory argument. If argument in binary form have 1 on position i+1 then it will keep handle i. If argument is negative it will instead keep handle i if argument has 0 on posion i+1. Argument must be between $-2^{32}$ and $2^{32}$
+
+\subsubsection{Time interval}
+\textbf{-t} is addditionalt flag. It has 2 mandatory arguments. First argument must be smaller than secon one. The arguments represent time interval. 
+
+\subsubsection{Data types}
+\textbf{-d} is additional flag. It has mandatory argument. If we want comments, last digit must be 1. If we want special messages, second last digit must be 1. If we want meta data, third last digit must be 1.
 
 \section{Examples}
 
-In all examples to folow we will asume we have two \textbf{S2} files named \textbf{file1.s2} and \textbf{file2.s2} and both stored in \textbf{C:\textbackslash files}. 
+In all examples to follow we will assume we have two \textbf{S2} files named \textbf{file1.s2} and \textbf{file2.s2} and both stored in \textbf{C:\textbackslash files}. Examples are independent.
 
-\subsection{example 1}
-Lets say file1.s2 stores datas about EKG mesurments and we want to know how long did the measurment last.
 
-\subsection{example 2}
+\subsection{example}
+Lets say file1.s2 stores data about EKG measurement and we want to know how long did it last. For that we call Cli as follows. $$\textbf{Cli -s -i C:\textbackslash files file1.s2} $$
+ \textbf{-i} is always necessary and has 2 mandatory arguments file directory and name. After running the program we will get statistics of \textbf{file1.s2} on standard output.
 
+Now we want to know the actual data for the first 30s. We want them saved in file \textbf{output1.csv} for later use: $$ \textbf{Cli -r -i C:\textbackslash files file1.s2 -o C:\textbackslash files output1.csv -t 0 30} $$
+Flag \textbf{-r} tels the program we want actual data in CSV format, \textbf{-o} has 2 necessary arguments directory and name of file in which we will save our CSV data. There is also \textbf{-t} with 2 arguments which represent time interval.
+
+
+\subsection{example}
+Lets say the measurement on \textbf{file2.s2} is too long. We decide we only want part of data between 45s and 75s since the beginning. We call Cli as follows.
+$$ \textbf{Cli -c -i C:\textbackslash files file2.s2 -o C:\textbackslash files newFile2.s2 -t 45 75}$$
+Now we want data from \textbf{file1.s2} and \textbf{newFile2.s2} to be in the same S2 file named \textbf{merged.s2}
+$$ \textbf{Cli -m false -i C:\textbackslash files file1.s2 -v C:\textbackslash files newFile2.s2 -o C:\textbackslash files merged.s2}$$
+
+
+\subsection{example}
+Let say we have 2 mesurments saved on \textbf{file1.s2}. We are particularly interested in data between 25-30 seconds and 130-205 seconds in first mesurement. First we cut each part out and save it. 
+$$ \textbf{Cli -c -i C:\textbackslash files file1.s2 -o C:\textbackslash files cut1.s2 -t 25 30 -h 0}    $$
+$$ \textbf{Cli -c -i C:\textbackslash files file1.s2 -o C:\textbackslash files cut2.s2 -t 130 205 -h 0}$$
+Now we merge them back into new file. Since they have data from same initial measurement we want them to look like it.
+$$ \textbf{Cli -m true -i C:\textbackslash files cut1.s2 -v C:\textbackslash files cut2.s2 -o C:\textbackslash files merged.s2}$$
 
 
 \end{document}
