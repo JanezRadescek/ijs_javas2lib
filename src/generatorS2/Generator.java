@@ -13,7 +13,7 @@ public class Generator {
 
 	private static void generateS2() {
 		
-		String inDir  = "C:\\Users\\janez\\workspace\\S2_rw\\Original";
+		String inDir  = "."+File.separator+"S2_rw"+File.separator+"Original";
 		String fname = "generated";
 		S2 s2 = new S2();
 		S2.StoreStatus storeS = s2.store(new File(inDir), fname+".s2");
@@ -51,7 +51,7 @@ public class Generator {
 		storeS.addDefinition((byte)0, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)3, 0.000001));
 		
 		storeS.addDefinition((byte)1, new S2.StructDefinition("Testni struct 2", " ~"));
-		storeS.addDefinition((byte)1, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)0, 0));
+		storeS.addDefinition((byte)1, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)1, 1));
 		
 		storeS.addDefinition((byte)2, new S2.StructDefinition("Testni struct 3", "e ~e~ ~e")); //8
 		storeS.addDefinition((byte)2, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)127, 127));
