@@ -259,7 +259,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 			System.err.println(unknownStreamPacketCounter + " unknownStreamPackets" );
 			System.err.println(errorCounter + " errors");
 		}
-		
+		addOldTimeData(Long.MAX_VALUE);
 		storeS.endFile(true);
 		return false;
 	}
@@ -272,6 +272,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 			System.err.println(unknownStreamPacketCounter + " unknownStreamPackets" );
 			System.err.println(errorCounter + " errors");
 		}
+		addOldTimeData(Long.MAX_VALUE);
 		storeS.endFile(true);
 		return false;
 	}

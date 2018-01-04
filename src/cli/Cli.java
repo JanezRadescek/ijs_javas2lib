@@ -107,7 +107,7 @@ public class Cli {
 				inFname1 = cmd.getOptionValues("i")[1];
 			}catch(Error e)
 			{
-				System.out.println("Option i need directory and name of input S2 file");
+				System.out.println("Option i need directory and name of input S2 file. TERMINATE");
 				return;
 			}
 			file1 = new S2();
@@ -130,7 +130,7 @@ public class Cli {
 				}
 				catch(Error r)
 				{
-					System.out.println("Option v needs directory and name of second input file");
+					System.out.println("Option v needs directory and name of second input file. TERMINATE");
 					return;
 				}
 			}
@@ -146,9 +146,9 @@ public class Cli {
 					System.out.println("Arguments at t must be float");
 					return;
 				}
-				if (ab[0]>=ab[1])
+				if (ab[0]>ab[1])
 				{
-					System.out.println("Starting time must be lower than ending");
+					System.out.println("Starting time must be lower than ending. TERMINATE");
 					return;
 				}
 			}
@@ -160,7 +160,7 @@ public class Cli {
 					izhodName = cmd.getOptionValues("o")[1];
 				} catch(Error e)
 				{
-					System.out.println("Option o needs file directory and name");
+					System.out.println("Option o needs file directory and name. TERMINATE");
 					return;
 				}
 			}
@@ -170,7 +170,7 @@ public class Cli {
 				try{
 					handles = Long.parseLong(cmd.getOptionValue("h"));
 				}catch(NumberFormatException e){
-					System.out.println("argument of h must be a number");
+					System.out.println("argument of h must be a number. TERMINATE");
 					return;
 				}
 			}
@@ -180,7 +180,7 @@ public class Cli {
 				try{
 					dataT = Byte.parseByte(cmd.getOptionValue("h"));
 				}catch(NumberFormatException e){
-					System.out.println("argument of d must be a number");
+					System.out.println("argument of d must be a number. TERMINATE");
 					return;
 				}
 			}
@@ -196,7 +196,7 @@ public class Cli {
 			}else if (cmd.hasOption("m") && (cmd.hasOption("v") || cmd.hasOption("o")))
 			{
 				System.err.println("If we want to use -m(concat 2 S2 files)"+
-						"we need option -v (second S2 file) and -o(output S2 file)");
+						"we need option -v (second S2 file) and -o(output S2 file). TERMINATE");
 				return;
 			}
 			
@@ -212,7 +212,7 @@ public class Cli {
 					outS2(file1, loadS1, ab, handles, dataT, izhodDir, izhodName);
 				}else
 				{
-					System.err.println("Option c-cut need option o-out(directory and name of output file)");
+					System.err.println("Option c-cut need option o-out(directory and name of output file). TERMINATE");
 				}
 			}
 			
@@ -243,7 +243,7 @@ public class Cli {
 		}
 		else
 		{
-			System.out.println("Input is mandatory");
+			System.out.println("Input is mandatory. TERMINATE");
 			formatter.printHelp("Cli",header,options,footer);
 		}
 	
@@ -282,17 +282,7 @@ public class Cli {
 	 */
 	private static void outData(S2 file, LoadStatus ls, long []ab, long handles, String izhodDir, String izhodName) {
 		if(izhodDir != null && izhodName != null){
-			/*
-			String kon = izhodName.split("\\.")[1];
-			if(kon.equals("s2"))
-			{
-				OutS2Callback callback = new OutS2Callback(file, ab, handles, dataT, izhodDir, izhodName);
-				ls.addReadLineCallback(callback);
-			}else
-			{
-				OutCSVCallback callback = new OutCSVCallback(file, ab, handles, izhodDir, izhodName);
-				ls.addReadLineCallback(callback);
-			}*/
+			
 			OutCSVCallback callback = new OutCSVCallback(file, ab, handles, izhodDir, izhodName);
 			ls.addReadLineCallback(callback);
 			
