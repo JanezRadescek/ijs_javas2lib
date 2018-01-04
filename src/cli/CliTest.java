@@ -94,13 +94,13 @@ public class CliTest {
 		File file1 = new File(outDir + "\\" + File.separator + "generated.csv");
 		File file2 = new File(outDir + "\\" + "IzpisSestavljene.csv");
 		
+		
 		try {
 			boolean isTwoEqual = FileUtils.contentEquals(file1, file2);
 			assertEquals(true, isTwoEqual);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 
 	}
 
