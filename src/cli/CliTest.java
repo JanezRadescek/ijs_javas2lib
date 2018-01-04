@@ -15,7 +15,7 @@ import java.io.IOException;
 public class CliTest {
 	String inFile;
 
-	String inDir  = "." + File.separator + "Original";
+	String inDir  = "." + File.separator + "Generated";
 	String outDir = "." + File.separator + "UnitTests";
 
 
@@ -31,17 +31,38 @@ public class CliTest {
 		return new String[]{"generated.s2"};
 
 	}
+	
+	@Test
+	public void StatisticsTest()
+	{
+		Cli.main(new String[]{"-s", "-i", inDir, inFile, "-o", outDir, "StatistikaOriginala.txt"});
+		
+		File corect = new File(inDir + File.separator + "generated.txt");
+		File testing = new File(outDir + File.separator + "StatistikaOriginala.txt");
+		
+		try {
+			boolean isTwoEqual = FileUtils.contentEquals(corect, testing);
+			assertEquals(true, isTwoEqual);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+
+	}
+	
+	
 
 	@Test
 	public void OutCSVTest()
 	{
 		Cli.main(new String[]{"-r", "-i", inDir, inFile, "-o", outDir, "IzpisOriginala.csv"});
 		
-		File file1 = new File(inDir + File.separator + "generated.csv");
-		File file2 = new File(outDir + File.separator + "IzpisOriginala.csv");
+		File corect = new File(inDir + File.separator + "generated.csv");
+		File testing = new File(outDir + File.separator + "IzpisOriginala.csv");
 		boolean isTwoEqual = false;
 		try {
-			isTwoEqual = FileUtils.contentEquals(file1, file2);
+			isTwoEqual = FileUtils.contentEquals(corect, testing);
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -60,11 +81,11 @@ public class CliTest {
 				"-o", outDir, "IzpisKopije.csv"});
 		
 		//compare copy.csv with corect.csv
-		File file1 = new File(inDir + File.separator + "generated.csv");
-		File file2 = new File(outDir + File.separator + "IzpisKopije.csv");
+		File corect = new File(inDir + File.separator + "generated.csv");
+		File testing = new File(outDir + File.separator + "IzpisKopije.csv");
 		boolean isTwoEqual = false;
 		try {
-			isTwoEqual = FileUtils.contentEquals(file1, file2);
+			isTwoEqual = FileUtils.contentEquals(corect, testing);
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -91,12 +112,12 @@ public class CliTest {
 				"-o", outDir, "IzpisSestavljene.csv"});
 
 		
-		File file1 = new File(outDir + "\\" + File.separator + "generated.csv");
-		File file2 = new File(outDir + "\\" + "IzpisSestavljene.csv");
+		File corect = new File(inDir + File.separator + "generated.csv");
+		File testing = new File(outDir + File.separator + "IzpisSestavljene.csv");
 		
 		
 		try {
-			boolean isTwoEqual = FileUtils.contentEquals(file1, file2);
+			boolean isTwoEqual = FileUtils.contentEquals(corect, testing);
 			assertEquals(true, isTwoEqual);
 		} catch (IOException e) {
 			e.printStackTrace();

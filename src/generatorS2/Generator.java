@@ -13,7 +13,7 @@ public class Generator {
 
 	private static void generateS2() {
 		
-		String outDir  = "."+File.separator+"Original";
+		String outDir  = "."+File.separator+"Generated";
 		String fname = "generated";
 		S2 s2 = new S2();
 		S2.StoreStatus storeS = s2.store(new File(outDir), fname+".s2");
@@ -21,7 +21,7 @@ public class Generator {
 		long a =  (long) 5;
 
 		storeS.setVersion(1, "PCARD").addMetadata("date", "2018-01-01").addMetadata("time", "10:30:10.555")
-		.addMetadata("zone", "+01:00");
+		.addMetadata("timezone", "+01:00");
 		
 		storeS.addTextMessage("Test message");
 		
