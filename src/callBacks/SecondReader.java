@@ -35,7 +35,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 	S2 inFile;
 	S2 outFile;
 	StoreStatus storeS;
-	boolean mergeStreams;
+	boolean mergeHandles;
 	
 	//First S2 file datas
 	public Version versionFirst;
@@ -69,12 +69,12 @@ public class SecondReader implements ReadLineCallbackInterface {
 	public long newLastTimestamp = 0;
 	boolean TimeStampWriten = true;
 	
-	public SecondReader(S2 file2, String outDir, String outName, boolean merge) 
+	public SecondReader(S2 file2, String outDir, String outName, boolean mergeHandles) 
 	{
 		this.inFile = file2;
 		this.outFile = new S2();
 		this.storeS = this.outFile.store(new File(outDir), outName);
-		this.mergeStreams = merge;
+		this.mergeHandles = mergeHandles;
 		
 		specialMeta.add("date");
 		specialMeta.add("time");
@@ -278,7 +278,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
-		if(mergeStreams)
+		if(mergeHandles)
 		{	
 			for(byte i:sensorDefinitionFirst.keySet())
 			{
@@ -291,7 +291,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 			}
 		}
 		byte newHandle = convertHandle(handle);
-		if(!mergeStreams)
+		if(!mergeHandles)
 		{
 			storeS.addDefinition(newHandle, definition);
 		}
@@ -300,7 +300,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
-		if(mergeStreams)
+		if(mergeHandles)
 		{
 			structDefinitionSecondQ.put(handle, definition);
 			//TODO premakni na prvi podatkovni paket
@@ -332,7 +332,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onDefinition(byte handle, TimestampDefinition definition) {
-		if(mergeStreams)
+		if(mergeHandles)
 		{
 			if(timestampDefinitionFirst.containsKey(handle))
 			{
@@ -352,7 +352,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 			}
 		}
 		byte newHandle = convertHandle(handle);
-		if(!mergeStreams)
+		if(!mergeHandles)
 		{
 			storeS.addDefinition(newHandle, definition);
 		}

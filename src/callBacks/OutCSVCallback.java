@@ -199,6 +199,11 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 	 * @return k*temp+n rounded based on k
 	 */
 	private float calculateANDround(int temp, float k, float n) {
+		if(k == 0)
+		{
+			System.err.println("There is k = 0 in file");
+			return 0;
+		}
 		float r = k*temp + n;
 		int dec = 0;
 		while(k<1)

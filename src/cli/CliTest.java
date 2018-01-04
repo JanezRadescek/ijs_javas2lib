@@ -16,8 +16,8 @@ public class CliTest {
 	String inFile;
 	String koren;
 
-	String inDir  = "C:\\Users\\janez\\workspace\\S2_rw\\Original";
-	String outDir = "C:\\Users\\janez\\workspace\\S2_rw\\UnitTests";
+	String inDir  = "." + File.separator + "Original";
+	String outDir = "." + File.separator + "UnitTests";
 
 
 	public CliTest(String inFile)
@@ -34,23 +34,36 @@ public class CliTest {
 
 	}
 
+	@Test
+	public void OutCSVTest()
+	{
+		Cli.main(new String[]{"-r", "-i", inDir, inFile, "-o", outDir, koren + "IzpisOriginala.csv"});
+		
+		File file1 = new File(inDir + File.separator + "generated.csv");
+		File file2 = new File(outDir + File.separator + koren + "IzpisOriginala.csv");
+		boolean isTwoEqual = false;
+		try {
+			isTwoEqual = FileUtils.contentEquals(file1, file2);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		assertEquals(true, isTwoEqual);
+	}
 
 	@Test
 	public void outS2Test()
 	{
-		//-r -i C:\Users\janez\workspace\S2_rw\IO test1.s2 -h 1 -t 16 19 -o C:\Users\janez\workspace\S2_rw\IO izhod1.csv
-
-		Cli.main(new String[]{"-r", "-i", inDir, inFile, "-o", outDir, koren + "IzpisOriginala.csv"});
-
-		//-c -i C:\Users\janez\workspace\S2_rw\IO test2.s2 -o C:\Users\janez\workspace\S2_rw\IO izrezek.s2
+		//do copy of original
 		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-o", outDir, koren + "KopijaOriginala.s2"});
 
+		//read copy
 		Cli.main(new String[]{"-r", "-i", outDir, koren + "KopijaOriginala.s2",
 				"-o", outDir, koren + "IzpisKopije.csv"});
 		
-		
-		File file1 = new File(outDir + "\\" + koren + "IzpisOriginala.csv");
-		File file2 = new File(outDir + "\\" + koren + "IzpisKopije.csv");
+		//compare copy.csv with corect.csv
+		File file1 = new File(inDir + File.separator + "generated.csv");
+		File file2 = new File(outDir + File.separator + koren + "IzpisKopije.csv");
 		boolean isTwoEqual = false;
 		try {
 			isTwoEqual = FileUtils.contentEquals(file1, file2);
@@ -65,9 +78,7 @@ public class CliTest {
 	@Test
 	public void buildTest()
 	{
-		
-		Cli.main(new String[]{"-r", "-i", inDir, inFile, "-o", outDir, koren + "IzpisOriginala.csv"});
-
+		//cut S2 at 
 		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-t", "0", "100",
 				"-o", outDir, koren + "izrezek1.s2"});
 
@@ -82,7 +93,7 @@ public class CliTest {
 				"-o", outDir, koren + "IzpisSestavljene.csv"});
 
 		
-		File file1 = new File(outDir + "\\" + koren + "IzpisOriginala.csv");
+		File file1 = new File(outDir + "\\" + File.separator + "generated.csv");
 		File file2 = new File(outDir + "\\" + koren + "IzpisSestavljene.csv");
 		
 		try {

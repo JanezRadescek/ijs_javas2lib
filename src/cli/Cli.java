@@ -138,10 +138,10 @@ public class Cli {
 			if(cmd.hasOption("t"))
 			{
 				try{
-				float aa = Float.parseFloat(cmd.getOptionValues("t")[0])* 1000000000;
-				float bb = Float.parseFloat(cmd.getOptionValues("t")[1])* 1000000000;
-				ab[0] = (long) aa;
-				ab[1] = (long) bb;
+				double aa = Double.parseDouble(cmd.getOptionValues("t")[0])* 1E9;
+				double bb = Double.parseDouble(cmd.getOptionValues("t")[1])* 1E9;
+				ab[0] = (long)aa;
+				ab[1] = (long)bb;
 				}catch(NumberFormatException e){
 					System.out.println("Arguments at t must be float");
 					return;
@@ -190,8 +190,8 @@ public class Cli {
 			{
 				file2 = new S2();
 				loadS2 = file2.load(inDirectory2, inFname2);
-				boolean merge = Boolean.parseBoolean(cmd.getOptionValue("m"));
-				build(file1, loadS1, file2, loadS2, izhodDir, izhodName, merge);
+				boolean mergeHandles = Boolean.parseBoolean(cmd.getOptionValue("m"));
+				merge(file1, loadS1, file2, loadS2, izhodDir, izhodName, mergeHandles);
 				
 			}else if (cmd.hasOption("m") && (cmd.hasOption("v") || cmd.hasOption("o")))
 			{
@@ -257,13 +257,13 @@ public class Cli {
 	 * @param loadS2 - load status of second file
 	 * @param izhodDir - directory of new S2 file
 	 * @param izhodName - name of new S2 file
-	 * @param merge 
+	 * @param mergeHandles 
 	 */
-	private static void build(S2 file1, LoadStatus loadS1, S2 file2, LoadStatus loadS2, String izhodDir,
-			String izhodName, boolean merge) {
+	private static void merge(S2 file1, LoadStatus loadS1, S2 file2, LoadStatus loadS2, String izhodDir,
+			String izhodName, boolean mergeHandles) {
 		//hermione prebere prvo datoteke in prebrane podatke zapiše v boba, slednji bo prebral še drugo datoteko in 
 		//podatke združil v nov S2
-		SecondReader bob = new SecondReader(file2, izhodDir, izhodName, merge);
+		SecondReader bob = new SecondReader(file2, izhodDir, izhodName, mergeHandles);
 		FirtstReader gre = new FirtstReader(file1, bob);
 		
 		loadS1.addReadLineCallback(gre);
