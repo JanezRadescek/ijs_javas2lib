@@ -14,7 +14,6 @@ import java.io.IOException;
 @RunWith(Parameterized.class)
 public class CliTest {
 	String inFile;
-	String koren;
 
 	String inDir  = "." + File.separator + "Original";
 	String outDir = "." + File.separator + "UnitTests";
@@ -22,8 +21,7 @@ public class CliTest {
 
 	public CliTest(String inFile)
 	{
-		this.inFile = inFile;
-		this.koren = inFile.split("\\.")[0]; 
+		this.inFile = inFile; 
 	}
 
 	@Parameterized.Parameters
@@ -37,10 +35,10 @@ public class CliTest {
 	@Test
 	public void OutCSVTest()
 	{
-		Cli.main(new String[]{"-r", "-i", inDir, inFile, "-o", outDir, koren + "IzpisOriginala.csv"});
+		Cli.main(new String[]{"-r", "-i", inDir, inFile, "-o", outDir, "IzpisOriginala.csv"});
 		
 		File file1 = new File(inDir + File.separator + "generated.csv");
-		File file2 = new File(outDir + File.separator + koren + "IzpisOriginala.csv");
+		File file2 = new File(outDir + File.separator + "IzpisOriginala.csv");
 		boolean isTwoEqual = false;
 		try {
 			isTwoEqual = FileUtils.contentEquals(file1, file2);
@@ -55,15 +53,15 @@ public class CliTest {
 	public void outS2Test()
 	{
 		//do copy of original
-		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-o", outDir, koren + "KopijaOriginala.s2"});
+		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-o", outDir, "KopijaOriginala.s2"});
 
 		//read copy
-		Cli.main(new String[]{"-r", "-i", outDir, koren + "KopijaOriginala.s2",
-				"-o", outDir, koren + "IzpisKopije.csv"});
+		Cli.main(new String[]{"-r", "-i", outDir, "KopijaOriginala.s2",
+				"-o", outDir, "IzpisKopije.csv"});
 		
 		//compare copy.csv with corect.csv
 		File file1 = new File(inDir + File.separator + "generated.csv");
-		File file2 = new File(outDir + File.separator + koren + "IzpisKopije.csv");
+		File file2 = new File(outDir + File.separator + "IzpisKopije.csv");
 		boolean isTwoEqual = false;
 		try {
 			isTwoEqual = FileUtils.contentEquals(file1, file2);
@@ -79,22 +77,22 @@ public class CliTest {
 	public void buildTest()
 	{
 		//cut S2 at 
-		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-t", "0", "100",
-				"-o", outDir, koren + "izrezek1.s2"});
+		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-t", "0", Double.toString(17*1E-9),
+				"-o", outDir, "izrezek1.s2"});
 
-		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-t", "100", "20000000",
-				"-o", outDir, koren + "izrezek2.s2"});
+		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-t", Double.toString(17*1E-9), "1",
+				"-o", outDir, "izrezek2.s2"});
 
-		Cli.main(new String[]{"-m", "true", "-i", outDir, koren + "izrezek1.s2",
-				"-v", outDir, koren + "izrezek2.s2",
-				"-o", outDir, koren + "Sestavljena.s2"});
+		Cli.main(new String[]{"-m", "true", "-i", outDir, "izrezek1.s2",
+				"-v", outDir, "izrezek2.s2",
+				"-o", outDir, "Sestavljena.s2"});
 
-		Cli.main(new String[]{"-r", "-i", outDir, koren + "Sestavljena.s2",
-				"-o", outDir, koren + "IzpisSestavljene.csv"});
+		Cli.main(new String[]{"-r", "-i", outDir, "Sestavljena.s2",
+				"-o", outDir, "IzpisSestavljene.csv"});
 
 		
 		File file1 = new File(outDir + "\\" + File.separator + "generated.csv");
-		File file2 = new File(outDir + "\\" + koren + "IzpisSestavljene.csv");
+		File file2 = new File(outDir + "\\" + "IzpisSestavljene.csv");
 		
 		try {
 			boolean isTwoEqual = FileUtils.contentEquals(file1, file2);

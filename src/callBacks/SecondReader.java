@@ -80,7 +80,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 		specialMeta.add("time");
 		specialMeta.add("timezone");
 		
-		System.out.println("writing to file " + outDir + outName);
+		System.out.println("writing to file " + outDir +File.separator+ outName);
 	}
 	
 

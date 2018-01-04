@@ -54,7 +54,7 @@ public class Generator {
 		storeS.addDefinition((byte)0, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)3, 1E-9));
 		
 		storeS.addDefinition((byte)1, new S2.StructDefinition("Testni struct 2", " ~")); //10*byte
-		storeS.addDefinition((byte)1, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)3, 1E-6));
+		storeS.addDefinition((byte)1, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)3, 1E-9));
 		
 		storeS.addDefinition((byte)2, new S2.StructDefinition("Testni struct 3", "e ~")); //11*byte
 		storeS.addDefinition((byte)2, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)3, 1E-9));
@@ -72,8 +72,9 @@ public class Generator {
 		storeS.addSensorPacket((byte) 0, 1, new byte[]{1,2});
 		storeS.addSensorPacket((byte) 1, 1, new byte[]{6,3,6,3,6,3,6,3,6,3});
 		storeS.addSensorPacket((byte) 2, 1, new byte[]{9,8,7,6,5,4,3,2,1,0,-1});
-		storeS.addSensorPacket((byte) 2, 3, new byte[]{9,8,7,6,5,4,3,2,1,0,-1});
 		storeS.addSensorPacket((byte) 0, 1, new byte[]{1,2});
+		storeS.addSensorPacket((byte) 2, 3, new byte[]{9,8,7,6,5,4,3,2,1,0,-1});
+		
 		
 		storeS.endFile(true);
 		

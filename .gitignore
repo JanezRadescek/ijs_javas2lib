@@ -1,17 +1,24 @@
+#DISCARD
+#maps
 bin/
 commons-cli-1.4/
 commons-io-2.6/
 UnitTests/
 src/donkey/
-Original/
 
+
+#extensions
 *.class
 *.s2
 *.csv
 *.zip
 *.txt
-
-
-src/cli/CliDonkey.java
 *.aux
 *.gz
+
+#specifi files
+src/cli/CliDonkey.java
+
+#INCLUDE
+!Original/generated.s2
+!Original/generated.csv

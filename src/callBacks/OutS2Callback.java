@@ -61,7 +61,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 		this.inFile = inFile;
 		this.outFile = new S2();
 		this.storeS = this.outFile.store(new File(directory), name);
-		System.out.println("writing to " + directory + " " + name);
+		System.out.println("writing to " + directory + File.separator + name);
 		
 		this.a = ab[0];
 		this.b = ab[1];

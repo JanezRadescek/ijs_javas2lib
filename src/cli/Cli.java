@@ -225,18 +225,18 @@ public class Cli {
 
 			
 			//preberemo prvi S2 in obdelamo
-			System.out.println("using file "+file1.getFilePath()+"\n");
+			System.out.println("using file "+file1.getFilePath());
 			boolean everythingOk = loadS1.readAndProcessFile();
 			
 			//samo opcija b potrebuje drugi file
 			if (file2 != null && loadS2 != null)
 			{
-				System.out.println("using file "+file2.getFilePath()+"\n");
+				System.out.println("using file "+file2.getFilePath());
 				everythingOk &= loadS2.readAndProcessFile();
 			}
 			
 	        if (everythingOk){
-	        	System.out.println("THE END");
+	        	System.out.println("THE END" + "\n");
 	        } else {
 	        	System.err.println("Error in procesing S2 file");
 	        }

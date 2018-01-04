@@ -45,7 +45,7 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 		this.b = ab[1];
 		this.theHandle = handle;
 		if ((handle & (--handle)) != 0)
-			System.out.println("Handle is not power off 2");
+			//System.out.println("Handle is not power off 2");
 		this.out = System.out;
 		
 	}
