@@ -3,6 +3,7 @@ package cli;
 import org.apache.commons.io.FileUtils;
 import static org.junit.Assert.*;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.junit.runners.Parameterized;
@@ -12,26 +13,44 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 
 @RunWith(Parameterized.class)
 public class CliTest {
 	String inFile;
 
-	String inDir  = "." + File.separator + "Generated";
-	String outDir = "." + File.separator + "UnitTests";
+	// static variables so that they can be initialized in BeforeClass - before tests are executed
+	static String inDir  = "." + File.separator + "Generated";
+	static String outDir = "." + File.separator + "UnitTests";
 
 
-	public CliTest(String inFile)
-	{
+	public CliTest(String inFile) {
 		this.inFile = inFile; 
 	}
 
 	@Parameterized.Parameters
-	public static String[] data() {
+	//public static String[] data() {
+    public static Collection<Object[]> data() {
 		//return new String[]{"test1.s2", "test2.s2", "test3.s2"};
 		//return new String[]{"test2.s2"};
-		return new String[]{"generated.s2"};
 
+        return Arrays.asList(new Object[][]{{"generated.s2"}});
+	}
+
+	@BeforeClass
+	public static void initialize() {
+		// create the output directory for the files generated in these tests
+		new File(outDir).mkdir();
+		// note that 'inDir' should already be present or everything will fail
+		// TODO: dodaj Generated direktorij in vse fajle v njem na git in preveri če obstajajo na tem mestu ali pa v svojem testu (kot npr v spodnji funkciji)
+        // TODO: podobno kot beforeclass dodaj še after class in počisti cel outDir za sabo; ali pa morda čisti fajle sproti
+	}
+
+	@Test
+	public void testInitialization() {
+		File directory = new File(outDir);
+		assertTrue(directory.exists());
 	}
 
 	@Test
@@ -40,11 +59,11 @@ public class CliTest {
 
 		Cli.main(new String[]{"-s", "-i", inDir, inFile, "-o", outDir, "StatistikaOriginala.txt"});
 
-		File corect = new File(inDir + File.separator + "generated.txt");
+		File correct = new File(inDir + File.separator + "generated.txt");
 		File testing = new File(outDir + File.separator + "StatistikaOriginala.txt");
 
 		try {
-			boolean isTwoEqual = FileUtils.contentEquals(corect, testing);
+			boolean isTwoEqual = FileUtils.contentEquals(correct, testing);
 			assertEquals(true, isTwoEqual);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -126,8 +145,8 @@ public class CliTest {
 		int lines = 0;
 		try {
 			BufferedReader bf = new BufferedReader(new FileReader(outDir + File.separator + nameCSV));
-			String line;
-			while((line = bf.readLine()) != null)
+
+			while(bf.readLine() != null)
 			{
 				lines++;
 			}
@@ -143,13 +162,13 @@ public class CliTest {
 	public void buildTest()
 	{
 		
-		devideANDconcor(0L); //additive identity of field
-		devideANDconcor(2L); //before first data
-		devideANDconcor(5L); //on first data
-		devideANDconcor(10L);//betwen data
-		devideANDconcor(17L);//on data
-		devideANDconcor(19L);//on last data
-		devideANDconcor(20L);//after data
+		divideAndConquer(0L); //additive identity of field
+		divideAndConquer(2L); //before first data
+		divideAndConquer(5L); //on first data
+		divideAndConquer(10L);//betwen data
+		divideAndConquer(17L);//on data
+		divideAndConquer(19L);//on last data
+		divideAndConquer(20L);//after data
 		
 		cutMiddle(6L,17L);
 
@@ -169,13 +188,13 @@ public class CliTest {
 		Cli.main(new String[]{"-r", "-i", outDir, "cutedMiddle.s2",
 				"-o", outDir, "cutedMiddle.csv"});
 		
-		File corect = new File(inDir + File.separator + "cutedMiddle.csv");
+		File correct = new File(inDir + File.separator + "cutedMiddle.csv");
 		File testing = new File(outDir + File.separator + "cutedMiddle.csv");
 
 		
 		try {
-			boolean isTwoEqual = FileUtils.contentEquals(corect, testing);
-			assertEquals("Cuts out middle corectly " ,true, isTwoEqual);
+			boolean isTwoEqual = FileUtils.contentEquals(correct, testing);
+			assertEquals("Cuts out middle correctly " ,true, isTwoEqual);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -185,7 +204,7 @@ public class CliTest {
 	/** Cut original file at cutTime and reconstruct it again
 	 * @param cutTime
 	 */
-	private void devideANDconcor(Long cutTime)
+	private void divideAndConquer(Long cutTime)
 	{
 		//cut S2 at 
 		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-t", "0", Double.toString(cutTime*1E-9),
@@ -202,17 +221,19 @@ public class CliTest {
 				"-o", outDir, "IzpisSestavljene"+cutTime+".csv"});
 
 
-		File corect = new File(inDir + File.separator + "generated.csv");
+		File correct = new File(inDir + File.separator + "generated.csv");
 		File testing = new File(outDir + File.separator + "IzpisSestavljene"+cutTime+".csv");
 
 		
 		try {
-			boolean isTwoEqual = FileUtils.contentEquals(corect, testing);
-			assertEquals("Cuting at time " + cutTime + " ",true, isTwoEqual);
+			boolean isTwoEqual = FileUtils.contentEquals(correct, testing);
+			assertEquals("Cutting at time " + cutTime + " ",true, isTwoEqual);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+
+	// TODO: dodaj še teste za brisanje komentarjev in ostalih ne-podatkov ipd, poskusi z vsaj enim testom pokriti vsako funkcionalnost
 
 
 }

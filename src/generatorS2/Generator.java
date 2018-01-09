@@ -16,14 +16,18 @@ public class Generator {
 		String outDir  = "."+File.separator+"Generated";
 		String fname = "generated";
 		S2 s2 = new S2();
-		S2.StoreStatus storeS = s2.store(new File(outDir), fname+".s2");
+		File targetDirectory = new File(outDir);
+		// if it doesn't exis, create it now
+		targetDirectory.mkdir();
+		S2.StoreStatus storeS = s2.store(targetDirectory, fname+".s2");
 
-		long a =  (long) 5;
+		long sensorTime = 5L;
 
-		storeS.setVersion(1, "PCARD").addMetadata("date", "2018-01-01").addMetadata("time", "10:30:10.555")
-		.addMetadata("timezone", "+01:00");
-		
-		storeS.addTextMessage("Test message");
+		storeS.setVersion(1, "PCARD")
+                .addMetadata("date", "2018-01-01")
+                .addMetadata("time", "10:30:10.555")
+		        .addMetadata("timezone", "+01:00")
+                .addTextMessage("Test message");
 		
 		S2.SensorDefinition sd1 = new S2.SensorDefinition("Testni sensor 1");
 		sd1.setUnit("testne sekunde", 1, 0);
@@ -45,9 +49,6 @@ public class Generator {
 		sd3.setScalar(64, S2.ValueType.vt_integer, S2.AbsoluteId.abs_absolute, 0);
 		sd3.setSamplingFrequency(255);
 		storeS.addDefinition((byte) 126, sd3); //"~"
-		
-		
-		
 
 		
 		storeS.addDefinition((byte)0, new S2.StructDefinition("Testni struct 1", "ee")); //2*byte
@@ -60,14 +61,13 @@ public class Generator {
 		storeS.addDefinition((byte)2, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)3, 1E-9));
 		
 		
-		
-		storeS.addTimestamp(new Nanoseconds(a));
+		storeS.addTimestamp(new Nanoseconds(sensorTime));
 		
 		storeS.addSensorPacket((byte) 0, 0, new byte[]{1,2});
 		storeS.addSensorPacket((byte) 1, 0, new byte[]{6,3,6,3,6,3,6,3,6,3});
 		storeS.addSensorPacket((byte) 2, 0, new byte[]{9,8,7,6,5,4,3,2,1,0,-1});
 		
-		storeS.addTimestamp(new Nanoseconds(a+10));
+		storeS.addTimestamp(new Nanoseconds(sensorTime+10));
 		
 		storeS.addSensorPacket((byte) 0, 1, new byte[]{1,2});
 		storeS.addSensorPacket((byte) 1, 1, new byte[]{6,3,6,3,6,3,6,3,6,3});
@@ -80,7 +80,4 @@ public class Generator {
 		
 		System.out.println("THE END");
 	}
-
-
-
 }
