@@ -3,9 +3,12 @@ package cli;
 import org.apache.commons.io.FileUtils;
 import static org.junit.Assert.*;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
-
+import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestWatcher;
 import org.junit.runners.Parameterized;
 import org.junit.runner.RunWith;
 
@@ -38,6 +41,7 @@ public class CliTest {
         return Arrays.asList(new Object[][]{{"generated.s2"}});
 	}
 
+    
 	@BeforeClass
 	public static void initialize() {
 		// create the output directory for the files generated in these tests
@@ -232,6 +236,21 @@ public class CliTest {
 			e.printStackTrace();
 		}
 	}
+	
+	//if something goes wrong we dont want to delete files
+	/*
+	@AfterClass
+	public static void clean()
+	{
+		
+		try {
+			FileUtils.deleteDirectory(new File(outDir));
+		} catch (IOException e) {
+			System.err.println("we canot delete " + outDir);
+			e.printStackTrace();
+		}
+	}*/
+	
 
 	// TODO: dodaj še teste za brisanje komentarjev in ostalih ne-podatkov ipd, poskusi z vsaj enim testom pokriti vsako funkcionalnost
 
