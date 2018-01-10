@@ -90,7 +90,7 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 			out.println("	" + key + " : " + metaData.get(key));
 		}
 		
-		out.println("Special messeges");
+		out.println("Special messeges : ");
 		for(char key:special.keySet())
 		{
 			out.println("	" +  key + " : " + special.get(key));

@@ -30,8 +30,10 @@ public class Cli {
 		options.addOption("help", false, "Help");
 		//TODO add.option b build create s2 file from csv
 		
-		Option time = new Option("t", "time. zacetni in koncni cas izseka, ki nas zanima -t zacetni koncni. Defaul all");
-		time.setArgs(2);
+		Option time = new Option("t", "time. zacetni in koncni cas izseka, ki nas zanima. 3 argument if we aproximate "
+				+ "datas without own time with last previous time"
+				+ "-t start end nonEssential. Defaul -t 0 Long.MAX_VALUE true");
+		time.setArgs(3);
 		options.addOption(time);
 		
 		Option input1 = new Option("i", "input. Glavna vhodna datoteka, ima 2 argumenta pot in ime datoteke");
@@ -46,14 +48,16 @@ public class Cli {
 		output.setArgs(2);
 		options.addOption(output);
 		
-		Option handle = new Option("h",true ,"handles. Handli, ki jih želimo izpisati.Privzeto vsi. " +
-				"Če želimo i-ti handle mora biti na i+1 mestu argumenta v dvojiškem zapisu števka 1." +
-				"Če je argument pozitiven bodo handli z 1 ohranjeni, če je negativen bodo odstranjeni." +
-				"long flags");
+		Option handle = new Option("h",true ,"handles. Handles, we want to use.Deafault all. " +
+				"Argument represent wanted handles. " +
+				"If we want handle with num. i there has to be 1 on i+1 position from right to left in argument,0 atherwise" +
+				"If we want to keep only handles with 0 and 4 we pass '10001'" );
 		//handle.setArgs(2);
 		options.addOption(handle);
 		
-		Option dataTypes = new Option("d",true, "datatype. Tipi vrstic, ki jih želimo izpustiti.Privzeto vsi. 1števka=comment, 2števka=Special, 3števka=meta");
+		Option dataTypes = new Option("d",true, "datatype. data types we want to keep. Deafault all" +
+				"Argument must be a number in binary form"+
+				".*1=keeps comments, .*1.=keeps Special, .*1..=keeps meta");
 		options.addOption(dataTypes);
 		
 		CommandLineParser parser = new DefaultParser();
@@ -115,6 +119,7 @@ public class Cli {
 		
 			//default values			
 			long[] ab = new long[]{0,Long.MAX_VALUE};
+			boolean nonEss = true;
 			String izhodDir = null;
 			String izhodName = null;
 			long handles = Long.MAX_VALUE;
@@ -140,10 +145,11 @@ public class Cli {
 				try{
 				double aa = Double.parseDouble(cmd.getOptionValues("t")[0])* 1E9;
 				double bb = Double.parseDouble(cmd.getOptionValues("t")[1])* 1E9;
+				nonEss = Boolean.parseBoolean(cmd.getOptionValues("t")[2]);
 				ab[0] = (long)aa;
 				ab[1] = (long)bb;
 				}catch(NumberFormatException e){
-					System.out.println("Arguments at t must be float");
+					System.out.println("Arguments at t must be float float boolean");
 					return;
 				}
 				if (ab[0]>ab[1])
@@ -168,9 +174,9 @@ public class Cli {
 			if(cmd.hasOption("h"))
 			{
 				try{
-					handles = Long.parseLong(cmd.getOptionValue("h"));
+					handles = Long.parseLong(cmd.getOptionValue("h"),2);
 				}catch(NumberFormatException e){
-					System.out.println("argument of h must be a number. TERMINATE");
+					System.out.println("argument of h must be a number in binary format. TERMINATE");
 					return;
 				}
 			}
@@ -178,9 +184,9 @@ public class Cli {
 			if(cmd.hasOption("d"))
 			{
 				try{
-					dataT = Byte.parseByte(cmd.getOptionValue("h"));
+					dataT = Byte.parseByte(cmd.getOptionValue("d"),2);
 				}catch(NumberFormatException e){
-					System.out.println("argument of d must be a number. TERMINATE");
+					System.out.println("argument of d must be a number in binary format. TERMINATE");
 					return;
 				}
 			}
@@ -209,7 +215,7 @@ public class Cli {
 			{
 				if(izhodDir != null && izhodName != null)
 				{
-					outS2(file1, loadS1, ab, handles, dataT, izhodDir, izhodName);
+					outS2(file1, loadS1, ab, nonEss, handles, dataT, izhodDir, izhodName);
 				}else
 				{
 					System.err.println("Option c-cut need option o-out(directory and name of output file). TERMINATE");
@@ -293,9 +299,10 @@ public class Cli {
 		}	
 	}
 	
-	private static void outS2(S2 file, LoadStatus ls, long []ab, long handles, byte dataT, String directory, String name)
+	private static void outS2(S2 file, LoadStatus ls, long []ab, boolean nonEss, long handles, byte dataT,
+			String directory, String name)
 	{
-		OutS2Callback callback = new OutS2Callback(file, ab, handles, dataT, directory, name);
+		OutS2Callback callback = new OutS2Callback(file, ab, nonEss, handles, dataT, directory, name);
 		ls.addReadLineCallback(callback);
 	}
 
@@ -312,5 +319,5 @@ public class Cli {
 		ls.addReadLineCallback(callback);
 	}
 
-
+	//TODO delete useless methods like merge,outstatistics,...
 }

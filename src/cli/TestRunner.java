@@ -1,9 +1,5 @@
 package cli;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
@@ -25,6 +21,7 @@ public class TestRunner {
 		System.out.println("result was " + (result.wasSuccessful() ? "successful" : "not successful"));
 		
 		//TODO it cant delete .s2 files
+		/*
 		if(result.wasSuccessful())
 		{
 			String outDir = "." + File.separator + "UnitTests";
@@ -34,7 +31,7 @@ public class TestRunner {
 				System.err.println("we canot delete " + outDir);
 				e.printStackTrace();
 			}
-		}
+		}*/
 	
 	}
 

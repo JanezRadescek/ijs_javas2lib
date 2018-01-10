@@ -28,6 +28,11 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 	long b;
 	PrintStream out;
 	boolean dataMapping = true;
+	
+	int maxColumns = 0;
+	String[] CSVline;
+	boolean body = false;
+	
 	long theHandle;
 
 	long lastTime = 0;
@@ -65,11 +70,20 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 	{
 		this(s2, ab, handle);
 		try {
-			this.out = new CsvStream(new FileOutputStream(directory+File.separator+name));
+			this.out = new PrintStream(new FileOutputStream(directory+File.separator+name));
 			System.out.println("writing data into file " + directory+ File.separator+name);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void printLine() {
+		for(int i=0;i<2+maxColumns-1;i++)
+		{
+			out.print(CSVline[i] + ",");
+		}
+		out.println(CSVline[maxColumns+1]);
+		
 	}
 
 	@Override
@@ -114,13 +128,11 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 		//writes "data format"
 		if((theHandle & (1<<handle)) != 0)
 		{
-			char[] zaporedje = definition.elementsInOrder.toCharArray();
-			this.out.print("TimeStamp");
-			for(char s:zaporedje)
+			int temp = definition.elementsInOrder.length();
+			if(temp>maxColumns)
 			{
-				this.out.print(s+"");
+				maxColumns = temp;
 			}
-			this.out.println("Handle");
 		}
 		return true;
 	}
@@ -144,6 +156,19 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
 		lastTime = timestamp;
+		if(!body)
+		{
+			body = true;
+			CSVline = new String[2 + maxColumns];
+			CSVline[0] = "TimeStamp";
+			CSVline[1] = "Handle";
+			for(int c = 2; c<maxColumns+2;c++)
+			{
+				CSVline[c] = "data" + (c-1);
+			}
+			printLine();
+		}
+		
 		if((a<= lastTime && lastTime < b) && ((theHandle & (1<<handle)) != 0))
 		{
 			//converted data
@@ -174,11 +199,18 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 				}
 			}
 			//writing
-			out.print(timestamp+"");
-			for(Float tdata : sensorData){
-				out.print(tdata+"");
+			CSVline = new String[2 + maxColumns];
+			CSVline[0] = timestamp+"";
+			CSVline[1] = handle+"";
+			for(int i = 0;i<maxColumns;i++)
+			{
+				if(i<sensorData.size())
+					CSVline[2+i] = sensorData.get(i)+"";
+				else
+					CSVline[2+i] = "";
 			}
-			out.println(handle);
+			printLine();
+			
 			
 			return true;
 		}
@@ -191,6 +223,7 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 		}
 			
 	}
+
 
 	/**
 	 * affine transformation of data and round 

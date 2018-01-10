@@ -22,6 +22,7 @@ import s2.S2.TimestampDefinition;
 public class OutS2Callback implements ReadLineCallbackInterface {
 	
 	final int VERSION = 1;
+	
 	final int C = 0b1;
 	final int SM = 0b10;
 	final int MD = 0b100;
@@ -35,6 +36,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	
 	long a;
 	long b;
+	boolean nonEssTiming;
 	//for calculating offset in packetstreams
 	Map<Byte,Long> lastTime = new HashMap<Byte,Long>();
 	long lastTimestamp = 0;
@@ -53,11 +55,11 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	 * @param inFile - source S2 file
 	 * @param ab - interval of time [a,b)
 	 * @param handles - handles of streams we want to keep/let go.
-	 * @param dataT - data types we want to keep/let go
+	 * @param dataT - data types we want to keep/let go.
 	 * @param directory - directory of new S2 file
 	 * @param name - name of new S2 file
 	 */
-	public OutS2Callback(S2 inFile, long [] ab, long handles, byte dataT, String directory, String name) {
+	public OutS2Callback(S2 inFile, long [] ab, boolean nonEss, long handles, byte dataT, String directory, String name) {
 		this.inFile = inFile;
 		this.outFile = new S2();
 		this.storeS = this.outFile.store(new File(directory), name);
@@ -65,12 +67,19 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 		
 		this.a = ab[0];
 		this.b = ab[1];
+		this.nonEssTiming = nonEss; 
 		
-		//če je handles//dataT večji od 0 pomeni da želimo točno tiste handle//podatke
-		//če je handles//dataT manjši od 0 pomeni da tistih nočemo
+		//algebraic additive inverse is not equal to binary additive inverse
 		//na mestih v binarnem zapisu kjer so enke nam predstavljajo "izbrane"
-		this.handles = (handles>0) ? (this.handles & handles) : (this.handles & ~handles);
-		this.wantedData = (byte) ((dataT>0) ? (this.wantedData & dataT) : (this.wantedData & ~dataT));
+		//this.handles = (handles>=0) ? (this.handles & handles) : (this.handles & handles--);
+		//this.wantedData = (byte) ((dataT>=0) ? (this.wantedData & dataT) : (this.wantedData & dataT--));
+		this.handles &= handles;
+		this.wantedData &= dataT;
+		if((this.wantedData&0b100) == 0)
+		{
+			this.wantedData |= 0b100;
+			System.err.println("S2 file curently needs metadata. -d set to number " + this.wantedData);
+		}
 		
 	}
 	
@@ -87,7 +96,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	@Override
 	public boolean onComment(String comment) {
 		//C = 1, zastavica za komentarje je na prvem mestu v citizens
-		if (a<=apriximateTime && (wantedData & C) != 0)
+		if ((!nonEssTiming || a<=apriximateTime) && (wantedData & C) != 0)
 		{
 			storeS.addTextMessage(comment);
 		}
@@ -104,7 +113,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 
 	@Override
 	public boolean onSpecialMessage(char who, char what, String message) {
-		if(a<=apriximateTime && (wantedData & SM) != 0)
+		if((!nonEssTiming || a<=apriximateTime) && (wantedData & SM) != 0)
 		{
 			storeS.addSpecialTextMessage((byte)who, MessageType.convert((byte)what), message, -1);
 		}
