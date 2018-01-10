@@ -6,7 +6,6 @@ commons-io-2.6/
 UnitTests/
 src/donkey/
 Original/
-Generated/
 
 #extensions
 *.class
@@ -23,3 +22,5 @@ src/cli/CliDonkey.java
 #INCLUDE
 !Generated/generated.s2
 !Generated/generated.csv
+!Generated/generated.txt
+!Generated/cutedMiddle.csv
