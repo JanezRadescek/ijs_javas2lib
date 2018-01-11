@@ -17,22 +17,16 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
-@RunWith(Parameterized.class)
+
 public class CliTest {
-	String inFile;
+	static String inFile = "generated.s2";
 
 	// static variables so that they can be initialized in BeforeClass - before tests are executed
 	static String inDir  = "." + File.separator + "Generated";
 	static String outDir = "." + File.separator + "UnitTests";
-	String inDirName;
+	static String inDirName = inDir +File.separator+ inFile;
 
-	public CliTest(String inName) {
-		this.inFile = inName; 
-		this.inDirName = inDir + File.separator + inName;
-	}
 
-	@Parameterized.Parameters
-	//public static String[] data() {
 	public static Collection<Object[]> data() {
 		//return new String[]{"test1.s2", "test2.s2", "test3.s2"};
 		//return new String[]{"test2.s2"};
@@ -43,7 +37,8 @@ public class CliTest {
 
 	@BeforeClass
 	public static void initialize() {
-		assertTrue("testing existence of corect answers",new File(inDir).exists());
+		assertTrue("testing existence of directory of corect answers",new File(inDir).exists());
+		
 		// create the output directory for the files generated in these tests
 		new File(outDir).mkdir();
 		// note that 'inDir' should already be present or everything will fail
