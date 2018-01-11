@@ -24,10 +24,11 @@ public class CliTest {
 	// static variables so that they can be initialized in BeforeClass - before tests are executed
 	static String inDir  = "." + File.separator + "Generated";
 	static String outDir = "." + File.separator + "UnitTests";
+	String inDirName;
 
-
-	public CliTest(String inFile) {
-		this.inFile = inFile; 
+	public CliTest(String inName) {
+		this.inFile = inName; 
+		this.inDirName = inDir + File.separator + inName;
 	}
 
 	@Parameterized.Parameters
@@ -59,7 +60,7 @@ public class CliTest {
 	public void StatisticsTest()
 	{
 
-		Cli.main(new String[]{"-s", "-i", inDir, inFile, "-o", outDir, "StatistikaOriginala.txt"});
+		Cli.main(new String[]{"-s" ,"-i", inDirName, "-o", outDir+File.separator+ "StatistikaOriginala.txt"});
 
 		File correct = new File(inDir + File.separator + "generated.txt");
 		File testing = new File(outDir + File.separator + "StatistikaOriginala.txt");
@@ -80,7 +81,7 @@ public class CliTest {
 	@Test
 	public void OutCSVTest()
 	{
-		Cli.main(new String[]{"-r", "-i", inDir, inFile, "-o", outDir, "IzpisOriginala.csv"});
+		Cli.main(new String[]{"-r", "-i", inDirName, "-o", outDir + File.separator + "IzpisOriginala.csv"});
 
 		File corect = new File(inDir + File.separator + "generated.csv");
 		File testing = new File(outDir + File.separator + "IzpisOriginala.csv");
@@ -100,9 +101,9 @@ public class CliTest {
 
 		checkCopy();
 		//first 3 lines are struct definitions
-		assertEquals("Testing singletons",3+1, checkSingleton(17L));
-		assertEquals("Testing singletons",3+3, checkSingleton(16L));
-		assertEquals("Testing singletons",3+0, checkSingleton(15L));
+		assertEquals("Testing singletons time 17",1+1, checkSingleton(17L));
+		assertEquals("Testing singletons time 16",1+3, checkSingleton(16L));
+		assertEquals("Testing singletons time 15",1+0, checkSingleton(15L));
 
 		deleteUnimportant(false,"111");
 		deleteUnimportant(true,"1000");
@@ -116,11 +117,11 @@ public class CliTest {
 	private void checkCopy() {
 
 		//do copy of original
-		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-o", outDir, "KopijaOriginala.s2"});
+		Cli.main(new String[]{"-c", "-i", inDirName, "-o", outDir +File.separator+ "KopijaOriginala.s2"});
 
 		//read copy
-		Cli.main(new String[]{"-r", "-i", outDir, "KopijaOriginala.s2",
-				"-o", outDir, "IzpisKopije.csv"});
+		Cli.main(new String[]{"-r", "-i", outDir +File.separator+ "KopijaOriginala.s2",
+				"-o", outDir +File.separator+ "IzpisKopije.csv"});
 
 		//compare copy.csv with corect.csv
 		File corect = new File(inDir + File.separator + "generated.csv");
@@ -145,9 +146,9 @@ public class CliTest {
 	{
 		String nameS2 = "Singleton" + cutTime +".s2";
 		String nameCSV = "Singleton" + cutTime +".csv";
-		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-o", outDir, nameS2,
-				"-t", Double.toString(cutTime*1E-9),Double.toString((cutTime+1)*1E-9)});
-		Cli.main(new String[]{"-r", "-i", outDir, nameS2, "-o", outDir, nameCSV});
+		Cli.main(new String[]{"-c", "-i", inDirName, "-o", outDir +File.separator+ nameS2,
+				"-t", Double.toString(cutTime*1E-9),Double.toString((cutTime+1)*1E-9), "true"});
+		Cli.main(new String[]{"-r", "-i", outDir +File.separator+ nameS2, "-o", outDir +File.separator+ nameCSV});
 
 		int lines = 0;
 		try {
@@ -167,8 +168,8 @@ public class CliTest {
 
 	private void deleteUnimportant(boolean R,String d) {
 		String name = "deletedUnimp";
-		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-o", outDir, name+".s2","-d", d});
-		Cli.main(new String[]{"-s", "-i", outDir, name+".s2", "-o", outDir, name+".txt" });
+		Cli.main(new String[]{"-c", "-i", inDirName, "-o", outDir +File.separator+  name+".s2","-d", d});
+		Cli.main(new String[]{"-s", "-i", outDir +File.separator+ name+".s2", "-o", outDir +File.separator+ name+".txt" });
 
 		try {
 			BufferedReader bf = new BufferedReader(new FileReader(outDir + File.separator + name+".txt"));
@@ -203,18 +204,18 @@ public class CliTest {
 	}
 
 	private void cutMiddle(long head, long tail) {
-		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-t", "0", Double.toString(head*1E-9),
-				"-o", outDir, "head"+head+".s2"});
+		Cli.main(new String[]{"-c", "-i", inDirName, "-t", "0", Double.toString(head*1E-9), "true",
+				"-o", outDir +File.separator+ "head"+head+".s2"});
+		//t is false
+		Cli.main(new String[]{"-c", "-i", inDirName, "-t", Double.toString(tail*1E-9), "1", "false",
+				"-o", outDir +File.separator+ "tail"+tail+".s2"});
+		//Order of head/tail is deliberatly reversed.
+		Cli.main(new String[]{"-m", "true", "-i", outDir +File.separator+ "tail"+tail+".s2",
+				outDir +File.separator+ "head"+head+".s2",
+				"-o", outDir +File.separator+ "cutedMiddle.s2"});
 
-		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-t", Double.toString(tail*1E-9), "1",
-				"-o", outDir, "tail"+tail+".s2"});
-
-		Cli.main(new String[]{"-m", "true", "-i", outDir, "head"+head+".s2",
-				"-v", outDir, "tail"+tail+".s2",
-				"-o", outDir, "cutedMiddle.s2"});
-
-		Cli.main(new String[]{"-r", "-i", outDir, "cutedMiddle.s2",
-				"-o", outDir, "cutedMiddle.csv"});
+		Cli.main(new String[]{"-r", "-i", outDir +File.separator+ "cutedMiddle.s2",
+				"-o", outDir +File.separator+ "cutedMiddle.csv"});
 
 		File correct = new File(inDir + File.separator + "cutedMiddle.csv");
 		File testing = new File(outDir + File.separator + "cutedMiddle.csv");
@@ -222,7 +223,7 @@ public class CliTest {
 
 		try {
 			boolean isTwoEqual = FileUtils.contentEquals(correct, testing);
-			assertTrue("Cuts out middle correctly ", isTwoEqual);
+			assertTrue("Testing if it cuts out middle correctly ", isTwoEqual);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -235,18 +236,18 @@ public class CliTest {
 	private void divideAndConquer(Long cutTime)
 	{
 		//cut S2 at 
-		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-t", "0", Double.toString(cutTime*1E-9),
-				"-o", outDir, "izrezek1_"+cutTime+".s2"});
+		Cli.main(new String[]{"-c", "-i", inDirName, "-t", "0", Double.toString(cutTime*1E-9), "true",
+				"-o", outDir +File.separator+ "izrezek1_"+cutTime+".s2"});
 
-		Cli.main(new String[]{"-c", "-i", inDir, inFile, "-t", Double.toString(cutTime*1E-9), "1",
-				"-o", outDir, "izrezek2_"+cutTime+".s2"});
+		Cli.main(new String[]{"-c", "-i", inDirName, "-t", Double.toString(cutTime*1E-9), "1", "true",
+				"-o", outDir +File.separator+ "izrezek2_"+cutTime+".s2"});
 
-		Cli.main(new String[]{"-m", "true", "-i", outDir, "izrezek1_"+cutTime+".s2",
-				"-v", outDir, "izrezek2_"+cutTime+".s2",
-				"-o", outDir, "Sestavljena"+cutTime+".s2"});
+		Cli.main(new String[]{"-m", "true", "-i", outDir +File.separator+ "izrezek1_"+cutTime+".s2",
+				outDir +File.separator+ "izrezek2_"+cutTime+".s2",
+				"-o", outDir +File.separator+ "Sestavljena"+cutTime+".s2"});
 
-		Cli.main(new String[]{"-r", "-i", outDir, "Sestavljena"+cutTime+".s2",
-				"-o", outDir, "IzpisSestavljene"+cutTime+".csv"});
+		Cli.main(new String[]{"-r", "-i", outDir +File.separator+ "Sestavljena"+cutTime+".s2",
+				"-o", outDir +File.separator+ "IzpisSestavljene"+cutTime+".csv"});
 
 
 		File correct = new File(inDir + File.separator + "generated.csv");

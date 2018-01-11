@@ -69,18 +69,19 @@ public class SecondReader implements ReadLineCallbackInterface {
 	public long newLastTimestamp = 0;
 	boolean TimeStampWriten = true;
 	
-	public SecondReader(S2 file2, String outDir, String outName, boolean mergeHandles) 
+	public SecondReader(S2 file2, String outDir, boolean mergeHandles) 
 	{
 		this.inFile = file2;
 		this.outFile = new S2();
-		this.storeS = this.outFile.store(new File(outDir), outName);
+		File temp = new File(outDir);
+		this.storeS = this.outFile.store(temp.getParentFile(), temp.getName());
 		this.mergeHandles = mergeHandles;
 		
 		specialMeta.add("date");
 		specialMeta.add("time");
 		specialMeta.add("timezone");
 		
-		System.out.println("writing to file " + outDir +File.separator+ outName);
+		System.out.println("writing to file " + outDir);
 	}
 	
 

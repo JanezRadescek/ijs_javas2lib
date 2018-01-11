@@ -66,12 +66,12 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 	 * @param directory - directory of output file
 	 * @param name - name of output file
 	 */
-	public OutCSVCallback(S2 s2, long[] ab, long handle, String directory, String name)
+	public OutCSVCallback(S2 s2, long[] ab, long handle, String directory)
 	{
 		this(s2, ab, handle);
 		try {
-			this.out = new PrintStream(new FileOutputStream(directory+File.separator+name));
-			System.out.println("writing data into file " + directory+ File.separator+name);
+			this.out = new PrintStream(new FileOutputStream(directory));
+			System.out.println("writing data into file " + directory);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -108,12 +108,36 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 
 	@Override
 	public boolean onEndOfFile() {
+		if(!body)
+		{
+			body = true;
+			CSVline = new String[2 + maxColumns];
+			CSVline[0] = "TimeStamp";
+			CSVline[1] = "Handle";
+			for(int c = 2; c<maxColumns+2;c++)
+			{
+				CSVline[c] = "data" + (c-1);
+			}
+			printLine();
+		}
 		out.close();
 		return false;
 	}
 
 	@Override
 	public boolean onUnmarkedEndOfFile() {
+		if(!body)
+		{
+			body = true;
+			CSVline = new String[2 + maxColumns];
+			CSVline[0] = "TimeStamp";
+			CSVline[1] = "Handle";
+			for(int c = 2; c<maxColumns+2;c++)
+			{
+				CSVline[c] = "data" + (c-1);
+			}
+			printLine();
+		}
 		out.close();
 		return false;
 	}
