@@ -7,7 +7,7 @@ metaData :
 	time : 10:30:10.555
 	date : 2018-01-01
 	timezone : +01:00
-Special messeges
+Special messeges : 
 Comments : 1
 Definitions : 9
 Timestamps : 2
