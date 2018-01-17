@@ -23,6 +23,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import cli.Cli;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -42,8 +43,8 @@ public class BaurOkno2 extends JFrame {
 	private JTextField txtCliArgs;
 	JFileChooser chooser = new JFileChooser();
 
-	@Deprecated
-	private HashMap<String,String[]> cliArgs = new HashMap<String,String[]>();
+	
+	private String[] cliArgs;
 	@Deprecated
 	private HashMap<String,String[]> dArguments = new HashMap<String,String[]>();
 	HashMap<String,JComponent[]> components;
@@ -84,6 +85,8 @@ public class BaurOkno2 extends JFrame {
 		//chooser
 		chooser.setCurrentDirectory(new File("."));
 		chooser.setAcceptAllFileFilterUsed(false);
+		
+		//TODO uporabi update kjer je potrebno
 
 		//default falues
 		{
@@ -136,14 +139,8 @@ public class BaurOkno2 extends JFrame {
 			JButton btnNewButton = new JButton("GO");
 			btnNewButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					ArrayList<String> temp1 = new ArrayList<String>();
-					if(allowedGroups != null)
-					{
-						for(String group:allowedGroups)
-						{
-							cliArgs.get(group);
-						}
-					}
+					if(upDate());
+						Cli.main(cliArgs);
 				}
 			});
 			splitPane_South.setRightComponent(btnNewButton);
@@ -384,8 +381,16 @@ public class BaurOkno2 extends JFrame {
 
 	}
 	
-	private void upDate() {
+	
+	private boolean upDate() {
 		// TODO Auto-generated method stub
+		return true;
+		
+	}
+	
+	private boolean upDate(boolean r) {
+		upDate();
+		return r;
 		
 	}
 
