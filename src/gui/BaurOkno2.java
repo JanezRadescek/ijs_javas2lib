@@ -21,11 +21,15 @@ import javax.swing.JRadioButton;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import java.awt.GridLayout;
 import javax.swing.JLabel;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class BaurOkno2 extends JFrame {
 
@@ -38,9 +42,12 @@ public class BaurOkno2 extends JFrame {
 	private JTextField txtCliArgs;
 	JFileChooser chooser = new JFileChooser();
 
-	private HashMap<String,ArrayList<String>> cliArgs = new HashMap<String,ArrayList<String>>();
+	@Deprecated
+	private HashMap<String,String[]> cliArgs = new HashMap<String,String[]>();
+	@Deprecated
 	private HashMap<String,String[]> dArguments = new HashMap<String,String[]>();
 	HashMap<String,JComponent[]> components;
+	String[] allowedGroups;
 
 	private JTextField textField_MainInput;
 	private JTextField textField_SecondaryInput;
@@ -76,6 +83,7 @@ public class BaurOkno2 extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//chooser
 		chooser.setCurrentDirectory(new File("."));
+		chooser.setAcceptAllFileFilterUsed(false);
 
 		//default falues
 		{
@@ -128,6 +136,14 @@ public class BaurOkno2 extends JFrame {
 			JButton btnNewButton = new JButton("GO");
 			btnNewButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
+					ArrayList<String> temp1 = new ArrayList<String>();
+					if(allowedGroups != null)
+					{
+						for(String group:allowedGroups)
+						{
+							cliArgs.get(group);
+						}
+					}
 				}
 			});
 			splitPane_South.setRightComponent(btnNewButton);
@@ -145,15 +161,36 @@ public class BaurOkno2 extends JFrame {
 
 			{
 				JButton btn_MainInput = new JButton("Main input");
+				btn_MainInput.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+						FileNameExtensionFilter filter = new FileNameExtensionFilter(
+						        "S2 file format", "s2");
+						chooser.setFileFilter(filter);
+
+						if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+							textField_MainInput.setText(chooser.getSelectedFile().getPath());
+						}
+					}
+				});
 				btn_MainInput.setEnabled(false);
 				panel_Options.add(btn_MainInput, "cell 0 0,grow");
 				//components.add(btn_MainInput);
 
 				textField_MainInput = new JTextField();
+				textField_MainInput.addKeyListener(new KeyAdapter() {
+					@Override
+					public void keyPressed(KeyEvent e) {
+						if(e.getKeyCode() == 10)
+						{
+							upDate();
+						}
+					}
+				});
 				textField_MainInput.setEnabled(false);
 				panel_Options.add(textField_MainInput, "cell 1 0,grow");
 				textField_MainInput.setColumns(10);
-				
+
 				components.put("in1",new JComponent[]{btn_MainInput,textField_MainInput});
 			}
 			{
@@ -166,12 +203,23 @@ public class BaurOkno2 extends JFrame {
 				textField_SecondaryInput.setEnabled(false);
 				panel_Options.add(textField_SecondaryInput, "cell 1 1,grow");
 				textField_SecondaryInput.setColumns(10);
-				
+
 				components.put("in2",new JComponent[]{btn_SecondaryInput,textField_SecondaryInput});
 			}
-			
+
 			{
 				JButton btn_Output = new JButton("Output directory");
+				btn_Output.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+						
+						if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+							textField_OutputDire.setText(chooser.getSelectedFile().getPath());
+						} else {
+							System.out.println("No Selection ");
+						}
+					}
+				});
 				btn_Output.setEnabled(false);
 				panel_Options.add(btn_Output, "cell 0 2,grow");
 				//components.add(btn_Output);
@@ -180,9 +228,9 @@ public class BaurOkno2 extends JFrame {
 				textField_OutputDire.setEnabled(false);
 				panel_Options.add(textField_OutputDire, "cell 1 2,grow");
 				textField_OutputDire.setColumns(10);
-				
+
 				//name
-			
+
 				JButton btn_Name = new JButton("Output file name");
 				btn_Name.setEnabled(false);
 				panel_Options.add(btn_Name, "cell 0 3,grow");
@@ -192,7 +240,7 @@ public class BaurOkno2 extends JFrame {
 				textField_OutputName.setEnabled(false);
 				panel_Options.add(textField_OutputName, "cell 1 3,grow");
 				textField_OutputName.setColumns(10);
-				
+
 				components.put("out",new JComponent[]{btn_Output,textField_OutputDire,btn_Name,textField_OutputName});
 			}
 
@@ -214,7 +262,7 @@ public class BaurOkno2 extends JFrame {
 				textField_end.setEnabled(false);
 				splitPane.setRightComponent(textField_end);
 				textField_end.setColumns(10);
-				
+
 				components.put("time",new JComponent[]{btn_Time,textField_start,textField_end});
 			}
 
@@ -239,7 +287,7 @@ public class BaurOkno2 extends JFrame {
 				txtHandles.setText("handles");
 				panel_1.add(txtHandles, BorderLayout.CENTER);
 				txtHandles.setColumns(10);
-				
+
 				components.put("handles",new JComponent[]{btn_Handles,chckbxAll,txtHandles});
 			}
 
@@ -286,7 +334,8 @@ public class BaurOkno2 extends JFrame {
 			JRadioButton rdbtn1 = new JRadioButton("Statistics");
 			rdbtn1.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					enableButtons(new String[]{"in1","out"});
+					allowedGroups=new String[]{"in1","out"};
+					enableButtons();
 				}
 			});
 			panel_radioButtons.add(rdbtn1, "cell 0 0,grow");
@@ -295,7 +344,8 @@ public class BaurOkno2 extends JFrame {
 			JRadioButton rdbtn2 = new JRadioButton("CSV");
 			rdbtn2.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					enableButtons(new String[]{"in1","out","time","handles"});
+					allowedGroups = new String[]{"in1","out","time","handles"};
+					enableButtons();
 				}
 			});
 			panel_radioButtons.add(rdbtn2, "cell 0 1,grow");
@@ -304,7 +354,8 @@ public class BaurOkno2 extends JFrame {
 			JRadioButton rdbtn3 = new JRadioButton("cut S2");
 			rdbtn3.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					enableButtons(new String[]{"in1","out","time","handles","data"});
+					allowedGroups = new String[]{"in1","out","time","handles","data"};
+					enableButtons();
 				}
 			});
 			panel_radioButtons.add(rdbtn3, "cell 0 2,grow");
@@ -313,7 +364,8 @@ public class BaurOkno2 extends JFrame {
 			JRadioButton rdbtn4 = new JRadioButton("Merge S2 - New handles");
 			rdbtn4.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					enableButtons(new String[]{"in1","in2","out"});
+					allowedGroups = new String[]{"in1","in2","out"};
+					enableButtons();
 				}
 			});
 			JRadioGRoup.add(rdbtn4);
@@ -322,7 +374,8 @@ public class BaurOkno2 extends JFrame {
 			JRadioButton rdbtn5 = new JRadioButton("Merge S2 - Same handles");
 			rdbtn5.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					enableButtons(new String[]{"in1","in2","out"});
+					allowedGroups = new String[]{"in1","in2","out"};
+					enableButtons();
 				}
 			});
 			JRadioGRoup.add(rdbtn5);
@@ -330,8 +383,13 @@ public class BaurOkno2 extends JFrame {
 		}
 
 	}
+	
+	private void upDate() {
+		// TODO Auto-generated method stub
+		
+	}
 
-	private void enableButtons(String[] strings) {
+	private void enableButtons() {
 		for(String skupina:components.keySet())
 		{
 			for(JComponent comp:components.get(skupina))
@@ -339,7 +397,7 @@ public class BaurOkno2 extends JFrame {
 				comp.setEnabled(false);
 			}
 		}
-		for(String skupina:strings)
+		for(String skupina:allowedGroups)
 		{
 			for(JComponent comp:components.get(skupina))
 			{
