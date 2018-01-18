@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -48,8 +49,6 @@ public class BaurOkno2 extends JFrame {
 
 
 	private String[] cliArgs;
-	@Deprecated
-	private HashMap<String,String[]> dArguments = new HashMap<String,String[]>();
 	HashMap<String,komponenta[]> components;
 	String[] allowedGroups;
 
@@ -92,14 +91,7 @@ public class BaurOkno2 extends JFrame {
 		chooser.setCurrentDirectory(new File("."));
 		chooser.setAcceptAllFileFilterUsed(false);
 
-
-		//default falues
-		{
-			dArguments.put("time",new String[]{"0 " + (60*60)});
-			dArguments.put("handles", new String[]{Long.toString(Long.MAX_VALUE)});
-			dArguments.put("handles", new String[]{Long.toString(Long.MAX_VALUE)});
-		}
-
+		setPreferredSize(new Dimension(750,370));
 
 
 		//MenuBar
@@ -339,7 +331,14 @@ public class BaurOkno2 extends JFrame {
 				Skatla chckbxAll = new Skatla("All");
 				chckbxAll.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						textField_Handles.setText(null);
+						if(chckbxAll.isSelected())
+						{
+							textField_Handles.setText("11111111111111111111111111111111");
+						}
+						else
+						{
+							textField_Handles.setText("0");
+						}
 					}
 				});
 				chckbxAll.setEnabled(false);
@@ -360,7 +359,7 @@ public class BaurOkno2 extends JFrame {
 					}
 				});
 				textField_Handles.setEnabled(false);
-				textField_Handles.setText("handles");
+				textField_Handles.setText("11111111111111111111111111111111");
 				panel_1.add(textField_Handles, BorderLayout.CENTER);
 				textField_Handles.setColumns(10);
 
@@ -486,15 +485,17 @@ public class BaurOkno2 extends JFrame {
 
 		for(String grup:allowedGroups)
 		{
-			if(grup.equals("out"))
+			//TODO time need true or false for aditional data
+			switch(grup)
 			{
+			case "out" :{
 				String out = components.get("out")[1].getInfo().get(0) + File.separator
 						+ components.get("out")[3].getInfo().get(0);
 				seznam.addAll(components.get("out")[0].getInfo());
-				seznam.add(out);
-			}else
-			{
+				seznam.add(out);}break;
+			case "time" :{
 				for(komponenta haha:components.get(grup))
+				{
 					if(!haha.ready())
 					{
 						JOptionPane.showMessageDialog(this, "Select " + grup);
@@ -503,6 +504,23 @@ public class BaurOkno2 extends JFrame {
 					{
 						seznam.addAll(haha.getInfo());
 					}
+				}
+				seznam.add("true");
+			}break;
+			default :
+			{
+				for(komponenta haha:components.get(grup))
+				{
+					if(!haha.ready())
+					{
+						JOptionPane.showMessageDialog(this, "Select " + grup);
+						return false;
+					}else
+					{
+						seznam.addAll(haha.getInfo());
+					}
+				}
+			}
 			}
 		}
 		cliArgs = seznam.toArray(new String[0]);
@@ -532,6 +550,5 @@ public class BaurOkno2 extends JFrame {
 				comp.setEnabled(true);
 			}
 		}
-
 	}
 }
