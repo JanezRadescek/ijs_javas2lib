@@ -2,8 +2,6 @@ package gui;
 
 import java.util.ArrayList;
 
-import javax.swing.Action;
-import javax.swing.Icon;
 import javax.swing.JButton;
 
 import gui.BaurOkno2.komponenta;
@@ -16,32 +14,27 @@ public class Gumb extends JButton implements komponenta {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	public Gumb() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-
-	public Gumb(Action arg0) {
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
-
-	public Gumb(Icon arg0) {
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
-
-	public Gumb(String arg0, Icon arg1) {
-		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
-	}
+	
+	
+	private ArrayList<String> info = new ArrayList<String>();
+	private ArrayList<Skatla> kids = new ArrayList<Skatla>();
+	
 
 	public Gumb(String arg0) {
 		super(arg0);
-		// TODO Auto-generated constructor stub
 	}
 
+	public Gumb(String string, String prefix) {
+		this(string);
+		info.add(prefix);
+		
+	}
+
+	public void addKid(Skatla s)
+	{
+		kids.add(s);
+	}
+	
 	public boolean ready() {
 		
 		return isEnabled();
@@ -49,7 +42,19 @@ public class Gumb extends JButton implements komponenta {
 
 	@Override
 	public ArrayList<String> getInfo() {
-		return new ArrayList<String>();
+		if(kids.isEmpty())
+			return info;
+		else
+		{
+			int R =0;
+			for(int i=0;i<kids.size();i++)
+			{
+				if(kids.get(i).isEnabled())
+					R |=  1<<i;
+			}
+			info.add(Integer.toString(R));
+			return info;
+		}
 	}
 
 }

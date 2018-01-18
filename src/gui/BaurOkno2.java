@@ -53,16 +53,16 @@ public class BaurOkno2 extends JFrame {
 	HashMap<String,komponenta[]> components;
 	String[] allowedGroups;
 
-	//TODO premakni podatke iz teksta v "gumbe"
-	
+
 	private Besedilo textField_MainInput;
 	private Besedilo textField_SecondaryInput;
 	private Besedilo textField_OutputDire;
-	private Besedilo txtHandles;
+	private Besedilo textField_Handles;
 	private Besedilo textField_OutputName;
 	private Besedilo textField_start;
 	private Besedilo textField_end;
 	ButtonGroup JRadioGRoup;
+	Radijo act;
 
 	/**
 	 * Launch the application.
@@ -164,7 +164,7 @@ public class BaurOkno2 extends JFrame {
 			panel_Options.setLayout(new MigLayout("", "[131px][131px,grow]", "[29px][29px][29px][29px][29px,grow][29px][29px]"));
 
 			{
-				Gumb btn_MainInput = new Gumb("Main input");
+				Gumb btn_MainInput = new Gumb("main input","-i");
 				btn_MainInput.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -174,7 +174,6 @@ public class BaurOkno2 extends JFrame {
 
 						if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 							textField_MainInput.setText(chooser.getSelectedFile().getPath());
-							evaluate();
 						}
 					}
 				});
@@ -196,7 +195,7 @@ public class BaurOkno2 extends JFrame {
 				panel_Options.add(textField_MainInput, "cell 1 0,grow");
 				textField_MainInput.setColumns(10);
 
-				components.put("in1",new komponenta[]{btn_MainInput,textField_MainInput});
+				components.put("main input",new komponenta[]{btn_MainInput,textField_MainInput});
 			}
 			{
 				Gumb btn_SecondaryInput = new Gumb("Secondary input");
@@ -209,7 +208,6 @@ public class BaurOkno2 extends JFrame {
 
 						if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 							textField_MainInput.setText(chooser.getSelectedFile().getPath());
-							evaluate();
 						}
 					}
 				});
@@ -231,19 +229,18 @@ public class BaurOkno2 extends JFrame {
 				panel_Options.add(textField_SecondaryInput, "cell 1 1,grow");
 				textField_SecondaryInput.setColumns(10);
 
-				components.put("in2",new komponenta[]{btn_SecondaryInput,textField_SecondaryInput});
+				components.put("secondary input",new komponenta[]{btn_SecondaryInput,textField_SecondaryInput});
 			}
 
 			{
-				Gumb btn_Output = new Gumb("Output directory");
+				Gumb btn_Output = new Gumb("Output directory","-o");
 				btn_Output.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
+						chooser.resetChoosableFileFilters();
 						if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 							textField_OutputDire.setText(chooser.getSelectedFile().getPath());
 						} else {
-							System.out.println("No Selection ");
 						}
 					}
 				});
@@ -290,7 +287,7 @@ public class BaurOkno2 extends JFrame {
 			}
 
 			{
-				Gumb btn_Time = new Gumb("Time interval");
+				Gumb btn_Time = new Gumb("Time interval","-t");
 				btn_Time.setEnabled(false);
 				panel_Options.add(btn_Time, "cell 0 4,grow");
 
@@ -330,7 +327,7 @@ public class BaurOkno2 extends JFrame {
 			}
 
 			{
-				Gumb btn_Handles = new Gumb("Handles");
+				Gumb btn_Handles = new Gumb("Handles","-h");
 				btn_Handles.setEnabled(false);
 				panel_Options.add(btn_Handles, "cell 0 5,grow");
 				//components.add(btn_Handles);
@@ -342,7 +339,7 @@ public class BaurOkno2 extends JFrame {
 				Skatla chckbxAll = new Skatla("All");
 				chckbxAll.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						txtHandles.setText(null);
+						textField_Handles.setText(null);
 					}
 				});
 				chckbxAll.setEnabled(false);
@@ -350,8 +347,8 @@ public class BaurOkno2 extends JFrame {
 				panel_1.add(chckbxAll, BorderLayout.WEST);
 				//components.add(chckbxAll);
 
-				txtHandles = new Besedilo();
-				txtHandles.addKeyListener(new KeyAdapter() {
+				textField_Handles = new Besedilo();
+				textField_Handles.addKeyListener(new KeyAdapter() {
 					@Override
 					public void keyPressed(KeyEvent e) {
 						chckbxAll.setSelected(false);
@@ -362,16 +359,16 @@ public class BaurOkno2 extends JFrame {
 						}
 					}
 				});
-				txtHandles.setEnabled(false);
-				txtHandles.setText("handles");
-				panel_1.add(txtHandles, BorderLayout.CENTER);
-				txtHandles.setColumns(10);
+				textField_Handles.setEnabled(false);
+				textField_Handles.setText("handles");
+				panel_1.add(textField_Handles, BorderLayout.CENTER);
+				textField_Handles.setColumns(10);
 
-				components.put("handles",new komponenta[]{btn_Handles,chckbxAll,txtHandles});
+				components.put("handles",new komponenta[]{btn_Handles,chckbxAll,textField_Handles});
 			}
 
 			{
-				Gumb btn_DataTypes = new Gumb("Data types");
+				Gumb btn_DataTypes = new Gumb("Data types","-d");
 				btn_DataTypes.setEnabled(false);
 				panel_Options.add(btn_DataTypes, "cell 0 6,grow");
 				//components.add(btn_DataTypes);
@@ -381,36 +378,26 @@ public class BaurOkno2 extends JFrame {
 				panel.setLayout(new BorderLayout(0, 0));
 
 				Skatla chckbx_C = new Skatla("Comments");
-				chckbx_C.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						evaluate();
-					}
-				});
 				chckbx_C.setEnabled(false);
 				chckbx_C.setSelected(true);
 				panel.add(chckbx_C, BorderLayout.NORTH);
 				//components.add(chckbx_C);
 
 				Skatla chckbx_SM = new Skatla("Special messeges");
-				chckbx_SM.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						evaluate();
-					}
-				});
 				chckbx_SM.setEnabled(false);
 				chckbx_SM.setSelected(true);
 				panel.add(chckbx_SM, BorderLayout.CENTER);
 				//components.add(chckbx_SM);
 
 				Skatla chckbx_MD = new Skatla("Meta data");
-				chckbx_MD.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						evaluate();
-					}
-				});
 				chckbx_MD.setEnabled(false);
 				chckbx_MD.setSelected(true);
 				panel.add(chckbx_MD, BorderLayout.SOUTH);
+
+				btn_DataTypes.addKid(chckbx_C);
+				btn_DataTypes.addKid(chckbx_SM);
+				btn_DataTypes.addKid(chckbx_MD);
+
 				components.put("data",new komponenta[]{btn_DataTypes,chckbx_C,chckbx_SM,chckbx_MD});
 			}
 		}
@@ -428,7 +415,8 @@ public class BaurOkno2 extends JFrame {
 			Radijo rdbtn1 = new Radijo("Statistics","-s");
 			rdbtn1.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					allowedGroups=new String[]{"in1","out"};
+					act = rdbtn1;
+					allowedGroups=new String[]{"main input","out"};
 					enableButtons();
 				}
 			});
@@ -438,7 +426,8 @@ public class BaurOkno2 extends JFrame {
 			Radijo rdbtn2 = new Radijo("CSV","-r");
 			rdbtn2.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					allowedGroups = new String[]{"in1","out","time","handles"};
+					act = rdbtn2;
+					allowedGroups = new String[]{"main input","out","time","handles"};
 					enableButtons();
 				}
 			});
@@ -448,7 +437,8 @@ public class BaurOkno2 extends JFrame {
 			Radijo rdbtn3 = new Radijo("cut S2","-c");
 			rdbtn3.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					allowedGroups = new String[]{"in1","out","time","handles","data"};
+					act = rdbtn3;
+					allowedGroups = new String[]{"main input","out","time","handles","data"};
 					enableButtons();
 				}
 			});
@@ -458,7 +448,8 @@ public class BaurOkno2 extends JFrame {
 			Radijo rdbtn4 = new Radijo("Merge S2 - New handles","-m", "false");
 			rdbtn4.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					allowedGroups = new String[]{"in1","in2","out"};
+					act = rdbtn4;
+					allowedGroups = new String[]{"main input","secondary input","out"};
 					enableButtons();
 				}
 			});
@@ -468,7 +459,8 @@ public class BaurOkno2 extends JFrame {
 			Radijo rdbtn5 = new Radijo("Merge S2 - Same handles","-m", "true");
 			rdbtn5.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					allowedGroups = new String[]{"in1","in2","out"};
+					act = rdbtn5;
+					allowedGroups = new String[]{"main input","secondary input","out"};
 					enableButtons();
 				}
 			});
@@ -480,32 +472,47 @@ public class BaurOkno2 extends JFrame {
 
 
 	private boolean evaluate() {
-		
+
 		ArrayList<String> seznam = new ArrayList<String>();
-		
-		if(JRadioGRoup.getSelection()==null)
+
+		if(act==null)
 		{
 			JOptionPane.showMessageDialog(this, "Select action");
 			return false;
 		}else
 		{
-			Radijo temp = (Radijo)JRadioGRoup.getSelection();
-			seznam.addAll(temp.getInfo());
+			seznam.addAll(act.getInfo());
 		}
 
 		for(String grup:allowedGroups)
 		{
-			for(komponenta haha:components.get(grup))
-				if(!haha.ready())
-				{
-					JOptionPane.showMessageDialog(this, "Select " + grup);
-					return false;
-				}else
-				{
-					seznam.addAll(haha.getInfo());
-				}
+			if(grup.equals("out"))
+			{
+				String out = components.get("out")[1].getInfo().get(0) + File.separator
+						+ components.get("out")[3].getInfo().get(0);
+				seznam.addAll(components.get("out")[0].getInfo());
+				seznam.add(out);
+			}else
+			{
+				for(komponenta haha:components.get(grup))
+					if(!haha.ready())
+					{
+						JOptionPane.showMessageDialog(this, "Select " + grup);
+						return false;
+					}else
+					{
+						seznam.addAll(haha.getInfo());
+					}
+			}
 		}
-		cliArgs = (String[]) seznam.toArray();
+		cliArgs = seznam.toArray(new String[0]);
+		String temp = "";
+		for(int i=0;i<seznam.size()-1;i++)
+		{
+			temp += seznam.get(i) + " ";
+		}
+		temp += seznam.get(seznam.size()-1);
+		txtCliArgs.setText(temp);
 		return true;
 
 	}
