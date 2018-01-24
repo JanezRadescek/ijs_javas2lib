@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -28,11 +29,12 @@ import cli.Cli;
 import net.miginfocom.swing.MigLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import javax.swing.BoxLayout;
 
 public class BaurOkno2 extends JFrame {
 
 
-	public interface komponenta
+	public interface Komponenta
 	{
 		boolean ready();
 		void setEnabled(boolean b);
@@ -49,15 +51,15 @@ public class BaurOkno2 extends JFrame {
 
 
 	private String[] cliArgs;
-	HashMap<String,komponenta[]> components;
+	HashMap<String,Komponenta[]> components;
 	String[] allowedGroups;
 
 
 	private Besedilo textField_MainInput;
 	private Besedilo textField_SecondaryInput;
-	private Besedilo textField_OutputDire;
+	private Besedilo textField_Output;
 	private Besedilo textField_Handles;
-	private Besedilo textField_OutputName;
+	//private Besedilo textField_OutputName;
 	private Besedilo textField_start;
 	private Besedilo textField_end;
 
@@ -93,7 +95,7 @@ public class BaurOkno2 extends JFrame {
 		chooser.setCurrentDirectory(new File("."));
 		chooser.setAcceptAllFileFilterUsed(false);
 
-		setPreferredSize(new Dimension(750,370));
+		setPreferredSize(new Dimension(780,370));
 
 
 		//MenuBar
@@ -154,8 +156,9 @@ public class BaurOkno2 extends JFrame {
 			panel_Options.setBackground(Color.CYAN);
 			contentPane.add(panel_Options, BorderLayout.CENTER);
 
-			components = new HashMap<String,komponenta[]>();
-			panel_Options.setLayout(new MigLayout("", "[131px][131px,grow]", "[29px][29px][29px][29px][29px,grow][29px][29px]"));
+			components = new HashMap<String,Komponenta[]>();
+			panel_Options.setLayout(new MigLayout("", "[131px][131px,grow]",
+					"[29px,grow][29px,grow][29px,grow][29px,grow][29px,grow][29px,grow]"));
 
 			{
 				Gumb btn_MainInput = new Gumb("main input","-i");
@@ -189,7 +192,7 @@ public class BaurOkno2 extends JFrame {
 				panel_Options.add(textField_MainInput, "cell 1 0,grow");
 				textField_MainInput.setColumns(10);
 
-				components.put("main input",new komponenta[]{btn_MainInput,textField_MainInput});
+				components.put("main input",new Komponenta[]{btn_MainInput,textField_MainInput});
 			}
 			{
 				Gumb btn_SecondaryInput = new Gumb("Secondary input");
@@ -223,48 +226,46 @@ public class BaurOkno2 extends JFrame {
 				panel_Options.add(textField_SecondaryInput, "cell 1 1,grow");
 				textField_SecondaryInput.setColumns(10);
 
-				components.put("secondary input",new komponenta[]{btn_SecondaryInput,textField_SecondaryInput});
+				components.put("secondary input",new Komponenta[]{btn_SecondaryInput,textField_SecondaryInput});
 			}
 
 			{
-				Gumb btn_Output = new Gumb("Output directory","-o");
+				JPanel panel_Output = new JPanel();
+				panel_Output.setLayout(new BorderLayout(0, 0));
+				panel_Options.add(panel_Output, "cell 0 2,grow");
+
+
+				Gumb btn_Output = new Gumb("Out directory","-o");
+				Gumb btn_Name = new Gumb("Out name");
+				Besedilo txt_out = new Besedilo();
+				Besedilo txt_name = new Besedilo();
+				
+				textField_Output = new Besedilo();
+
 				btn_Output.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 						chooser.resetChoosableFileFilters();
 						if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-							textField_OutputDire.setText(chooser.getSelectedFile().getPath());
-						} else {
-						}
+							textField_Output.addKid(txt_out);
+							txt_out.setText(chooser.getSelectedFile().getPath());
+							textField_Output.setText(txt_out.getText() + File.separator + txt_name.getText());
+						} 
 					}
 				});
 				btn_Output.setEnabled(false);
-				panel_Options.add(btn_Output, "cell 0 2,grow");
+				panel_Output.add(btn_Output, BorderLayout.WEST);
+				//panel_Options.add(btn_Output, "cell 0 2,grow");
+
 				//components.add(btn_Output);
 
-				textField_OutputDire = new Besedilo();
-				textField_OutputDire.addKeyListener(new KeyAdapter() {
-					@Override
-					public void keyPressed(KeyEvent e) {
-						if(e.getKeyCode() == 10)
-						{
-							evaluate();
-						}
-					}
-				});
-				textField_OutputDire.setEnabled(false);
-				panel_Options.add(textField_OutputDire, "cell 1 2,grow");
-				textField_OutputDire.setColumns(10);
-
-				//name
-
-				Gumb btn_Name = new Gumb("Output file name");
 				btn_Name.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						String name = JOptionPane.showInputDialog(panel_Options, "Name of OutPut file. "
 								+ "Apropriate extension will be automaticly added.", "Name dialog", JOptionPane.PLAIN_MESSAGE);
 						if(name != null)
 						{
+							textField_Output.addKid(txt_name);
 							String prefix = null;
 							for(Radijo temp:skupina)
 							{
@@ -289,31 +290,31 @@ public class BaurOkno2 extends JFrame {
 								name = name+".s2";
 							}break;
 							}
-							
-							textField_OutputName.setText(name);
+
+							txt_name.setText(name);
+							textField_Output.setText(txt_out.getText() + File.separator + txt_name.getText());
 						}
-						
+
 					}
 				});
 				btn_Name.setEnabled(false);
-				panel_Options.add(btn_Name, "cell 0 3,grow");
-				//components.add(btn_Time);
+				panel_Output.add(btn_Name, BorderLayout.EAST);
 
-				textField_OutputName = new Besedilo();
-				textField_OutputName.addKeyListener(new KeyAdapter() {
+				textField_Output.addKeyListener(new KeyAdapter() {
 					@Override
 					public void keyPressed(KeyEvent e) {
 						if(e.getKeyCode() == 10)
 						{
+							textField_Output.resetKids();
 							evaluate();
 						}
 					}
 				});
-				textField_OutputName.setEnabled(false);
-				panel_Options.add(textField_OutputName, "cell 1 3,grow");
-				textField_OutputName.setColumns(10);
+				textField_Output.setEnabled(false);
+				panel_Options.add(textField_Output, "cell 1 2,grow");
+				textField_Output.setColumns(10);
 
-				components.put("out",new komponenta[]{btn_Output,textField_OutputDire,btn_Name,textField_OutputName});
+				components.put("out",new Komponenta[]{btn_Output, btn_Name, textField_Output});
 			}
 
 			{
@@ -324,36 +325,22 @@ public class BaurOkno2 extends JFrame {
 						JTextField txt_end = new JTextField();
 						Skatla timeless = new Skatla("Keep timeless data outside interval");
 						Object[] msg = {"Start [s]: ",txt_start ,"End [s]: ",txt_end,timeless};
-						
+
 						JOptionPane.showConfirmDialog(panel_Options, msg,
 								"Time dialog", JOptionPane.PLAIN_MESSAGE);
-						//String end = JOptionPane.showInputDialog(panel_Options, "Enter ending time in seconds",
-						//		"Time dialog", JOptionPane.PLAIN_MESSAGE);
-						
-						
+
 						textField_start.setText(txt_start.getText());
 						textField_end.setText(txt_end.getText());
-						/*
-						if(txt_ != null)
-						{
-							textField_start.setText(start);
-						}
-						
-						if(end != null)
-						{
-							textField_end.setText(end);
-						}*/
-						
-							
-						
+
 					}
 				});
 				btn_Time.setEnabled(false);
-				panel_Options.add(btn_Time, "cell 0 4,grow");
+				panel_Options.add(btn_Time, "cell 0 3,grow");
 
-				JSplitPane splitPane = new JSplitPane();
-				splitPane.setResizeWeight(0.5);
-				panel_Options.add(splitPane, "cell 1 4,grow");
+				JPanel panel_Time = new JPanel();
+				panel_Time.setLayout(new BoxLayout(panel_Time, BoxLayout.X_AXIS));
+				panel_Options.add(panel_Time, "cell 1 3,grow");
+
 
 				textField_start = new Besedilo();
 				textField_start.addKeyListener(new KeyAdapter() {
@@ -366,7 +353,8 @@ public class BaurOkno2 extends JFrame {
 					}
 				});
 				textField_start.setEnabled(false);
-				splitPane.setLeftComponent(textField_start);
+				panel_Time.add(textField_start, BorderLayout.WEST);
+
 				textField_start.setColumns(10);
 
 				textField_end = new Besedilo();
@@ -380,10 +368,20 @@ public class BaurOkno2 extends JFrame {
 					}
 				});
 				textField_end.setEnabled(false);
-				splitPane.setRightComponent(textField_end);
+				panel_Time.add(textField_end, BorderLayout.CENTER);
+
 				textField_end.setColumns(10);
 
-				components.put("time",new komponenta[]{btn_Time,textField_start,textField_end});
+				Skatla timeAproximate = new Skatla("keep timeless data");
+				timeAproximate.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						timeAproximate.SetInfo(Boolean.toString(timeAproximate.isSelected()));
+					}
+				});
+				timeAproximate.setEnabled(false);
+				panel_Time.add(timeAproximate, BorderLayout.EAST);
+
+				components.put("time",new Komponenta[]{btn_Time,textField_start,textField_end, timeAproximate});
 			}
 
 			{
@@ -412,11 +410,11 @@ public class BaurOkno2 extends JFrame {
 					}
 				});
 				btn_Handles.setEnabled(false);
-				panel_Options.add(btn_Handles, "cell 0 5,grow");
+				panel_Options.add(btn_Handles, "cell 0 4,grow");
 				//components.add(btn_Handles);
 
 				JPanel panel_1 = new JPanel();
-				panel_Options.add(panel_1, "cell 1 5,grow");
+				panel_Options.add(panel_1, "cell 1 4,grow");
 				panel_1.setLayout(new BorderLayout(0, 0));
 
 				Skatla chckbxAll = new Skatla("All");
@@ -454,17 +452,17 @@ public class BaurOkno2 extends JFrame {
 				panel_1.add(textField_Handles, BorderLayout.CENTER);
 				textField_Handles.setColumns(10);
 
-				components.put("handles",new komponenta[]{btn_Handles,chckbxAll,textField_Handles});
+				components.put("handles",new Komponenta[]{btn_Handles,chckbxAll,textField_Handles});
 			}
 
 			{
 				Gumb btn_DataTypes = new Gumb("Data types","-d");
 				btn_DataTypes.setEnabled(false);
-				panel_Options.add(btn_DataTypes, "cell 0 6,grow");
+				panel_Options.add(btn_DataTypes, "cell 0 5,grow");
 				//components.add(btn_DataTypes);
 
 				JPanel panel = new JPanel();
-				panel_Options.add(panel, "cell 1 6,grow");
+				panel_Options.add(panel, "cell 1 5,grow");
 				panel.setLayout(new BorderLayout(0, 0));
 
 				Skatla chckbx_C = new Skatla("Comments");
@@ -488,7 +486,7 @@ public class BaurOkno2 extends JFrame {
 				btn_DataTypes.addKid(chckbx_SM);
 				btn_DataTypes.addKid(chckbx_MD);
 
-				components.put("data",new komponenta[]{btn_DataTypes,chckbx_C,chckbx_SM,chckbx_MD});
+				components.put("data",new Komponenta[]{btn_DataTypes,chckbx_C,chckbx_SM,chckbx_MD});
 			}
 		}
 
@@ -582,42 +580,16 @@ public class BaurOkno2 extends JFrame {
 
 		for(String grup:allowedGroups)
 		{
-			//TODO time need true or false for aditional data
-			switch(grup)
+			for(Komponenta haha:components.get(grup))
 			{
-			case "out" :{
-				String out = components.get("out")[1].getInfo().get(0) + File.separator
-						+ components.get("out")[3].getInfo().get(0);
-				seznam.addAll(components.get("out")[0].getInfo());
-				seznam.add(out);}break;
-			case "time" :{
-				for(komponenta haha:components.get(grup))
+				if(!haha.ready())
 				{
-					if(!haha.ready())
-					{
-						JOptionPane.showMessageDialog(this, "Select " + grup);
-						return false;
-					}else
-					{
-						seznam.addAll(haha.getInfo());
-					}
-				}
-				seznam.add("true");
-			}break;
-			default :
-			{
-				for(komponenta haha:components.get(grup))
+					JOptionPane.showMessageDialog(this, "Select " + grup);
+					return false;
+				}else
 				{
-					if(!haha.ready())
-					{
-						JOptionPane.showMessageDialog(this, "Select " + grup);
-						return false;
-					}else
-					{
-						seznam.addAll(haha.getInfo());
-					}
+					seznam.addAll(haha.getInfo());
 				}
-			}
 			}
 		}
 		cliArgs = seznam.toArray(new String[0]);
@@ -635,14 +607,14 @@ public class BaurOkno2 extends JFrame {
 	private void enableButtons() {
 		for(String skupina:components.keySet())
 		{
-			for(komponenta comp:components.get(skupina))
+			for(Komponenta comp:components.get(skupina))
 			{
 				comp.setEnabled(false);
 			}
 		}
 		for(String skupina:allowedGroups)
 		{
-			for(komponenta comp:components.get(skupina))
+			for(Komponenta comp:components.get(skupina))
 			{
 				comp.setEnabled(true);
 			}

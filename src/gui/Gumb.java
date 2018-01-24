@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 import javax.swing.JButton;
 
-import gui.BaurOkno2.komponenta;
+import gui.BaurOkno2.Komponenta;
 
-public class Gumb extends JButton implements komponenta {
+public class Gumb extends JButton implements Komponenta {
 
 
 
@@ -40,6 +40,9 @@ public class Gumb extends JButton implements komponenta {
 		return isEnabled();
 	}
 
+	
+	
+	
 	@Override
 	public ArrayList<String> getInfo() {
 		if(kids.isEmpty())

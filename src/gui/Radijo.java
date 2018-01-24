@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 import javax.swing.JRadioButton;
 
-import gui.BaurOkno2.komponenta;
+import gui.BaurOkno2.Komponenta;
 
-public class Radijo extends JRadioButton implements komponenta{
+public class Radijo extends JRadioButton implements Komponenta{
 	
 	/**
 	 * 
