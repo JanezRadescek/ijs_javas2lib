@@ -18,6 +18,7 @@ public class Radijo extends JRadioButton implements komponenta{
 	public Radijo(String string, String prefix) {
 		super(string);
 		info.add(prefix);
+		setName(prefix);
 	}
 
 	

@@ -60,6 +60,8 @@ public class BaurOkno2 extends JFrame {
 	private Besedilo textField_OutputName;
 	private Besedilo textField_start;
 	private Besedilo textField_end;
+
+	ArrayList<Radijo> skupina;
 	ButtonGroup JRadioGRoup;
 	Radijo act;
 
@@ -257,6 +259,42 @@ public class BaurOkno2 extends JFrame {
 				//name
 
 				Gumb btn_Name = new Gumb("Output file name");
+				btn_Name.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						String name = JOptionPane.showInputDialog(panel_Options, "Name of OutPut file. "
+								+ "Apropriate extension will be automaticly added.", "Name dialog", JOptionPane.PLAIN_MESSAGE);
+						if(name != null)
+						{
+							String prefix = null;
+							for(Radijo temp:skupina)
+							{
+								if(temp.isSelected())
+								{
+									prefix = temp.getName();
+									break;
+								}
+							}
+							switch(prefix)
+							{
+							case "-s":{
+								name = name+".txt";
+							}break;
+							case "-r":{
+								name = name+".csv";
+							}break;
+							case "-c":{
+								name = name+".s2";
+							}break;
+							case "-m":{
+								name = name+".s2";
+							}break;
+							}
+							
+							textField_OutputName.setText(name);
+						}
+						
+					}
+				});
 				btn_Name.setEnabled(false);
 				panel_Options.add(btn_Name, "cell 0 3,grow");
 				//components.add(btn_Time);
@@ -280,6 +318,36 @@ public class BaurOkno2 extends JFrame {
 
 			{
 				Gumb btn_Time = new Gumb("Time interval","-t");
+				btn_Time.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						JTextField txt_start = new JTextField();
+						JTextField txt_end = new JTextField();
+						Skatla timeless = new Skatla("Keep timeless data outside interval");
+						Object[] msg = {"Start [s]: ",txt_start ,"End [s]: ",txt_end,timeless};
+						
+						JOptionPane.showConfirmDialog(panel_Options, msg,
+								"Time dialog", JOptionPane.PLAIN_MESSAGE);
+						//String end = JOptionPane.showInputDialog(panel_Options, "Enter ending time in seconds",
+						//		"Time dialog", JOptionPane.PLAIN_MESSAGE);
+						
+						
+						textField_start.setText(txt_start.getText());
+						textField_end.setText(txt_end.getText());
+						/*
+						if(txt_ != null)
+						{
+							textField_start.setText(start);
+						}
+						
+						if(end != null)
+						{
+							textField_end.setText(end);
+						}*/
+						
+							
+						
+					}
+				});
 				btn_Time.setEnabled(false);
 				panel_Options.add(btn_Time, "cell 0 4,grow");
 
@@ -320,6 +388,29 @@ public class BaurOkno2 extends JFrame {
 
 			{
 				Gumb btn_Handles = new Gumb("Handles","-h");
+				btn_Handles.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						//String s = JOptionPane.showInputDialog("Handles separated with coma.");
+						String s = (String) JOptionPane.showInputDialog(panel_Options, "Handles separated with coma", "Handles dialog", JOptionPane.PLAIN_MESSAGE, null, null, null);
+						if(s!= null)
+						{
+							try
+							{
+								int R = 0;
+								String[] sep = s.split(",");
+								for(String temp:sep)
+								{
+									R |= 1<<Integer.parseInt(temp);
+								}
+								textField_Handles.setText(Integer.toBinaryString(R));
+							}
+							catch(Error e)
+							{
+
+							}
+						}
+					}
+				});
 				btn_Handles.setEnabled(false);
 				panel_Options.add(btn_Handles, "cell 0 5,grow");
 				//components.add(btn_Handles);
@@ -337,7 +428,7 @@ public class BaurOkno2 extends JFrame {
 						}
 						else
 						{
-							textField_Handles.setText("0");
+							textField_Handles.setText("");
 						}
 					}
 				});
@@ -409,6 +500,7 @@ public class BaurOkno2 extends JFrame {
 			contentPane.add(panel_radioButtons, BorderLayout.WEST);
 
 			JRadioGRoup = new ButtonGroup();
+			skupina = new ArrayList<Radijo>();
 			panel_radioButtons.setLayout(new MigLayout("", "[71px]", "[51px][51px][51px][51px]"));
 
 			Radijo rdbtn1 = new Radijo("Statistics","-s");
@@ -421,6 +513,7 @@ public class BaurOkno2 extends JFrame {
 			});
 			panel_radioButtons.add(rdbtn1, "cell 0 0,grow");
 			JRadioGRoup.add(rdbtn1);
+			skupina.add(rdbtn1);
 
 			Radijo rdbtn2 = new Radijo("CSV","-r");
 			rdbtn2.addActionListener(new ActionListener() {
@@ -431,7 +524,8 @@ public class BaurOkno2 extends JFrame {
 				}
 			});
 			panel_radioButtons.add(rdbtn2, "cell 0 1,grow");
-			JRadioGRoup.add(rdbtn2); 
+			JRadioGRoup.add(rdbtn2);
+			skupina.add(rdbtn2);
 
 			Radijo rdbtn3 = new Radijo("cut S2","-c");
 			rdbtn3.addActionListener(new ActionListener() {
@@ -443,6 +537,7 @@ public class BaurOkno2 extends JFrame {
 			});
 			panel_radioButtons.add(rdbtn3, "cell 0 2,grow");
 			JRadioGRoup.add(rdbtn3); 
+			skupina.add(rdbtn3);
 
 			Radijo rdbtn4 = new Radijo("Merge S2 - New handles","-m", "false");
 			rdbtn4.addActionListener(new ActionListener() {
@@ -453,6 +548,7 @@ public class BaurOkno2 extends JFrame {
 				}
 			});
 			JRadioGRoup.add(rdbtn4);
+			skupina.add(rdbtn4);
 			panel_radioButtons.add(rdbtn4, "cell 0 3,grow");
 
 			Radijo rdbtn5 = new Radijo("Merge S2 - Same handles","-m", "true");
@@ -464,6 +560,7 @@ public class BaurOkno2 extends JFrame {
 				}
 			});
 			JRadioGRoup.add(rdbtn5);
+			skupina.add(rdbtn5);
 			panel_radioButtons.add(rdbtn5, "cell 0 4,grow");
 		}
 
