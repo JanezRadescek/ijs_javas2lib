@@ -199,7 +199,7 @@ public class BaurOkno2 extends JFrame {
 						chooser.setFileFilter(filter);
 
 						if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-							textField_MainInput.setText(chooser.getSelectedFile().getPath());
+							textField_SecondaryInput.setText(chooser.getSelectedFile().getPath());
 						}
 					}
 				});

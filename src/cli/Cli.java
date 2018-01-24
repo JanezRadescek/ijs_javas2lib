@@ -34,9 +34,11 @@ public class Cli {
 		time.setArgs(3);
 		options.addOption(time);
 		
-		Option input1 = new Option("i",true, "input. Directory of input file. "
+		Option input1 = new Option("i", "input. Directory of input file. "
 				+ "Optional has also directory of second directory.");
-		input1.hasOptionalArg();
+		input1.setArgs(2);
+		input1.setOptionalArg(true);
+		
 		options.addOption(input1);
 		/*
 		Option input2 = new Option("v", "vhod. Dodatna datoteka za sestavljanje");
@@ -124,11 +126,11 @@ public class Cli {
 			byte dataT = Byte.MAX_VALUE;
 			
 			//second input S2 file directory and name
-			if(cmd.hasOption("b"))
+			if(cmd.hasOption("m"))
 			{
 				try
 				{
-					inDirectory2 = new File(cmd.getOptionValues("v")[1]);
+					inDirectory2 = new File(cmd.getOptionValues("i")[1]);
 					//inFname2 = cmd.getOptionValues("v")[1];
 				}
 				catch(Error r)
@@ -254,19 +256,22 @@ public class Cli {
 			//preberemo prvi S2 in obdelamo
 			System.out.println("using file "+file1.getFilePath());
 			boolean everythingOk = loadS1.readAndProcessFile();
-			
+			System.out.println(file1.getNotes());
 			//samo opcija b potrebuje drugi file
 			if (file2 != null && loadS2 != null)
 			{
 				System.out.println("using file "+file2.getFilePath());
 				everythingOk &= loadS2.readAndProcessFile();
+				System.out.println(file2.getNotes());
 			}
+			
 			
 	        if (everythingOk){
 	        	System.out.println("THE END" + "\n");
 	        } else {
 	        	System.err.println("Error in procesing S2 file");
 	        }
+	        
 		}
 		else
 		{

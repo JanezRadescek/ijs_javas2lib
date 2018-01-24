@@ -101,9 +101,7 @@ public class CliTest {
 		assertEquals("Testing singletons time 15",1+0, checkSingleton(15L));
 
 		deleteUnimportant(false,"111");
-		deleteUnimportant(true,"1000");
-		deleteUnimportant(true,Integer.toString(-8));
-		deleteUnimportant(true,"0");
+		deleteUnimportant(true,"100");
 
 
 	}
