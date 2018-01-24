@@ -46,14 +46,15 @@ public class Gumb extends JButton implements komponenta {
 			return info;
 		else
 		{
+			ArrayList<String> temp = (ArrayList<String>) info.clone();
 			int R =0;
 			for(int i=0;i<kids.size();i++)
 			{
-				if(kids.get(i).isEnabled())
+				if(kids.get(i).isSelected())
 					R |=  1<<i;
 			}
-			info.add(Integer.toString(R));
-			return info;
+			temp.add(Integer.toBinaryString(R));
+			return temp;
 		}
 	}
 
