@@ -32,6 +32,7 @@ public class Cli {
 				+ "datas without own time with last previous time"
 				+ "-t start end nonEssential. Defaul -t 0 Long.MAX_VALUE true");
 		time.setArgs(3);
+		time.setOptionalArg(true);
 		options.addOption(time);
 		
 		Option input1 = new Option("i", "input. Directory of input file. "
