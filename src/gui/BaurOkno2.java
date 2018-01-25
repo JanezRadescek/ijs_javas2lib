@@ -29,6 +29,8 @@ import net.miginfocom.swing.MigLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.BoxLayout;
+import java.awt.GridLayout;
+import javax.swing.JLabel;
 
 public class BaurOkno2 extends JFrame {
 
@@ -42,34 +44,40 @@ public class BaurOkno2 extends JFrame {
 		ArrayList<String> getInfo();
 	}
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
+	//bottom text field
 	private JTextField txtCliArgs;
+	//
 	JFileChooser chooser = new JFileChooser();
 
-
+	//arguments whit which we will call Cli.main
 	private String[] cliArgs;
+	
+	//All components potentionally needed to generate args 
 	HashMap<String,Komponenta[]> components;
+	//curently active groups based on act
 	String[] allowedGroups;
 
 
+	//texfields which can be manupulated via buttons or manually
 	private Besedilo textField_MainInput;
 	private Besedilo textField_SecondaryInput;
 	private Besedilo textField_Output;
 	private Besedilo textField_Handles;
-	//private Besedilo textField_OutputName;
 	private Besedilo textField_start;
 	private Besedilo textField_end;
 
+	//pointers to get presed button
 	ArrayList<Radijo> skupina;
+	//so only one radiob buttton can be presed at same time
 	ButtonGroup JRadioGRoup;
+	// ??? used somewhere so dont delete probably
 	Radijo act;
 
 	/**
-	 * Launch the application.
+	 * Launchs the application.
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -86,7 +94,7 @@ public class BaurOkno2 extends JFrame {
 	}
 
 	/**
-	 * Create the frame.
+	 * Designs the frame.
 	 */
 	public BaurOkno2() {
 		//Frame
@@ -116,7 +124,8 @@ public class BaurOkno2 extends JFrame {
 			JMenuItem mntmDocumentation = new JMenuItem("Documentation");
 			mnHelp.add(mntmDocumentation);
 		}
-		//Panel
+		
+		//Main Panel
 		{
 			contentPane = new JPanel();
 			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -125,32 +134,36 @@ public class BaurOkno2 extends JFrame {
 			contentPane.setLayout(new BorderLayout(0, 0));
 		}
 
-
-
 		//arguments + go
 		{
-			JSplitPane splitPane_South = new JSplitPane();
-			splitPane_South.setResizeWeight(1);
-			contentPane.add(splitPane_South, BorderLayout.SOUTH);
-
+			JPanel panel_ArgsGo = new JPanel();
+			panel_ArgsGo.setLayout(new MigLayout("", "[212px,grow][80px]", "[30px,grow]"));
+			contentPane.add(panel_ArgsGo, BorderLayout.SOUTH);
+			
 			txtCliArgs = new JTextField();
 			txtCliArgs.setEditable(false);
-			splitPane_South.setLeftComponent(txtCliArgs);
 			txtCliArgs.setText("Cli Args");
-
+			panel_ArgsGo.add(txtCliArgs, "cell 0 0,grow");
+			
 			JButton btnNewButton = new JButton("GO");
 			btnNewButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					if(evaluate())
 					{
-						Cli.main(cliArgs);
+						try
+						{
+							Cli.main(cliArgs);
+							txtCliArgs.setText("DONE. Hopefully correctly.");
+						}catch(Error e)
+						{
+							txtCliArgs.setText(e.getMessage());
+						}
 					}
 				}
 			});
-			splitPane_South.setRightComponent(btnNewButton);
+			panel_ArgsGo.add(btnNewButton, "cell 1 0,grow");
 		}
-
-
+		
 		//Options
 		{
 			JPanel panel_Options = new JPanel();
@@ -160,7 +173,8 @@ public class BaurOkno2 extends JFrame {
 			components = new HashMap<String,Komponenta[]>();
 			panel_Options.setLayout(new MigLayout("", "[131px][131px,grow]",
 					"[29px,grow][29px,grow][29px,grow][29px,grow][29px,grow][29px,grow]"));
-
+			
+			//main input
 			{
 				Gumb btn_MainInput = new Gumb("main input","-i");
 				btn_MainInput.addActionListener(new ActionListener() {
@@ -195,6 +209,8 @@ public class BaurOkno2 extends JFrame {
 
 				components.put("main input",new Komponenta[]{btn_MainInput,textField_MainInput});
 			}
+			
+			//secondary input
 			{
 				Gumb btn_SecondaryInput = new Gumb("Secondary input");
 				btn_SecondaryInput.addActionListener(new ActionListener() {
@@ -211,8 +227,7 @@ public class BaurOkno2 extends JFrame {
 				});
 				btn_SecondaryInput.setEnabled(false);
 				panel_Options.add(btn_SecondaryInput, "cell 0 1,grow");
-				//components.add(btn_SecondaryInput);
-
+				
 				textField_SecondaryInput = new Besedilo();
 				textField_SecondaryInput.addKeyListener(new KeyAdapter() {
 					@Override
@@ -230,6 +245,7 @@ public class BaurOkno2 extends JFrame {
 				components.put("secondary input",new Komponenta[]{btn_SecondaryInput,textField_SecondaryInput});
 			}
 
+			//ouput
 			{
 				JPanel panel_Output = new JPanel();
 				panel_Output.setLayout(new BorderLayout(0, 0));
@@ -256,9 +272,6 @@ public class BaurOkno2 extends JFrame {
 				});
 				btn_Output.setEnabled(false);
 				panel_Output.add(btn_Output, BorderLayout.WEST);
-				//panel_Options.add(btn_Output, "cell 0 2,grow");
-
-				//components.add(btn_Output);
 
 				btn_Name.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
@@ -318,6 +331,7 @@ public class BaurOkno2 extends JFrame {
 				components.put("out",new Komponenta[]{btn_Output, btn_Name, textField_Output});
 			}
 
+			//time
 			{
 				Gumb btn_Time = new Gumb("Time interval","-t");
 				btn_Time.addActionListener(new ActionListener() {
@@ -385,12 +399,13 @@ public class BaurOkno2 extends JFrame {
 				components.put("time",new Komponenta[]{btn_Time,textField_start,textField_end, timeAproximate});
 			}
 
+			//handles
 			{
 				Gumb btn_Handles = new Gumb("Handles","-h");
 				btn_Handles.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
-						//String s = JOptionPane.showInputDialog("Handles separated with coma.");
-						String s = (String) JOptionPane.showInputDialog(panel_Options, "Handles separated with coma", "Handles dialog", JOptionPane.PLAIN_MESSAGE, null, null, null);
+						String s = (String) JOptionPane.showInputDialog(panel_Options, "Handles separated with coma", 
+								"Handles dialog", JOptionPane.PLAIN_MESSAGE);
 						if(s!= null)
 						{
 							try
@@ -403,9 +418,9 @@ public class BaurOkno2 extends JFrame {
 								}
 								textField_Handles.setText(Integer.toBinaryString(R));
 							}
-							catch(Error e)
+							catch(java.lang.NumberFormatException e)
 							{
-
+								JOptionPane.showMessageDialog(panel_Options, "Handles must be integers 0-31 separated with coma");
 							}
 						}
 					}
@@ -456,6 +471,7 @@ public class BaurOkno2 extends JFrame {
 				components.put("handles",new Komponenta[]{btn_Handles,chckbxAll,textField_Handles});
 			}
 
+			//data to keep
 			{
 				Gumb btn_DataTypes = new Gumb("Data types","-d");
 				btn_DataTypes.setEnabled(false);
@@ -500,7 +516,7 @@ public class BaurOkno2 extends JFrame {
 
 			JRadioGRoup = new ButtonGroup();
 			skupina = new ArrayList<Radijo>();
-			panel_radioButtons.setLayout(new MigLayout("", "[71px]", "[51px][51px][51px][51px]"));
+			panel_radioButtons.setLayout(new MigLayout("", "[71px]", "[51px,grow][51px,grow][51px,grow][51px,grow]"));
 
 			Radijo rdbtn1 = new Radijo("Statistics","-s");
 			rdbtn1.addActionListener(new ActionListener() {
@@ -566,6 +582,10 @@ public class BaurOkno2 extends JFrame {
 	}
 
 
+	/**
+	 * If all required informations are given it will parse them and colect in args and return true,false otherwise.
+	 * @return true if we have all needed info, false otherwise
+	 */
 	private boolean evaluate() {
 
 		ArrayList<String> seznam = new ArrayList<String>();
@@ -605,6 +625,9 @@ public class BaurOkno2 extends JFrame {
 
 	}
 
+	/**
+	 * Enable and disable buttons based on selected act.
+	 */
 	private void enableButtons() {
 		for(String skupina:components.keySet())
 		{

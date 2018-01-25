@@ -281,6 +281,9 @@ public class Cli {
 		}
 	
 	}
-
-	//TODO delete useless methods like merge,outstatistics,...
+	
+	public Exception start(String[] args)
+	{
+		return null;
+	}
 }
