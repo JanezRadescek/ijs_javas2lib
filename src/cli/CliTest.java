@@ -38,7 +38,7 @@ public class CliTest {
 	@BeforeClass
 	public static void initialize() {
 		assertTrue("testing existence of directory of corect answers",new File(inDir).exists());
-		
+
 		// create the output directory for the files generated in these tests
 		new File(outDir).mkdir();
 		// note that 'inDir' should already be present or everything will fail
@@ -76,18 +76,34 @@ public class CliTest {
 	@Test
 	public void OutCSVTest()
 	{
-		Cli.main(new String[]{"-r", "-i", inDirName, "-o", outDir + File.separator + "IzpisOriginala.csv"});
+		{
+			Cli.main(new String[]{"-r", "-i", inDirName, "-o", outDir + File.separator + "IzpisOriginala.csv"});
+			File corect = new File(inDir + File.separator + "generated.csv");
+			File testing = new File(outDir + File.separator + "IzpisOriginala.csv");
+			boolean isTwoEqual = false;
+			try {
+				isTwoEqual = FileUtils.contentEquals(corect, testing);
 
-		File corect = new File(inDir + File.separator + "generated.csv");
-		File testing = new File(outDir + File.separator + "IzpisOriginala.csv");
-		boolean isTwoEqual = false;
-		try {
-			isTwoEqual = FileUtils.contentEquals(corect, testing);
-
-		} catch (IOException e) {
-			e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			assertTrue("without time",isTwoEqual);
 		}
-		assertTrue(isTwoEqual);
+
+		{
+			Cli.main(new String[]{"-r", "-i", inDirName, "-o", outDir + File.separator + "IzpisOriginalaT.csv", "-t", "0", "1"});
+			File corect = new File(inDir + File.separator + "generated.csv");
+			File testing = new File(outDir + File.separator + "IzpisOriginala.csv");
+			boolean isTwoEqual = false;
+			try {
+				isTwoEqual = FileUtils.contentEquals(corect, testing);
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			assertTrue("with time",isTwoEqual);
+		}
+
 	}
 
 	@Test
@@ -161,7 +177,7 @@ public class CliTest {
 
 	private void deleteUnimportant(boolean R,String d) {
 		String name = "deletedUnimp";
-		Cli.main(new String[]{"-c", "-i", inDirName, "-o", outDir +File.separator+  name+".s2","-d", d});
+		Cli.main(new String[]{"-c", "-i", inDirName, "-o", outDir +File.separator+  name+".s2","-d", d, "-t", "0", "1", "true"});
 		Cli.main(new String[]{"-s", "-i", outDir +File.separator+ name+".s2", "-o", outDir +File.separator+ name+".txt" });
 
 		try {
