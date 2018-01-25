@@ -252,9 +252,6 @@ public class Cli {
 
 			}
 
-
-
-
 			//preberemo prvi S2 in obdelamo
 			System.out.println("using file "+file1.getFilePath());
 			boolean everythingOk = loadS1.readAndProcessFile();
@@ -266,7 +263,6 @@ public class Cli {
 				everythingOk &= loadS2.readAndProcessFile();
 				System.out.println(file2.getNotes());
 			}
-
 
 			if (everythingOk){
 				System.out.println("THE END" + "\n");

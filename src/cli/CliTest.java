@@ -6,9 +6,6 @@ import static org.junit.Assert.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runners.Parameterized;
-import org.junit.runner.RunWith;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -91,7 +88,8 @@ public class CliTest {
 		}
 
 		{
-			Cli.main(new String[]{"-r", "-i", inDirName, "-o", outDir + File.separator + "IzpisOriginalaT.csv", "-t", "0", "1"});
+			Cli.main(new String[]{"-r", "-i", inDirName, "-o", outDir + File.separator + "IzpisOriginalaT.csv",
+					"-t", "0", "1"});
 			File corect = new File(inDir + File.separator + "generated.csv");
 			File testing = new File(outDir + File.separator + "IzpisOriginala.csv");
 			boolean isTwoEqual = false;
@@ -177,8 +175,10 @@ public class CliTest {
 
 	private void deleteUnimportant(boolean R,String d) {
 		String name = "deletedUnimp";
-		Cli.main(new String[]{"-c", "-i", inDirName, "-o", outDir +File.separator+  name+".s2","-d", d, "-t", "0", "1", "true"});
-		Cli.main(new String[]{"-s", "-i", outDir +File.separator+ name+".s2", "-o", outDir +File.separator+ name+".txt" });
+		Cli.main(new String[]{"-c", "-i", inDirName, "-o", outDir +File.separator+  name+".s2",
+				"-d", d, "-t", "0", "1", "true"});
+		Cli.main(new String[]{"-s", "-i", outDir +File.separator+ name+".s2",
+				"-o", outDir +File.separator+ name+".txt" });
 
 		try {
 			BufferedReader bf = new BufferedReader(new FileReader(outDir + File.separator + name+".txt"));
