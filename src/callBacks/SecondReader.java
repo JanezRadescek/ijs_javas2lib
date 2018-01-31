@@ -162,7 +162,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 		{	
 			if(0<=handle && handle < 32)
 			{
-				for(int i = 0;i<32;i++)
+				for(int i = 0;i<=32;i++)
 				{
 					byte temp = (byte) ((handle+i)%32);
 					if(!usedHandles.contains(temp))
@@ -179,7 +179,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 			else
 			{
 				byte abc = Byte.MAX_VALUE + 1 - 32;
-				for(int i =0;i<abc+1;i++)
+				for(int i =0;i<=abc;i++)
 				{
 					byte temp = (byte) ((handle+i-32)%abc + 32);
 					if(!usedHandles.contains(temp))

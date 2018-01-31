@@ -52,6 +52,10 @@ If we provide \textbf{-d} it will only use those additional data types.
 \subsubsection{Merge}
  \textbf{-m} merges two original S2 files and save them into new one. It is task flag. It has mandatory argument. If argument is true it check if files correspond and if they do it will merge them on same handles, do nothing otherwise. If argument is false it will give second file new handles. It is mandatory to accompany this flag with flag \textbf{-o}.
 
+\paragraph{Calculating new handles}
+Algorithm for calculating new handle for handle i is as follows. 
+First it will check if this handle was used before. If not it will be given that handle. If it was used before it will try handles i+1, i+2,...,i+31(mod 32 is applied every time). It will use the firt one in sequence not used before. If all of them were used before it will give it handle i(in that last case that means data from handle i from first file and data from handle i from second file will be both on same handle i in merged file).
+
 
 \subsubsection{Input}
 
@@ -90,17 +94,19 @@ In all examples to follow we will assume we have two \textbf{S2} files named \te
 
 \subsection{example}
 Lets say file1.s2 stores data about EKG measurement and we want to know how long did it last. For that we call Cli as follows. $$\textbf{Cli -s -i ./files/file1.s2} $$
- \textbf{-i} is always necessary and has 2 mandatory arguments file directory and name. After running the program we will get statistics of \textbf{file1.s2} on standard output.
+ \textbf{-i} is always necessary and has mandatory arguments file directory. After running the program we will get statistics of \textbf{file1.s2} on standard output.
 
 Now we want to know the actual data for the first 30s. We want them saved in file \textbf{output1.csv} for later use: $$ \textbf{Cli -r -i ./files/file1.s2 -o ./files/output1.csv -t 0 30} $$
-Flag \textbf{-r} tels the program we want actual data in CSV format, \textbf{-o} has 2 necessary arguments directory and name of file in which we will save our CSV data. There is also \textbf{-t} with 2 arguments which represent time interval.
+Flag \textbf{-r} tels the program we want actual data in CSV format, \textbf{-o} has necessary argument directory of file in which we will save our CSV data. There is also \textbf{-t} with 2 arguments which represent time interval.
 
 
 \subsection{example}
-Lets say the measurement on \textbf{file2.s2} is too long. We decide we only want part of data between 45s and 75s since the beginning. We also dont want to keep special messages.We call Cli as follows.
+First we want statistics for both files. $$\textbf{Cli -s -i ./files/file1.s2} $$ $$\textbf{Cli -s -i ./files/file2.s2} $$
+Lets say the measurement on \textbf{file2.s2} is too long. We have decided we only want part of data between 45s and 75s since the beginning. We also don't want to keep special messages.We call Cli as follows.
 $$ \textbf{Cli -c -i ./files/file2.s2 -o ./files/newFile2.s2 -t 45 75 -d 101}$$
-Now we want data from \textbf{file1.s2} and \textbf{newFile2.s2} to be in the same S2 file named \textbf{merged.s2}
+Now we want data from \textbf{file1.s2} and \textbf{newFile2.s2} to be in the same S2 file named \textbf{merged.s2}, but in the way we will latter be able to distinguish from which file data came.
 $$ \textbf{Cli -m false -i ./files/file1.s2 ./files/newFile2.s2 -o ./files/merged.s2}$$
+Let say \textbf{file1.s2} has data on two handles, 0 and 1 and \textbf{file2.s2} has data on three handles, 0, 1, 31. Data from first input file will keep their original Handles(0 and 1 in this case). For the second file it will calculate new handles. WARNING mapping depends on sequence in which struct definitions are written. 0 was already used in the first file therefore it will try to give it 1(0+1). 1 was also already used therefore it will try to give it 2(0+2). This was no used before therefore in handle 0 from second file will be handle 2 in merged file. We do the same for handle 1. 1 was used in the first file. 2 was used for 0 from second file. 3 was not used before therefore 1 will be given 3 in next file. Notice that if it would calculate new handle for 1 before 0 it would result in 1->2 0->3.Since 31 was not used before it will stay the same in merged file.
 
 
 \subsection{example}
