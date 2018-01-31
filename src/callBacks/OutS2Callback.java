@@ -54,6 +54,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 	 * Creates callback for writing part of source S2 file to new S2 file
 	 * @param inFile - source S2 file
 	 * @param ab - interval of time [a,b)
+	 * @param nonEss - if true timeless data will be given aproximate time and processed acordingly.
 	 * @param handles - handles of streams we want to keep/let go.
 	 * @param dataT - data types we want to keep/let go.
 	 * @param directory - directory of new S2 file
