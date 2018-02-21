@@ -2,6 +2,8 @@ package cli;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import org.apache.commons.cli.*;
 
@@ -11,31 +13,59 @@ import callBacks.OutS2Callback;
 import callBacks.SecondReader;
 import callBacks.StatisticsCallback;
 import s2.S2;
+import e6.ECG.time_sync.*;
 
 /**bere , izrezuje, ... s2 file */
 public class Cli {
 
 	public static void main(String[] args){
-
+		
+		final String PASS = "pass";
+		final String STATISTIKA = "s";
+		final String CUT = "c";
+		final String READ = "r";
+		final String MEARGE = "m";
+		final String HELP = "help";
+		
+		final String PROCESS_SIGNAL = "p";
+		
+		final HashSet<String> PROCESS_FIRST_S2 = new HashSet<String>(
+				Arrays.asList(new String[]{STATISTIKA, CUT, READ, MEARGE, HELP}));
+		final HashSet<String> PROCESS_SECOND_S2 = new HashSet<String>(
+				Arrays.asList(new String[]{MEARGE}));
+		final HashSet<String> DONT_PROCESS = new HashSet<String>(
+				Arrays.asList(new String[]{PROCESS_SIGNAL}));
+		
+		
+		final String TIME = "t";
+		final String INPUT = "i";
+		final String OUTPUT = "o";
+		final String HANDLES = "h";
+		final String DATA = "d";
+		
+		//curent task
+		String ctask = PASS;
+		
 		//parsanje vhodnih podatkov haahah
 		Options options = new Options();
 
-		options.addOption("s", false, "statistics. Output statistics. ");
-		options.addOption("c", false, "cut. cut/filter S2");
-		options.addOption("r", false, "read. izrezi del in izpisi na izhod v CSV in human readable form");
+		options.addOption(STATISTIKA, false, "statistics. Output statistics. ");
+		options.addOption(CUT, false, "cut. cut/filter S2");
+		options.addOption(READ, false, "read. izrezi del in izpisi na izhod v CSV in human readable form");
 		options.addOption("m", true, "mearge. Combines two S2 files in one S2 file. Has mendatory argument."
 				+ " If true streams with same hendels will be merged,"
 				+ " else strems from second file will get new one where needed");
-		options.addOption("help", false, "Help");
+		options.addOption(HELP, false, "Help");
+		options.addOption(PROCESS_SIGNAL,false, "Proces signal");
 
-		Option time = new Option("t", "time. zacetni in koncni cas izseka, ki nas zanima. 3 argument if we aproximate "
+		Option time = new Option(TIME, "time. zacetni in koncni cas izseka, ki nas zanima. 3 argument if we aproximate "
 				+ "datas without own time with last previous time"
 				+ "-t start end nonEssential. Defaul -t 0 Long.MAX_VALUE true");
 		time.setArgs(3);
 		time.setOptionalArg(true);
 		options.addOption(time);
 
-		Option input1 = new Option("i", "input. Directory of input file. "
+		Option input1 = new Option(INPUT, "input. Directory of input file. "
 				+ "Optional has also directory of second directory.");
 		input1.setArgs(2);
 		input1.setOptionalArg(true);
@@ -46,17 +76,17 @@ public class Cli {
 		input2.setArgs(2);
 		options.addOption(input2);*/
 
-		Option output = new Option("o", true, "output. Directory and name of output file");
+		Option output = new Option(OUTPUT, true, "output. Directory and name of output file");
 		options.addOption(output);
 
-		Option handle = new Option("h",true ,"handles. Handles, we want to use.Deafault all. " +
+		Option handle = new Option(HANDLES,true ,"handles. Handles, we want to use.Deafault all. " +
 				"Argument represent wanted handles. " +
 				"If we want handle with num. i there has to be 1 on i+1 position from right to left in argument,0 atherwise" +
 				"If we want to keep only handles with 0 and 4 we pass '10001'" );
 		//handle.setArgs(2);
 		options.addOption(handle);
 
-		Option dataTypes = new Option("d",true, "datatype. data types we want to keep. Deafault all" +
+		Option dataTypes = new Option(DATA,true, "datatype. data types we want to keep. Deafault all" +
 				"Argument must be a number in binary form"+
 				".*1=keeps comments, .*1.=keeps Special, .*1..=keeps meta");
 		options.addOption(dataTypes);
@@ -100,7 +130,7 @@ public class Cli {
 		S2.LoadStatus loadS2 = null;
 
 		//brez vhodne ne moremo delati
-		if(cmd.hasOption("i"))
+		if(cmd.hasOption(INPUT))
 		{
 			File inDirectory1;
 			//String inFname1;
@@ -127,7 +157,7 @@ public class Cli {
 			byte dataT = Byte.MAX_VALUE;
 
 			//second input S2 file directory and name
-			if(cmd.hasOption("m"))
+			if(cmd.hasOption(MEARGE))
 			{
 				try
 				{
@@ -141,17 +171,17 @@ public class Cli {
 				}
 			}
 			// time interval
-			if(cmd.hasOption("t"))
+			if(cmd.hasOption(TIME))
 			{
 				try{
 					double aa = Double.parseDouble(cmd.getOptionValues("t")[0])* 1E9;
 					double bb = Double.parseDouble(cmd.getOptionValues("t")[1])* 1E9;
-					if(cmd.hasOption("c"))
+					if(cmd.hasOption(CUT))
 						nonEss = Boolean.parseBoolean(cmd.getOptionValues("t")[2]);
 					ab[0] = (long)aa;
 					ab[1] = (long)bb;
 				}catch(NumberFormatException e){
-					System.out.println("Arguments at t must be float float boolean");
+					System.out.println("Arguments at" +TIME+ "must be float float boolean");
 					return;
 				}
 				if (ab[0]>ab[1])
@@ -161,43 +191,44 @@ public class Cli {
 				}
 			}
 			//output direcotry and name 
-			if(cmd.hasOption("o"))
+			if(cmd.hasOption(OUTPUT))
 			{
 				try{
-					izhodDir = cmd.getOptionValue("o");
+					izhodDir = cmd.getOptionValue(OUTPUT);
 					//izhodName = cmd.getOptionValues("o")[1];
 				} catch(Exception e)
 				{
-					System.out.println("Option o needs file directory and name. TERMINATE");
+					System.out.println("Option "+OUTPUT+" needs file directory and name. TERMINATE");
 					return;
 				}
 			}
 			//handle
-			if(cmd.hasOption("h"))
+			if(cmd.hasOption(HANDLES))
 			{
 				try{
-					handles = Long.parseLong(cmd.getOptionValue("h"),2);
+					handles = Long.parseLong(cmd.getOptionValue(HANDLES),2);
 				}catch(NumberFormatException e){
-					System.out.println("argument of h must be a number in binary format. TERMINATE");
+					System.out.println("argument of "+HANDLES+" must be a number in binary format. TERMINATE");
 					return;
 				}
 			}
 			//"data types"
-			if(cmd.hasOption("d"))
+			if(cmd.hasOption(DATA))
 			{
 				try{
-					dataT = Byte.parseByte(cmd.getOptionValue("d"),2);
+					dataT = Byte.parseByte(cmd.getOptionValue(DATA),2);
 				}catch(NumberFormatException e){
-					System.out.println("argument of d must be a number in binary format. TERMINATE");
+					System.out.println("argument of "+DATA+" must be a number in binary format. TERMINATE");
 					return;
 				}
 			}
 			//dodajanje callBackov
-			if(cmd.hasOption("m") && inDirectory2!=null && izhodDir!=null)
+			if(cmd.hasOption(MEARGE) && inDirectory2!=null && izhodDir!=null)
 			{
+				ctask = MEARGE;
 				file2 = new S2();
 				loadS2 = file2.load(inDirectory2.getParentFile(), inDirectory2.getName());
-				boolean mergeHandles = Boolean.parseBoolean(cmd.getOptionValue("m"));
+				boolean mergeHandles = Boolean.parseBoolean(cmd.getOptionValue(MEARGE));
 
 				SecondReader bob = new SecondReader(file2, izhodDir, mergeHandles);
 				FirtstReader gre = new FirtstReader(file1, bob);
@@ -205,15 +236,16 @@ public class Cli {
 				loadS2.addReadLineCallback(bob);
 				//merge(file1, loadS1, file2, loadS2, izhodDir, mergeHandles);
 
-			}else if (cmd.hasOption("m"))
+			}else if (cmd.hasOption(MEARGE))
 			{
 				System.err.println("If we want to use -m(concat 2 S2 files)"+
 						"we need option -i with second argument (second S2 file) and -o(output S2 file). TERMINATE");
 				return;
 			}
 
-			if(cmd.hasOption("s"))
+			if(cmd.hasOption(STATISTIKA))
 			{
+				ctask = STATISTIKA;
 				StatisticsCallback callback;
 				if(izhodDir !=null)
 					callback = new StatisticsCallback(file1, izhodDir);
@@ -223,8 +255,9 @@ public class Cli {
 				//outStatistics(file1, loadS1, izhodDir);
 			}
 
-			if(cmd.hasOption("c"))
+			if(cmd.hasOption(CUT))
 			{
+				ctask = CUT;
 				if(izhodDir != null)
 				{
 					OutS2Callback callback = new OutS2Callback(file1, ab, nonEss, handles, dataT, izhodDir);
@@ -236,8 +269,9 @@ public class Cli {
 				}
 			}
 
-			if(cmd.hasOption("r"))
+			if(cmd.hasOption(READ))
 			{
+				ctask = READ;
 				if(izhodDir != null)
 				{
 					OutCSVCallback callback = new OutCSVCallback(file1, ab, handles, izhodDir);
@@ -248,16 +282,32 @@ public class Cli {
 					OutCSVCallback callback = new OutCSVCallback(file1, ab, handles, izhodDir);
 					loadS1.addReadLineCallback(callback);
 				}
-
-
 			}
 
-			//preberemo prvi S2 in obdelamo
-			System.out.println("using file "+file1.getFilePath());
-			boolean everythingOk = loadS1.readAndProcessFile();
-			System.out.println(file1.getNotes());
-			//samo opcija b potrebuje drugi file
-			if (file2 != null && loadS2 != null)
+
+			
+			
+			//TODO offset kaj je to ??? na kolk ga naštmam defaul ?
+			if(cmd.hasOption("p"))
+			{
+				Signal signal_1 = new Signal();
+				signal_1.readS2File(inDirectory1.getParentFile().getAbsolutePath(),inDirectory1.getName(),
+						ab[0], ab[1], 0);
+				signal_1.processSignal();
+			}
+
+			
+			boolean everythingOk = true;
+			
+			if(PROCESS_FIRST_S2.contains(ctask))
+			{
+				//preberemo prvi S2 in obdelamo
+				System.out.println("using file "+file1.getFilePath());
+				everythingOk &= loadS1.readAndProcessFile();
+				System.out.println(file1.getNotes());
+				//samo opcija b potrebuje drugi file
+			}
+			if (PROCESS_SECOND_S2.contains(ctask))
 			{
 				System.out.println("using file "+file2.getFilePath());
 				everythingOk &= loadS2.readAndProcessFile();
