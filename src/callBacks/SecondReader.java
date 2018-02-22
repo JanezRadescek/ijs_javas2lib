@@ -17,6 +17,22 @@ import callBacks.FirtstReader.StreamPacket;
 import callBacks.FirtstReader.TimeData;
 import callBacks.FirtstReader.TimeStamp;
 import callBacks.FirtstReader.Version;
+import si.ijs.e6.S2;
+import si.ijs.e6.S2.MessageType;
+import si.ijs.e6.S2.Nanoseconds;
+import si.ijs.e6.S2.ReadLineCallbackInterface;
+import si.ijs.e6.S2.SensorDefinition;
+import si.ijs.e6.S2.StoreStatus;
+import si.ijs.e6.S2.StructDefinition;
+import si.ijs.e6.S2.TimestampDefinition;
+
+/*
+import callBacks.FirtstReader.Comment;
+import callBacks.FirtstReader.SpecialMessage;
+import callBacks.FirtstReader.StreamPacket;
+import callBacks.FirtstReader.TimeData;
+import callBacks.FirtstReader.TimeStamp;
+import callBacks.FirtstReader.Version;
 import s2.S2;
 import s2.S2.MessageType;
 import s2.S2.Nanoseconds;
@@ -25,7 +41,7 @@ import s2.S2.SensorDefinition;
 import s2.S2.StoreStatus;
 import s2.S2.StructDefinition;
 import s2.S2.TimestampDefinition;
-
+*/
 
 public class SecondReader implements ReadLineCallbackInterface {
 	//najvišja verzija, ki jo še znamo brati/pisati

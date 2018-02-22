@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="commons-cli-1.4.jar" sourcepath="commons-cli-1.4-src.zip"/>
 	<classpathentry kind="lib" path="commons-io-2.6.jar" sourcepath="commons-io-2.6-src.zip"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/pcardtimesync"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/s2-java-lib"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

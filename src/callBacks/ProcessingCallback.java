@@ -4,8 +4,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import callBacks.FirtstReader.StreamPacket;
-import s2.S2;
-import s2.S2.ReadLineCallbackInterface;
+import si.ijs.e6.S2;
+import si.ijs.e6.S2.ReadLineCallbackInterface;
 
 public abstract class ProcessingCallback extends OutS2Callback implements ReadLineCallbackInterface {
 

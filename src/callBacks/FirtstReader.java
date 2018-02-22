@@ -1,10 +1,18 @@
 package callBacks;
 
+import si.ijs.e6.S2;
+import si.ijs.e6.S2.ReadLineCallbackInterface;
+import si.ijs.e6.S2.SensorDefinition;
+import si.ijs.e6.S2.StructDefinition;
+import si.ijs.e6.S2.TimestampDefinition;
+
+/*
 import s2.S2;
 import s2.S2.ReadLineCallbackInterface;
 import s2.S2.SensorDefinition;
 import s2.S2.StructDefinition;
 import s2.S2.TimestampDefinition;
+*/
 
 public class FirtstReader implements ReadLineCallbackInterface {
 	//najvišja verzija, ki jo še znamo brati/pisati

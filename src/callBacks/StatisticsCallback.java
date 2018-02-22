@@ -6,12 +6,19 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import si.ijs.e6.S2;
+import si.ijs.e6.S2.ReadLineCallbackInterface;
+import si.ijs.e6.S2.SensorDefinition;
+import si.ijs.e6.S2.StructDefinition;
+import si.ijs.e6.S2.TimestampDefinition;
+
+/*
 import s2.S2;
 import s2.S2.ReadLineCallbackInterface;
 import s2.S2.SensorDefinition;
 import s2.S2.StructDefinition;
 import s2.S2.TimestampDefinition;
-
+*/
 
 /**
  * Callback for basic information about S2 file

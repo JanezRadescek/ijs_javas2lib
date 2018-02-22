@@ -4,6 +4,16 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import si.ijs.e6.S2;
+import si.ijs.e6.S2.MessageType;
+import si.ijs.e6.S2.Nanoseconds;
+import si.ijs.e6.S2.ReadLineCallbackInterface;
+import si.ijs.e6.S2.SensorDefinition;
+import si.ijs.e6.S2.StoreStatus;
+import si.ijs.e6.S2.StructDefinition;
+import si.ijs.e6.S2.TimestampDefinition;
+
+/*
 import s2.S2;
 import s2.S2.MessageType;
 import s2.S2.Nanoseconds;
@@ -12,7 +22,7 @@ import s2.S2.SensorDefinition;
 import s2.S2.StoreStatus;
 import s2.S2.StructDefinition;
 import s2.S2.TimestampDefinition;
-
+*/
 
 /**
  * Callback for writing part of source S2 file to new S2 file

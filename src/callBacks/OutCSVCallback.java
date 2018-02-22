@@ -7,12 +7,19 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
+import si.ijs.e6.S2;
+import si.ijs.e6.S2.ReadLineCallbackInterface;
+import si.ijs.e6.S2.SensorDefinition;
+import si.ijs.e6.S2.StructDefinition;
+import si.ijs.e6.S2.TimestampDefinition;
+
+/*
 import s2.S2;
 import s2.S2.ReadLineCallbackInterface;
 import s2.S2.SensorDefinition;
 import s2.S2.StructDefinition;
 import s2.S2.TimestampDefinition;
-
+*/
 
 /**
  * Callback for writing in human-readable data
