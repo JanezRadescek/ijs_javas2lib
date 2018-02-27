@@ -273,6 +273,20 @@ public class CliTest {
 
 	//if something goes wrong we dont want to delete files
 
+	
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void SignalTest1()
+	{
+		Cli.main(new String[]{"-p","-i",outDir + File.separator + "KopijaOriginala.s2"});
+	}
+	
+	@Test
+	public void SignalTest2()
+	{
+		Cli.main(new String[]{"-p","-i",outDir + File.separator + "test2.s2"});
+	}
+	
+	
 	@AfterClass
 	public static void clean()
 	{

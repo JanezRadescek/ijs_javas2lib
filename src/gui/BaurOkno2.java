@@ -31,6 +31,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
 import javax.swing.JLabel;
+import javax.swing.JRadioButton;
 
 public class BaurOkno2 extends JFrame {
 
@@ -516,7 +517,8 @@ public class BaurOkno2 extends JFrame {
 
 			JRadioGRoup = new ButtonGroup();
 			skupina = new ArrayList<Radijo>();
-			panel_radioButtons.setLayout(new MigLayout("", "[71px]", "[51px,grow][51px,grow][51px,grow][51px,grow]"));
+			panel_radioButtons.setLayout(new MigLayout("", "[71px]",
+					"[51px,grow][51px,grow][51px,grow][51px,grow][51px,grow][51px,grow]"));
 
 			Radijo rdbtn1 = new Radijo("Statistics","-s");
 			rdbtn1.addActionListener(new ActionListener() {
@@ -574,9 +576,22 @@ public class BaurOkno2 extends JFrame {
 					enableButtons();
 				}
 			});
+			
 			JRadioGRoup.add(rdbtn5);
 			skupina.add(rdbtn5);
 			panel_radioButtons.add(rdbtn5, "cell 0 4,grow");
+			
+			Radijo rdbtn6 = new Radijo("Proces signal PCARD","-p");
+			rdbtn6.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					act = rdbtn6;
+					allowedGroups = new String[]{"main input"};
+					enableButtons();
+				}
+			});
+			JRadioGRoup.add(rdbtn6);
+			skupina.add(rdbtn6);
+			panel_radioButtons.add(rdbtn6, "cell 0 5,grow");
 		}
 
 	}

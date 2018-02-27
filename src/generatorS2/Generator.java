@@ -1,8 +1,9 @@
 package generatorS2;
 
 import java.io.File;
-import s2.S2;
-import s2.S2.Nanoseconds;
+
+import si.ijs.e6.S2;
+import si.ijs.e6.S2.Nanoseconds;
 
 public class Generator {
 
