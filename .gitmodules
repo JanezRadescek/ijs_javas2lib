@@ -1,6 +1,3 @@
-[submodule "submodules/pcardtimesync"]
-	path = submodules/pcardtimesync
-	url = https://Radescek@bitbucket.org/wecg/pcardtimesync.git
 [submodule "submodules/s2-java-lib"]
 	path = submodules/s2-java-lib
 	url = https://Radescek@bitbucket.org/wecg/s2-java-lib.git
