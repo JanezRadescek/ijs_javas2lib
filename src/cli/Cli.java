@@ -1,10 +1,12 @@
 package cli;
 
+import java.lang.Exception;
+
 import java.io.File;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.HashSet;
-
 import org.apache.commons.cli.*;
 
 import callBacks.FirtstReader;
@@ -15,7 +17,12 @@ import callBacks.StatisticsCallback;
 import e6.ECG.time_sync.*;
 import si.ijs.e6.S2;
 
-/**bere , izrezuje, ... s2 file */
+/**
+ * bere , izrezuje, ... s2 file
+ * 
+ * @author janez
+ *
+ */
 public class Cli {
 
 	public static void main(String[] args){
@@ -33,9 +40,6 @@ public class Cli {
 				Arrays.asList(new String[]{STATISTIKA, CUT, READ, MEARGE, HELP}));
 		final HashSet<String> PROCESS_SECOND_S2 = new HashSet<String>(
 				Arrays.asList(new String[]{MEARGE}));
-		final HashSet<String> DONT_PROCESS = new HashSet<String>(
-				Arrays.asList(new String[]{PROCESS_SIGNAL}));
-		
 		
 		final String TIME = "t";
 		final String INPUT = "i";
@@ -326,11 +330,17 @@ public class Cli {
 			System.out.println("Input is mandatory. TERMINATE");
 			formatter.printHelp("Cli",header,options,footer);
 		}
+		
 
 	}
 
-	public Exception start(String[] args)
+	public static void start(String[] args)
 	{
-		return null;
+		Cli.start(args, System.out);
+	}
+	
+	public static void start(String[] args, PrintStream out)
+	{
+		
 	}
 }

@@ -19,7 +19,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -29,9 +28,6 @@ import net.miginfocom.swing.MigLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.BoxLayout;
-import java.awt.GridLayout;
-import javax.swing.JLabel;
-import javax.swing.JRadioButton;
 
 public class BaurOkno2 extends JFrame {
 
