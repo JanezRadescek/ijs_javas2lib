@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/submodules/pcardtimesync/src/main/pcardTimeSync.iml" filepath="$PROJECT_DIR$/submodules/pcardtimesync/src/main/pcardTimeSync.iml" />
       <module fileurl="file://$PROJECT_DIR$/s2_commandline_tool.iml" filepath="$PROJECT_DIR$/s2_commandline_tool.iml" />
+      <module fileurl="file://$PROJECT_DIR$/submodules/s2-java-lib/src/main/s2lib.iml" filepath="$PROJECT_DIR$/submodules/s2-java-lib/src/main/s2lib.iml" />
     </modules>
   </component>
 </project>
