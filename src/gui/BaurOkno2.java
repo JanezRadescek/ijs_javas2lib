@@ -300,6 +300,9 @@ public class BaurOkno2 extends JFrame {
 							case "-m":{
 								name = name+".s2";
 							}break;
+							case "-p":{
+								name = name+".s2";
+							}break;
 							}
 
 							txt_name.setText(name);
@@ -576,12 +579,12 @@ public class BaurOkno2 extends JFrame {
 			JRadioGRoup.add(rdbtn5);
 			skupina.add(rdbtn5);
 			panel_radioButtons.add(rdbtn5, "cell 0 4,grow");
-			
-			Radijo rdbtn6 = new Radijo("Proces signal PCARD","-p");
+			//TODO za splošno ne samo za pcard
+			Radijo rdbtn6 = new Radijo("fix time PCARD","-p");
 			rdbtn6.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					act = rdbtn6;
-					allowedGroups = new String[]{"main input"};
+					allowedGroups = new String[]{"main input","out"};
 					enableButtons();
 				}
 			});
