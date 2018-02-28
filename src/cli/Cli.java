@@ -10,12 +10,14 @@ import java.util.HashSet;
 import org.apache.commons.cli.*;
 
 import callBacks.FirtstReader;
+import callBacks.FixTime;
 import callBacks.OutCSVCallback;
 import callBacks.OutS2Callback;
 import callBacks.SecondReader;
 import callBacks.StatisticsCallback;
 import e6.ECG.time_sync.*;
 import si.ijs.e6.S2;
+import staticPackage.SaveAsS2;
 
 /**
  * bere , izrezuje, ... s2 file
@@ -37,7 +39,7 @@ public class Cli {
 		final String PROCESS_SIGNAL = "p";
 		
 		final HashSet<String> PROCESS_FIRST_S2 = new HashSet<String>(
-				Arrays.asList(new String[]{STATISTIKA, CUT, READ, MEARGE, HELP}));
+				Arrays.asList(new String[]{STATISTIKA, CUT, READ, MEARGE, HELP, PROCESS_SIGNAL}));
 		final HashSet<String> PROCESS_SECOND_S2 = new HashSet<String>(
 				Arrays.asList(new String[]{MEARGE}));
 		
@@ -155,7 +157,7 @@ public class Cli {
 			//default values			
 			long[] ab = new long[]{0,Long.MAX_VALUE};
 			boolean nonEss = true;
-			String izhodDir = null;
+			String outDir = null;
 			//String izhodName = null;
 			long handles = Long.MAX_VALUE;
 			byte dataT = Byte.MAX_VALUE;
@@ -198,7 +200,7 @@ public class Cli {
 			if(cmd.hasOption(OUTPUT))
 			{
 				try{
-					izhodDir = cmd.getOptionValue(OUTPUT);
+					outDir = cmd.getOptionValue(OUTPUT);
 					//izhodName = cmd.getOptionValues("o")[1];
 				} catch(Exception e)
 				{
@@ -227,14 +229,14 @@ public class Cli {
 				}
 			}
 			//dodajanje callBackov
-			if(cmd.hasOption(MEARGE) && inDirectory2!=null && izhodDir!=null)
+			if(cmd.hasOption(MEARGE) && inDirectory2!=null && outDir!=null)
 			{
 				ctask = MEARGE;
 				file2 = new S2();
 				loadS2 = file2.load(inDirectory2.getParentFile(), inDirectory2.getName());
 				boolean mergeHandles = Boolean.parseBoolean(cmd.getOptionValue(MEARGE));
 
-				SecondReader bob = new SecondReader(file2, izhodDir, mergeHandles);
+				SecondReader bob = new SecondReader(file2, outDir, mergeHandles);
 				FirtstReader gre = new FirtstReader(file1, bob);
 				loadS1.addReadLineCallback(gre);
 				loadS2.addReadLineCallback(bob);
@@ -251,8 +253,8 @@ public class Cli {
 			{
 				ctask = STATISTIKA;
 				StatisticsCallback callback;
-				if(izhodDir !=null)
-					callback = new StatisticsCallback(file1, izhodDir);
+				if(outDir !=null)
+					callback = new StatisticsCallback(file1, outDir);
 				else
 					callback = new StatisticsCallback(file1);
 				loadS1.addReadLineCallback(callback);
@@ -262,9 +264,9 @@ public class Cli {
 			if(cmd.hasOption(CUT))
 			{
 				ctask = CUT;
-				if(izhodDir != null)
+				if(outDir != null)
 				{
-					OutS2Callback callback = new OutS2Callback(file1, ab, nonEss, handles, dataT, izhodDir);
+					OutS2Callback callback = new OutS2Callback(file1, ab, nonEss, handles, dataT, outDir);
 					loadS1.addReadLineCallback(callback);
 					//outS2(file1, loadS1, ab, nonEss, handles, dataT, izhodDir);
 				}else
@@ -276,28 +278,24 @@ public class Cli {
 			if(cmd.hasOption(READ))
 			{
 				ctask = READ;
-				if(izhodDir != null)
+				if(outDir != null)
 				{
-					OutCSVCallback callback = new OutCSVCallback(file1, ab, handles, izhodDir);
+					OutCSVCallback callback = new OutCSVCallback(file1, ab, handles, outDir);
 					loadS1.addReadLineCallback(callback);
 					//outData(file1, loadS1, ab, handles, izhodDir);
 				}else
 				{
-					OutCSVCallback callback = new OutCSVCallback(file1, ab, handles, izhodDir);
+					OutCSVCallback callback = new OutCSVCallback(file1, ab, handles, outDir);
 					loadS1.addReadLineCallback(callback);
 				}
 			}
-
-
-			
 			
 			//TODO offset kaj je to ??? na kolk ga naštmam defaul ?
 			if(cmd.hasOption("p"))
 			{
-				Signal signal_1 = new Signal();
-				signal_1.readS2File(inDirectory1.getParentFile().getAbsolutePath(),inDirectory1.getName(),
-						ab[0], ab[1], 0);
-				signal_1.processSignal();
+				ctask = PROCESS_SIGNAL;
+				FixTime callback = new FixTime(file1, ab, nonEss, handles, dataT, outDir);
+				loadS1.addReadLineCallback(callback);
 			}
 
 			
