@@ -19,14 +19,23 @@ public class FixTime extends OutS2Callback {
 	int counter = 0;
 	long timeOff;
 	
-	public FixTime(S2 inFile, long[] ab, boolean nonEss, long handles, byte dataT, String directory) {
+	public FixTime(S2 inFile, long[] ab, boolean nonEss, long handles, byte dataT, String directory,
+			boolean simpleProcessing) {
+		
 		super(inFile, ab, nonEss, handles, dataT, directory);
 		
 		Signal signal = new Signal();
 		
 		File in = new File(inFile.getFilePath());
 		signal.readS2File(in.getParent(), in.getName(), ab[0], ab[1], 0);
-		signal.processSignal();
+		if(simpleProcessing)
+		{
+			signal.processSignalSimple();
+		}else
+		{
+			signal.processSignal();
+		}
+		
 		fixedTimestamps = signal.getNewTimeStamp();
 		timeOff = getTimeOffset(signal.getMetadata());		
 	}

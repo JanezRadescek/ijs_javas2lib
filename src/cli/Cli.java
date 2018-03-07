@@ -50,17 +50,17 @@ public class Cli {
 		//curent task
 		String ctask = PASS;
 		
-		//parsanje vhodnih podatkov haahah
+		//parsanje vhodnih podatkov
 		Options options = new Options();
 
 		options.addOption(STATISTIKA, false, "statistics. Output statistics. ");
 		options.addOption(CUT, false, "cut. cut/filter S2");
 		options.addOption(READ, false, "read. izrezi del in izpisi na izhod v CSV in human readable form");
-		options.addOption("m", true, "mearge. Combines two S2 files in one S2 file. Has mendatory argument."
+		options.addOption(MEARGE, true, "mearge. Combines two S2 files in one S2 file. Has mendatory argument."
 				+ " If true streams with same hendels will be merged,"
 				+ " else strems from second file will get new one where needed");
 		options.addOption(HELP, false, "Help");
-		options.addOption(PROCESS_SIGNAL,false, "Proces signal");
+		options.addOption(PROCESS_SIGNAL,true, "Proces signal");
 
 		Option time = new Option(TIME, "time. zacetni in koncni cas izseka, ki nas zanima. 3 argument if we aproximate "
 				+ "datas without own time with last previous time"
@@ -156,9 +156,9 @@ public class Cli {
 			long[] ab = new long[]{0,Long.MAX_VALUE};
 			boolean nonEss = true;
 			String outDir = null;
-			//String izhodName = null;
 			long handles = Long.MAX_VALUE;
 			byte dataT = Byte.MAX_VALUE;
+			boolean simpleProcessing = true;
 
 			//second input S2 file directory and name
 			if(cmd.hasOption(MEARGE))
@@ -291,10 +291,12 @@ public class Cli {
 			
 			
 			//TODO offset kaj je to ??? na kolk ga naštmam defaul ?
-			if(cmd.hasOption("p"))
+			if(cmd.hasOption(PROCESS_SIGNAL))
 			{
 				ctask = PROCESS_SIGNAL;
-				FixTime callback = new FixTime(file1, ab, nonEss, handles, dataT, outDir);
+				
+				simpleProcessing = Boolean.parseBoolean(cmd.getOptionValue(PROCESS_SIGNAL));
+				FixTime callback = new FixTime(file1, ab, nonEss, handles, dataT, outDir, simpleProcessing);
 				loadS1.addReadLineCallback(callback);
 			}
 
