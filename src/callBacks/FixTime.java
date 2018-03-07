@@ -28,9 +28,7 @@ public class FixTime extends OutS2Callback {
 		signal.readS2File(in.getParent(), in.getName(), ab[0], ab[1], 0);
 		signal.processSignal();
 		fixedTimestamps = signal.getNewTimeStamp();
-		timeOff = getTimeOffset(signal.getMetadata());
-
-		
+		timeOff = getTimeOffset(signal.getMetadata());		
 	}
 	
 	private long getTimeOffset(ArrayList<Metadata> md) {

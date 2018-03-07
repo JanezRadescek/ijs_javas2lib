@@ -15,9 +15,7 @@ import callBacks.OutCSVCallback;
 import callBacks.OutS2Callback;
 import callBacks.SecondReader;
 import callBacks.StatisticsCallback;
-import e6.ECG.time_sync.*;
 import si.ijs.e6.S2;
-import staticPackage.SaveAsS2;
 
 /**
  * bere , izrezuje, ... s2 file
@@ -289,6 +287,8 @@ public class Cli {
 					loadS1.addReadLineCallback(callback);
 				}
 			}
+			
+			
 			
 			//TODO offset kaj je to ??? na kolk ga naštmam defaul ?
 			if(cmd.hasOption("p"))
