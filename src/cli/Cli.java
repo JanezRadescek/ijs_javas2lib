@@ -293,7 +293,6 @@ public class Cli {
 			
 			
 			
-			//TODO offset kaj je to ??? na kolk ga naštmam defaul ?
 			if(cmd.hasOption(PROCESS_SIGNAL))
 			{
 				ctask = PROCESS_SIGNAL;

@@ -25,12 +25,10 @@ public class FilterTime extends Filter {
 		if(!filterTimeLessData || (filterTimeLessData && (start<=lastRecordedTime && lastRecordedTime<=end)))
 		{
 			pushComment(comment);
-			return true;
 		}
-		else
-		{
-			return true;
-		}
+		
+		return true;
+		
 	}
 
 	@Override
@@ -38,12 +36,9 @@ public class FilterTime extends Filter {
 		if(!filterTimeLessData || (filterTimeLessData && (start<=lastRecordedTime && lastRecordedTime<=end)))
 		{
 			pushSpecilaMessage(who, what, message);
-			return true;
 		}
-		else
-		{
-			return true;
-		}
+		return true;
+		
 	}
 
 	@Override

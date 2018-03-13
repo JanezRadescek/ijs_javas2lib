@@ -578,7 +578,7 @@ public class BaurOkno2 extends JFrame {
 			JRadioGRoup.add(rdbtn5);
 			skupina.add(rdbtn5);
 			panel_radioButtons.add(rdbtn5, "cell 0 4,grow");
-			//TODO za splošno ne samo za pcard
+			
 			
 			Radijo rdbtn6 = new Radijo("fix time PCARD","-p");
 			rdbtn6.addActionListener(new ActionListener() {

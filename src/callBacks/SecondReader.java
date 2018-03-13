@@ -397,7 +397,6 @@ public class SecondReader implements ReadLineCallbackInterface {
 		}
 		if(checkStructDefinitions)
 		{
-			//TODO neki ne dela popravi
 			checkStructDefinitions = false;
 			
 			for(byte key:structDefinitionSecondQ.keySet())

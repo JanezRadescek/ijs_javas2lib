@@ -37,7 +37,6 @@ public class Radijo extends JRadioButton implements Komponenta{
 
 	@Override
 	public boolean ready() {
-		// TODO Auto-generated method stub
 		return isEnabled();
 	}
 	

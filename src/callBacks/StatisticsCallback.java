@@ -236,7 +236,6 @@ public class StatisticsCallback implements ReadLineCallbackInterface{
 		/*
 		for (int i = 0; i < s2.getEntityHandles(handle).elementsInOrder.length(); ++i) {
             byte cb = (byte) s2.getEntityHandles(handle).elementsInOrder.charAt(i);
-            //TODO spremeni stetje
             if (cb == 'e'){dataCounter++;}
 		}*/
 		
