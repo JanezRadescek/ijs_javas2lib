@@ -60,7 +60,8 @@ public class Cli {
 				+ " If true streams with same hendels will be merged,"
 				+ " else strems from second file will get new one where needed");
 		options.addOption(HELP, false, "Help");
-		options.addOption(PROCESS_SIGNAL,true, "Proces signal");
+		options.addOption(PROCESS_SIGNAL,true, "Proces signal. If argument is true it will process"
+				+ " as if the frequency of sensor is constant. Otherwise ");
 
 		Option time = new Option(TIME, "time. zacetni in koncni cas izseka, ki nas zanima. 3 argument if we aproximate "
 				+ "datas without own time with last previous time"
@@ -226,6 +227,8 @@ public class Cli {
 					return;
 				}
 			}
+			
+			
 			//dodajanje callBackov
 			if(cmd.hasOption(MEARGE) && inDirectory2!=null && outDir!=null)
 			{
