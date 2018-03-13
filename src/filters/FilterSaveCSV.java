@@ -14,20 +14,26 @@ import si.ijs.e6.S2.StructDefinition;
 public class FilterSaveCSV extends Filter{
 
 	PrintStream out;
-	
-	
+
+
 	String[] CSVline;
 	boolean body = false;
 
 	private int maxColumns;
-	
+
 	private Map<Byte,StructDefinition> definitionsStruct = new HashMap<Byte,StructDefinition>();
 	private Map<Byte,SensorDefinition> definitionsSensor = new HashMap<Byte,SensorDefinition>();
 
 
 	private boolean dataMapping;
-	
-	FilterSaveCSV(String directory, boolean dataMapping)
+
+
+	/**
+	 * Filter which saves as CSV. Since CSV is very restrictive only timestamps, handles and actual datas will be saved.
+	 * @param directory string representing file directory AND name
+	 * @param dataMapping boolean value. if true packets will be translated acording to sensor definitions.
+	 */
+	public FilterSaveCSV(String directory, boolean dataMapping)
 	{
 		this.dataMapping = dataMapping;
 		try {
@@ -38,18 +44,18 @@ public class FilterSaveCSV extends Filter{
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 	private void printLine() {
 		for(int i=0;i<2+maxColumns-1;i++)
 		{
 			out.print(CSVline[i] + ",");
 		}
 		out.println(CSVline[maxColumns+2-1]);
-		
+
 	}
-	
-	
+
+
 	@Override
 	public boolean onEndOfFile() {
 		if(!body)
@@ -64,12 +70,12 @@ public class FilterSaveCSV extends Filter{
 			}
 			printLine();
 		}
-		
+
 		out.close();
 		pushEndofFile();
 		return false;
 	}
-	
+
 	@Override
 	public boolean onUnmarkedEndOfFile() {
 		if(!body)
@@ -84,21 +90,21 @@ public class FilterSaveCSV extends Filter{
 			}
 			printLine();
 		}
-		
+
 		out.close();
 		pushUnmarkedEndofFile();
 		return false;
 	}
-	
-	
+
+
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
 		definitionsSensor.put(handle, definition);
 		pushDefinition(handle, definition);
 		return true;
 	}
-	
-	
+
+
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
 		//TODO should we clone definition ? perhaps we will change that down the line.
@@ -108,12 +114,12 @@ public class FilterSaveCSV extends Filter{
 		{
 			maxColumns = temp;
 		}
-		
+
 		pushDefinition(handle, definition);
 		return true;
 	}
-	
-	
+
+
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
 		if(!body)
@@ -128,31 +134,31 @@ public class FilterSaveCSV extends Filter{
 			}
 			printLine();
 		}
-		
+
 		ArrayList<Float> sensorData = new ArrayList<>();
-		
+
 		//hardcoded conversion
 		MultiBitBuffer mbb = new MultiBitBuffer(data);
 		int mbbOffset = 0;
-		
+
 		for (char element : definitionsStruct.get(handle).elementsInOrder.toCharArray())
 		{
 			byte cb = (byte) element;
 			if (definitionsSensor.get(cb) != null){
 				SensorDefinition tempSensor = definitionsSensor.get(cb);
 				int entitySize = tempSensor.resolution;
-                //OLD CODE int entitySize = s2.getEntityHandles(cb).sensorDefinition.resolution;
-                int temp = mbb.getInt(mbbOffset, entitySize);
-                mbbOffset += entitySize;
-                if(dataMapping){
-                	float k = tempSensor.k;
-                	float n = tempSensor.n;
-                	float t = calculateANDround(temp,k,n);
-                	sensorData.add(t);
-                }else{
-                	sensorData.add((float) temp);
-                }
-                
+				//OLD CODE int entitySize = s2.getEntityHandles(cb).sensorDefinition.resolution;
+				int temp = mbb.getInt(mbbOffset, entitySize);
+				mbbOffset += entitySize;
+				if(dataMapping){
+					float k = tempSensor.k;
+					float n = tempSensor.n;
+					float t = calculateANDround(temp,k,n);
+					sensorData.add(t);
+				}else{
+					sensorData.add((float) temp);
+				}
+
 			}else{
 				System.out.println("Measurement data encountered invalid sensor: " + (int) (cb));
 			}
@@ -169,13 +175,13 @@ public class FilterSaveCSV extends Filter{
 				CSVline[2+i] = "";
 		}
 		printLine();
-		
-		
+
+
 		pushStremPacket(handle, timestamp, len, data);
 		return true;
 	}
-	
-	
+
+
 	/**
 	 * affine transformation of data and round 
 	 * @param temp - raw data
@@ -198,12 +204,12 @@ public class FilterSaveCSV extends Filter{
 		}
 		int zaokr = (int) Math.pow(10, dec);
 		r = (float)Math.round(r * zaokr)/zaokr;
-		
+
 		return r;
 	}
 
-	
-	
-	
-	
+
+
+
+
 }

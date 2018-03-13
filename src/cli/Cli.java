@@ -15,6 +15,11 @@ import callBacks.OutCSVCallback;
 import callBacks.OutS2Callback;
 import callBacks.SecondReader;
 import callBacks.StatisticsCallback;
+import filters.FilterData;
+import filters.FilterHandles;
+import filters.FilterSaveCSV;
+import filters.FilterSaveS2;
+import filters.FilterTime;
 import si.ijs.e6.S2;
 
 /**
@@ -160,6 +165,7 @@ public class Cli {
 			long handles = Long.MAX_VALUE;
 			byte dataT = Byte.MAX_VALUE;
 			boolean simpleProcessing = true;
+			boolean dataMapping = true;
 
 			//second input S2 file directory and name
 			if(cmd.hasOption(MEARGE))
@@ -267,9 +273,23 @@ public class Cli {
 				ctask = CUT;
 				if(outDir != null)
 				{
+					//old way with callbacks
+					
 					OutS2Callback callback = new OutS2Callback(file1, ab, nonEss, handles, dataT, outDir);
 					loadS1.addReadLineCallback(callback);
-					//outS2(file1, loadS1, ab, nonEss, handles, dataT, izhodDir);
+					
+					//new way
+					/*
+					FilterTime filterT = new FilterTime(ab[0], ab[1], nonEss);
+					FilterData filterD = new FilterData(dataT);
+					FilterHandles filterH = new FilterHandles(handles);
+					FilterSaveS2 filterS = new FilterSaveS2(outDir);
+					
+					loadS1.addReadLineCallback(filterT);
+					filterT.addChild(filterD);
+					filterD.addChild(filterH);
+					filterH.addChild(filterS);
+					*/
 				}else
 				{
 					System.err.println("Option c-cut need option o-out(directory and name of output file). TERMINATE");
@@ -281,9 +301,18 @@ public class Cli {
 				ctask = READ;
 				if(outDir != null)
 				{
+					// old way with callback
+					/*
 					OutCSVCallback callback = new OutCSVCallback(file1, ab, handles, outDir);
 					loadS1.addReadLineCallback(callback);
-					//outData(file1, loadS1, ab, handles, izhodDir);
+					*/
+					
+					//new way with filters
+					
+					FilterSaveCSV filter = new FilterSaveCSV(outDir, dataMapping);
+					loadS1.addReadLineCallback(filter);
+					
+					
 				}else
 				{
 					OutCSVCallback callback = new OutCSVCallback(file1, ab, handles, outDir);

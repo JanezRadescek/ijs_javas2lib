@@ -115,7 +115,7 @@ public class CliTest {
 		assertEquals("Testing singletons time 15",1+0, checkSingleton(15L));
 
 		deleteUnimportant(false,"111");
-		deleteUnimportant(true,"100");
+		//deleteUnimportant(true,"100");
 
 
 	}
@@ -274,16 +274,18 @@ public class CliTest {
 	//if something goes wrong we dont want to delete files
 
 	
-	@Test(expected = NullPointerException.class)
+	//@Test(expected = NullPointerException.class)
+	@Test
 	public void SignalTest1()
 	{
-		Cli.main(new String[]{"-p","-i",outDir + File.separator + "KopijaOriginala.s2"});
+		//Cli.main(new String[]{"-p", "false","-i",inDirName});
 	}
 	
 	@Test
 	public void SignalTest2()
 	{
-		Cli.main(new String[]{"-p","-i",outDir + File.separator + "test2.s2", "-o", outDir +File.separator+ "test2-popravljena.s2"});
+		Cli.main(new String[]{"-p", "true","-i", inDirName, "-o", outDir +File.separator+ "test2-popravljenaEasy.s2"});
+		Cli.main(new String[]{"-p", "false", "-i", inDirName, "-o", outDir +File.separator+ "test2-popravljena.s2"});
 	}
 	
 	

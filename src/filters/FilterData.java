@@ -14,10 +14,10 @@ public class FilterData extends Filter
 	public FilterData(int data)
 	{
 		this.data = data;
-		if((data & MD) != 0)
+		if((data & MD) == 0)
 		{
 			data |=MD;
-			System.err.println("This version of S2 needs meta data. Parameter data set to " + data);
+			System.err.println("Filtering Data. This version of S2 needs meta data. Parameter data set to " + data);
 		}
 	}
 	
