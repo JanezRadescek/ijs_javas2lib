@@ -1,4 +1,3 @@
-End of file
 1 PCARD
 Start Time at : 0.0s
 End time at : 0.0s
@@ -8,11 +7,9 @@ metaData :
 	date : 2018-01-01
 	timezone : +01:00
 Special messeges : 
-Comments : 1
-Definitions : 9
 Timestamps : 2
-Unknown : 0
-Error : 0
+Definitions : 9
+comment : 1
 Number of streams : 3
 Stream represantation: 
 	stream 0 : ee
@@ -22,7 +19,7 @@ Packets per stream:
 	stream 0 : 3
 	stream 1 : 2
 	stream 2 : 3
-Samples per stream: 
-	stream 0 : 6
-	stream 1 : 4
-	stream 2 : 9
+Data per sensor type: 
+	sensor   : 5
+	sensor e : 9
+	sensor ~ : 5

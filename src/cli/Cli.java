@@ -3,6 +3,7 @@ package cli;
 import java.lang.Exception;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -17,6 +18,7 @@ import callBacks.SecondReader;
 import callBacks.StatisticsCallback;
 import filters.FilterData;
 import filters.FilterHandles;
+import filters.FilterInfo;
 import filters.FilterSaveCSV;
 import filters.FilterSaveS2;
 import filters.FilterTime;
@@ -31,30 +33,30 @@ import si.ijs.e6.S2;
 public class Cli {
 
 	public static void main(String[] args){
-		
+
 		final String PASS = "pass";
 		final String STATISTIKA = "s";
 		final String CUT = "c";
 		final String READ = "r";
 		final String MEARGE = "m";
 		final String HELP = "help";
-		
+
 		final String PROCESS_SIGNAL = "p";
-		
+
 		final HashSet<String> PROCESS_FIRST_S2 = new HashSet<String>(
 				Arrays.asList(new String[]{STATISTIKA, CUT, READ, MEARGE, HELP, PROCESS_SIGNAL}));
 		final HashSet<String> PROCESS_SECOND_S2 = new HashSet<String>(
 				Arrays.asList(new String[]{MEARGE}));
-		
+
 		final String TIME = "t";
 		final String INPUT = "i";
 		final String OUTPUT = "o";
 		final String HANDLES = "h";
 		final String DATA = "d";
-		
+
 		//curent task
 		String ctask = PASS;
-		
+
 		//parsanje vhodnih podatkov
 		Options options = new Options();
 
@@ -233,9 +235,12 @@ public class Cli {
 					return;
 				}
 			}
-			
-			
+
+
 			//dodajanje callBackov
+			
+			
+			
 			if(cmd.hasOption(MEARGE) && inDirectory2!=null && outDir!=null)
 			{
 				ctask = MEARGE;
@@ -258,14 +263,27 @@ public class Cli {
 
 			if(cmd.hasOption(STATISTIKA))
 			{
+				//TODO callback je star zbriši ga ko bo testruner deloval
 				ctask = STATISTIKA;
 				StatisticsCallback callback;
+				FilterInfo filter;
 				if(outDir !=null)
+				{
 					callback = new StatisticsCallback(file1, outDir);
+					try {
+						filter = new FilterInfo(new PrintStream(new File(outDir)));
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						filter = new FilterInfo(System.out);
+					}
+				}
 				else
+				{
+					filter = new FilterInfo(System.out);
 					callback = new StatisticsCallback(file1);
-				loadS1.addReadLineCallback(callback);
-				//outStatistics(file1, loadS1, izhodDir);
+				}
+				loadS1.addReadLineCallback(filter);
 			}
 
 			if(cmd.hasOption(CUT))
@@ -277,19 +295,19 @@ public class Cli {
 					/*
 					OutS2Callback callback = new OutS2Callback(file1, ab, nonEss, handles, dataT, outDir);
 					loadS1.addReadLineCallback(callback);
-					*/
+					 */
 					//new way
-					
+
 					FilterTime filterT = new FilterTime(ab[0], ab[1], nonEss);
 					FilterData filterD = new FilterData(dataT);
 					FilterHandles filterH = new FilterHandles(handles);
 					FilterSaveS2 filterS = new FilterSaveS2(outDir);
-					
+
 					loadS1.addReadLineCallback(filterT);
 					filterT.addChild(filterD);
 					filterD.addChild(filterH);
 					filterH.addChild(filterS);
-					
+
 				}else
 				{
 					System.err.println("Option c-cut need option o-out(directory and name of output file). TERMINATE");
@@ -305,35 +323,34 @@ public class Cli {
 					/*
 					OutCSVCallback callback = new OutCSVCallback(file1, ab, handles, outDir);
 					loadS1.addReadLineCallback(callback);
-					*/
-					
+					 */
+
 					//new way with filters
-					
+
 					FilterSaveCSV filter = new FilterSaveCSV(outDir, dataMapping);
 					loadS1.addReadLineCallback(filter);
-					
-					
+
+
 				}else
 				{
-					OutCSVCallback callback = new OutCSVCallback(file1, ab, handles, outDir);
-					loadS1.addReadLineCallback(callback);
+					System.err.println("Option r-read need option o-out(directory and name of output file). TERMINATE");
 				}
 			}
-			
-			
-			
+
+
+
 			if(cmd.hasOption(PROCESS_SIGNAL))
 			{
 				ctask = PROCESS_SIGNAL;
-				
+
 				simpleProcessing = Boolean.parseBoolean(cmd.getOptionValue(PROCESS_SIGNAL));
 				FixTime callback = new FixTime(file1, ab, nonEss, handles, dataT, outDir, simpleProcessing);
 				loadS1.addReadLineCallback(callback);
 			}
 
-			
+
 			boolean everythingOk = true;
-			
+
 			if(PROCESS_FIRST_S2.contains(ctask))
 			{
 				//preberemo prvi S2 in obdelamo
@@ -361,7 +378,7 @@ public class Cli {
 			System.out.println("Input is mandatory. TERMINATE");
 			formatter.printHelp("Cli",header,options,footer);
 		}
-		
+
 
 	}
 
@@ -369,9 +386,9 @@ public class Cli {
 	{
 		Cli.start(args, System.out);
 	}
-	
+
 	public static void start(String[] args, PrintStream out)
 	{
-		
+
 	}
 }
