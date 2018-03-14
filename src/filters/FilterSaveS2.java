@@ -115,8 +115,16 @@ public class FilterSaveS2 extends Filter {
 			for(byte t:lastTime.keySet())
 				lastTime.replace(t, lastTimestamp);
 		}
+		
+		int maxBits = timestampDefinitions.get(handle).byteSize * 8;
+		
 		long diff = timestamp - lastTime.get(handle);
 		long writeReadyDiff = timestampDefinitions.get(handle).toImplementationFormat(new Nanoseconds(diff));
+		if(64 - Long.numberOfLeadingZeros(writeReadyDiff) > maxBits)
+		{
+			storeS.addTimestamp(new Nanoseconds(timestamp));
+			writeReadyDiff = 0;
+		}
 		storeS.addSensorPacket(handle, writeReadyDiff, data);
 		lastTime.replace(handle, timestamp);
 		

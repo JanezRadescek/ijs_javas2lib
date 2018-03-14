@@ -21,7 +21,8 @@ public class CliTest {
 	// static variables so that they can be initialized in BeforeClass - before tests are executed
 	static String inDir  = "." + File.separator + "Generated";
 	static String outDir = "." + File.separator + "UnitTests";
-	static String inDirName = inDir +File.separator+ inFile;
+	static String inDirNameG = inDir +File.separator+ inFile;
+	static String inDirNameO = "."+File.separator+"Original"+File.separator+"test2.s2";
 
 
 	public static Collection<Object[]> data() {
@@ -52,7 +53,7 @@ public class CliTest {
 	public void StatisticsTest()
 	{
 
-		Cli.main(new String[]{"-s" ,"-i", inDirName, "-o", outDir+File.separator+ "StatistikaOriginala.txt"});
+		Cli.main(new String[]{"-s" ,"-i", inDirNameG, "-o", outDir+File.separator+ "StatistikaOriginala.txt"});
 
 		File correct = new File(inDir + File.separator + "generated.txt");
 		File testing = new File(outDir + File.separator + "StatistikaOriginala.txt");
@@ -74,7 +75,7 @@ public class CliTest {
 	public void OutCSVTest()
 	{
 		{
-			Cli.main(new String[]{"-r", "-i", inDirName, "-o", outDir + File.separator + "IzpisOriginala.csv"});
+			Cli.main(new String[]{"-r", "-i", inDirNameG, "-o", outDir + File.separator + "IzpisOriginala.csv"});
 			File corect = new File(inDir + File.separator + "generated.csv");
 			File testing = new File(outDir + File.separator + "IzpisOriginala.csv");
 			boolean isTwoEqual = false;
@@ -88,7 +89,7 @@ public class CliTest {
 		}
 
 		{
-			Cli.main(new String[]{"-r", "-i", inDirName, "-o", outDir + File.separator + "IzpisOriginalaT.csv",
+			Cli.main(new String[]{"-r", "-i", inDirNameG, "-o", outDir + File.separator + "IzpisOriginalaT.csv",
 					"-t", "0", "1"});
 			File corect = new File(inDir + File.separator + "generated.csv");
 			File testing = new File(outDir + File.separator + "IzpisOriginala.csv");
@@ -124,7 +125,7 @@ public class CliTest {
 	private void checkCopy() {
 
 		//do copy of original
-		Cli.main(new String[]{"-c", "-i", inDirName, "-o", outDir +File.separator+ "KopijaOriginala.s2"});
+		Cli.main(new String[]{"-c", "-i", inDirNameG, "-o", outDir +File.separator+ "KopijaOriginala.s2"});
 
 		//read copy
 		Cli.main(new String[]{"-r", "-i", outDir +File.separator+ "KopijaOriginala.s2",
@@ -153,7 +154,7 @@ public class CliTest {
 	{
 		String nameS2 = "Singleton" + cutTime +".s2";
 		String nameCSV = "Singleton" + cutTime +".csv";
-		Cli.main(new String[]{"-c", "-i", inDirName, "-o", outDir +File.separator+ nameS2,
+		Cli.main(new String[]{"-c", "-i", inDirNameG, "-o", outDir +File.separator+ nameS2,
 				"-t", Double.toString(cutTime*1E-9),Double.toString((cutTime+1)*1E-9), "true"});
 		Cli.main(new String[]{"-r", "-i", outDir +File.separator+ nameS2, "-o", outDir +File.separator+ nameCSV});
 
@@ -175,7 +176,7 @@ public class CliTest {
 
 	private void deleteUnimportant(boolean R,String d) {
 		String name = "deletedUnimp";
-		Cli.main(new String[]{"-c", "-i", inDirName, "-o", outDir +File.separator+  name+".s2",
+		Cli.main(new String[]{"-c", "-i", inDirNameG, "-o", outDir +File.separator+  name+".s2",
 				"-d", d, "-t", "0", "1", "true"});
 		Cli.main(new String[]{"-s", "-i", outDir +File.separator+ name+".s2",
 				"-o", outDir +File.separator+ name+".txt" });
@@ -213,10 +214,10 @@ public class CliTest {
 	}
 
 	private void cutMiddle(long head, long tail) {
-		Cli.main(new String[]{"-c", "-i", inDirName, "-t", "0", Double.toString(head*1E-9), "true",
+		Cli.main(new String[]{"-c", "-i", inDirNameG, "-t", "0", Double.toString(head*1E-9), "true",
 				"-o", outDir +File.separator+ "head"+head+".s2"});
 		//t is false
-		Cli.main(new String[]{"-c", "-i", inDirName, "-t", Double.toString(tail*1E-9), "1", "false",
+		Cli.main(new String[]{"-c", "-i", inDirNameG, "-t", Double.toString(tail*1E-9), "1", "false",
 				"-o", outDir +File.separator+ "tail"+tail+".s2"});
 		//Order of head/tail is deliberatly reversed.
 		Cli.main(new String[]{"-m", "true", "-i", outDir +File.separator+ "tail"+tail+".s2",
@@ -245,10 +246,10 @@ public class CliTest {
 	private void divideAndConquer(Long cutTime)
 	{
 		//cut S2 at 
-		Cli.main(new String[]{"-c", "-i", inDirName, "-t", "0", Double.toString(cutTime*1E-9), "true",
+		Cli.main(new String[]{"-c", "-i", inDirNameG, "-t", "0", Double.toString(cutTime*1E-9), "true",
 				"-o", outDir +File.separator+ "izrezek1_"+cutTime+".s2"});
 
-		Cli.main(new String[]{"-c", "-i", inDirName, "-t", Double.toString(cutTime*1E-9), "1", "true",
+		Cli.main(new String[]{"-c", "-i", inDirNameG, "-t", Double.toString(cutTime*1E-9), "1", "true",
 				"-o", outDir +File.separator+ "izrezek2_"+cutTime+".s2"});
 
 		Cli.main(new String[]{"-m", "true", "-i", outDir +File.separator+ "izrezek1_"+cutTime+".s2",
@@ -274,18 +275,17 @@ public class CliTest {
 	//if something goes wrong we dont want to delete files
 
 	
-	//@Test(expected = NullPointerException.class)
-	@Test
+	@Test(expected = NullPointerException.class)
 	public void SignalTest1()
 	{
-		//Cli.main(new String[]{"-p", "false","-i",inDirName});
+		Cli.main(new String[]{"-p", "false","-i",outDir +File.separator+"test2.s2"});
 	}
 	
 	@Test
 	public void SignalTest2()
 	{
-		Cli.main(new String[]{"-p", "true","-i", inDirName, "-o", outDir +File.separator+ "test2-popravljenaEasy.s2"});
-		Cli.main(new String[]{"-p", "false", "-i", inDirName, "-o", outDir +File.separator+ "test2-popravljena.s2"});
+		Cli.main(new String[]{"-p", "true","-i", inDirNameO, "-o", outDir +File.separator+ "test2-popravljenaEasy.s2"});
+		Cli.main(new String[]{"-p", "false", "-i", inDirNameO, "-o", outDir +File.separator+ "test2-popravljena.s2"});
 	}
 	
 	

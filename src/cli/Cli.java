@@ -274,12 +274,12 @@ public class Cli {
 				if(outDir != null)
 				{
 					//old way with callbacks
-					
+					/*
 					OutS2Callback callback = new OutS2Callback(file1, ab, nonEss, handles, dataT, outDir);
 					loadS1.addReadLineCallback(callback);
-					
+					*/
 					//new way
-					/*
+					
 					FilterTime filterT = new FilterTime(ab[0], ab[1], nonEss);
 					FilterData filterD = new FilterData(dataT);
 					FilterHandles filterH = new FilterHandles(handles);
@@ -289,7 +289,7 @@ public class Cli {
 					filterT.addChild(filterD);
 					filterD.addChild(filterH);
 					filterH.addChild(filterS);
-					*/
+					
 				}else
 				{
 					System.err.println("Option c-cut need option o-out(directory and name of output file). TERMINATE");
