@@ -151,7 +151,7 @@ public class FilterGetLines extends Filter {
 
 	//CLASSES WE NEED TOO SAVE THINGS
 	
-	public class Version
+	public static class Version
 	{
 		public int intVersion;
 		public String version;
@@ -163,7 +163,7 @@ public class FilterGetLines extends Filter {
 		}
 	}
 	
-	public class TimeData
+	public static class TimeData
 	{
 		long timestamp;
 		public TimeData(long timestamp)
@@ -172,7 +172,7 @@ public class FilterGetLines extends Filter {
 		}
 	}
 
-	public class Comment extends TimeData
+	public static class Comment extends TimeData
 	{
 		String comment;
 		public Comment(long timestamp, String comment) {
@@ -182,7 +182,7 @@ public class FilterGetLines extends Filter {
 		
 	}
 	
-	public class SpecialMessage extends TimeData
+	public static class SpecialMessage extends TimeData
 	{
 		char who;
 		char what;
@@ -196,7 +196,7 @@ public class FilterGetLines extends Filter {
 		}
 	}
 	
-	public class TimeStamp extends TimeData
+	public static class TimeStamp extends TimeData
 	{
 
 		public TimeStamp(long timestamp) {
@@ -205,7 +205,7 @@ public class FilterGetLines extends Filter {
 		
 	}
 	
-	public class StreamPacket extends TimeData
+	public static class StreamPacket extends TimeData
 	{
 		byte handle;
 		int len;
