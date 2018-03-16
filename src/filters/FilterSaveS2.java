@@ -21,6 +21,9 @@ public class FilterSaveS2 extends Filter {
 	private boolean lastTimestampWriten;
 	private Map<Byte,Long> lastTime = new HashMap<Byte,Long>();
 
+	/**
+	 * @param directory directory AND name of new S2 file in which we will save
+	 */
 	public FilterSaveS2(String directory)
 	{
 		s2 = new S2();
