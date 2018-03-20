@@ -8,6 +8,11 @@ public class FilterTime extends Filter {
 
 	private long lastRecordedTime = 0;
 	
+	/**
+	 * [start, end)
+	 * @param start 
+	 * @param end
+	 */
 	public FilterTime(long start, long end)
 	{
 		this.start = start;
@@ -22,7 +27,7 @@ public class FilterTime extends Filter {
 
 	@Override
 	public boolean onComment(String comment) {
-		if(!filterTimeLessData || (filterTimeLessData && (start<=lastRecordedTime && lastRecordedTime<=end)))
+		if(!filterTimeLessData || (filterTimeLessData && (start<=lastRecordedTime && lastRecordedTime<end)))
 		{
 			pushComment(comment);
 		}
@@ -33,7 +38,7 @@ public class FilterTime extends Filter {
 
 	@Override
 	public boolean onSpecialMessage(char who, char what, String message) {
-		if(!filterTimeLessData || (filterTimeLessData && (start<=lastRecordedTime && lastRecordedTime<=end)))
+		if(!filterTimeLessData || (filterTimeLessData && (start<=lastRecordedTime && lastRecordedTime<end)))
 		{
 			pushSpecilaMessage(who, what, message);
 		}
@@ -44,7 +49,7 @@ public class FilterTime extends Filter {
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
 		lastRecordedTime = nanoSecondTimestamp;
-		if(lastRecordedTime<=end)
+		if(lastRecordedTime<end)
 		{
 			pushTimestamp(nanoSecondTimestamp);
 			return true;
@@ -65,7 +70,7 @@ public class FilterTime extends Filter {
 			return true;
 		}
 		
-		if(start<=lastRecordedTime && lastRecordedTime<=end)
+		if(start<=lastRecordedTime && lastRecordedTime<end)
 		{
 			pushStremPacket(handle, timestamp, len, data);
 			return true;

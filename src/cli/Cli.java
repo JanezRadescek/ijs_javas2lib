@@ -16,7 +16,9 @@ import callBacks.OutCSVCallback;
 import callBacks.OutS2Callback;
 import callBacks.SecondReader;
 import callBacks.StatisticsCallback;
+import filters.Filter;
 import filters.FilterData;
+import filters.FilterGetLines;
 import filters.FilterHandles;
 import filters.FilterInfo;
 import filters.FilterSaveCSV;
@@ -238,9 +240,9 @@ public class Cli {
 
 
 			//dodajanje callBackov
-			
-			
-			
+
+
+
 			if(cmd.hasOption(MEARGE) && inDirectory2!=null && outDir!=null)
 			{
 				ctask = MEARGE;
@@ -284,6 +286,7 @@ public class Cli {
 					callback = new StatisticsCallback(file1);
 				}
 				loadS1.addReadLineCallback(filter);
+			
 			}
 
 			if(cmd.hasOption(CUT))
@@ -291,22 +294,31 @@ public class Cli {
 				ctask = CUT;
 				if(outDir != null)
 				{
-					//old way with callbacks
-					/*
-					OutS2Callback callback = new OutS2Callback(file1, ab, nonEss, handles, dataT, outDir);
-					loadS1.addReadLineCallback(callback);
-					 */
-					//new way
+					if(true)
+					{
+						//old way with callbacks
 
-					FilterTime filterT = new FilterTime(ab[0], ab[1], nonEss);
-					FilterData filterD = new FilterData(dataT);
-					FilterHandles filterH = new FilterHandles(handles);
-					FilterSaveS2 filterS = new FilterSaveS2(outDir);
+						OutS2Callback callback = new OutS2Callback(file1, ab, nonEss, handles, dataT, outDir);
+						loadS1.addReadLineCallback(callback);
 
-					loadS1.addReadLineCallback(filterT);
-					filterT.addChild(filterD);
-					filterD.addChild(filterH);
-					filterH.addChild(filterS);
+					}else
+					{
+						//new way
+						FilterGetLines getlines = new FilterGetLines();
+						//
+						FilterTime filterT = new FilterTime(ab[0], ab[1], nonEss);
+						FilterData filterD = new FilterData(dataT);
+						FilterHandles filterH = new FilterHandles(handles);
+						FilterSaveS2 filterS = new FilterSaveS2(outDir);
+
+						loadS1.addReadLineCallback(filterT);
+						filterT.addChild(filterD);
+						filterD.addChild(filterH);
+						filterH.addChild(filterS);
+						//
+						filterS.addChild(getlines);
+						
+					}
 
 				}else
 				{
@@ -319,17 +331,21 @@ public class Cli {
 				ctask = READ;
 				if(outDir != null)
 				{
-					// old way with callback
-					/*
-					OutCSVCallback callback = new OutCSVCallback(file1, ab, handles, outDir);
-					loadS1.addReadLineCallback(callback);
-					 */
 
-					//new way with filters
 
-					FilterSaveCSV filter = new FilterSaveCSV(outDir, dataMapping);
-					loadS1.addReadLineCallback(filter);
+					if(true)
+					{
+						// old way with callback
+						OutCSVCallback callback = new OutCSVCallback(file1, ab, handles, outDir);
+						loadS1.addReadLineCallback(callback);
+					}else
+					{
 
+						//new way with filters
+
+						FilterSaveCSV filter = new FilterSaveCSV(outDir, dataMapping);
+						loadS1.addReadLineCallback(filter);
+					}
 
 				}else
 				{
