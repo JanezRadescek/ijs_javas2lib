@@ -13,13 +13,19 @@ public class FilterTime extends Filter {
 	 * @param start 
 	 * @param end
 	 */
-	public FilterTime(long start, long end)
+	public FilterTime(double start, double end)
 	{
-		this.start = start;
-		this.end = end;
+		this.start = (long) (start*1E9);
+		this.end = (long)(end*1E9);
+		this.filterTimeLessData = false;
 	}
 
-	public FilterTime(long start, long end, boolean filterTimeLessData)
+	/**
+	 * @param start in seconds
+	 * @param end in seconds
+	 * @param filterTimeLessData
+	 */
+	public FilterTime(double start, double end, boolean filterTimeLessData)
 	{
 		this(start,end);
 		this.filterTimeLessData = filterTimeLessData;

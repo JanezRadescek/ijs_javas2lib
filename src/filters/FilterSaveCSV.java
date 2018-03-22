@@ -21,9 +21,9 @@ public class FilterSaveCSV extends Filter{
 
 	private int maxColumns;
 
-	private Map<Byte,StructDefinition> definitionsStruct = new HashMap<Byte,StructDefinition>();
-	private Map<Byte,SensorDefinition> definitionsSensor = new HashMap<Byte,SensorDefinition>();
-
+	private Map<Byte,SensorDefinition> sensorDefinitions = new HashMap<Byte,SensorDefinition>();
+	private Map<Byte,StructDefinition> structDefinitions = new HashMap<Byte,StructDefinition>();
+	
 
 	private boolean dataMapping;
 
@@ -99,7 +99,7 @@ public class FilterSaveCSV extends Filter{
 
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
-		definitionsSensor.put(handle, definition);
+		sensorDefinitions.put(handle, definition);
 		pushDefinition(handle, definition);
 		return true;
 	}
@@ -108,7 +108,7 @@ public class FilterSaveCSV extends Filter{
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
 		//TODO should we clone definition ? perhaps we will change that down the line.
-		definitionsStruct.put(handle, definition);
+		structDefinitions.put(handle, definition);
 		int temp = definition.elementsInOrder.length();
 		if(temp>maxColumns)
 		{
@@ -141,11 +141,11 @@ public class FilterSaveCSV extends Filter{
 		MultiBitBuffer mbb = new MultiBitBuffer(data);
 		int mbbOffset = 0;
 
-		for (char element : definitionsStruct.get(handle).elementsInOrder.toCharArray())
+		for (char element : structDefinitions.get(handle).elementsInOrder.toCharArray())
 		{
 			byte cb = (byte) element;
-			if (definitionsSensor.get(cb) != null){
-				SensorDefinition tempSensor = definitionsSensor.get(cb);
+			if (sensorDefinitions.get(cb) != null){
+				SensorDefinition tempSensor = sensorDefinitions.get(cb);
 				int entitySize = tempSensor.resolution;
 				//OLD CODE int entitySize = s2.getEntityHandles(cb).sensorDefinition.resolution;
 				int temp = mbb.getInt(mbbOffset, entitySize);

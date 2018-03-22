@@ -12,11 +12,13 @@ import si.ijs.e6.S2.StructDefinition;
 
 public class FilterProcessSignal extends Filter {
 
-	private static long nanosInHour = ((long)1E9) * 60L * 60L;
-	private static long defaultLength = ((long)1E9) * 60L * 3L;
-
-	private long intervalLength;
-	private int noInterations;
+	private final long defaultLength = ((long)1E9) * 60L * 3L;
+	private final int premalo = 20;
+	
+	//TODO calibrate this for better results
+	private final long intervalLength;
+	private final int noInterations;
+	
 
 	//need to get caunters 
 	private Map<Byte,StructDefinition> mapStruct= new HashMap<Byte,StructDefinition>();
@@ -125,7 +127,7 @@ public class FilterProcessSignal extends Filter {
 			//curentBlockP.get(0).timestamp
 			if(timestamp > curentBlockStartTime + intervalLength)
 			{
-				int premalo = 10; //TODO kalibriraj tole :D mogl bi bit
+				//int premalo = 10; //TODO kalibriraj tole :D mogl bi bit
 
 				if(previousBlockC.size() <= premalo)
 				{
