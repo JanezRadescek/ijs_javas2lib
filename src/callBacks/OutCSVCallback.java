@@ -213,7 +213,7 @@ public class OutCSVCallback implements  ReadLineCallbackInterface {
 			{
 				byte cb = (byte) s2.getEntityHandles(handle).elementsInOrder.charAt(i);
 				if (s2.getEntityHandles(cb).sensorDefinition != null){
-	                int entitySize = s2.getEntityHandles(cb).sensorDefinition.resolution;
+	                int entitySize = s2.getEntityHandles(cb).sensorDefinition.getResolution();
 	                int temp = mbb.getInt(mbbOffset, entitySize);
 	                mbbOffset += entitySize;
 	                if(dataMapping){

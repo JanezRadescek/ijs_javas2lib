@@ -1,12 +1,8 @@
 <component name="libraryTable">
   <library name="lib">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/commons-io-2.6.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/junit-4.10.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/commons-cli-1.4.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/hamcrest-core-1.3.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/junit-4.12.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/miglayout15-swing.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
