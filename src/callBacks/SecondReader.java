@@ -285,7 +285,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 			for(byte i:sensorDefinitionFirst.keySet())
 			{
 				sensorDefinitionFirst.get(i);
-				if(definition.equalValues(sensorDefinitionFirst.get(i)))
+				if(definition.equals(sensorDefinitionFirst.get(i)))
 				{
 					HandlesSecondConverter.put(handle, i);
 					break;
@@ -338,7 +338,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 		{
 			if(timestampDefinitionFirst.containsKey(handle))
 			{
-				if(!definition.equalValues(timestampDefinitionFirst.get(handle)))
+				if(!definition.equals(timestampDefinitionFirst.get(handle)))
 				{
 					System.err.println("input files have diferent TimestampDefinition on handle " + handle 
 							+ ". Program terminated, output file corupted");
@@ -389,7 +389,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 				corectDefinition(tempSD);
 				if(structDefinitionFirst.containsKey(key))
 				{
-					if(!tempSD.equalValues(structDefinitionFirst.get(key)))
+					if(!tempSD.equals(structDefinitionFirst.get(key)))
 					{
 						System.err.println("input files have diferent StructDefinition on handle " + key 
 								+ ". Program terminated, output file corupted");

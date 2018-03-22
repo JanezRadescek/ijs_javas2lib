@@ -146,7 +146,7 @@ public class FilterSaveCSV extends Filter{
 			byte cb = (byte) element;
 			if (definitionsSensor.get(cb) != null){
 				SensorDefinition tempSensor = definitionsSensor.get(cb);
-				int entitySize = tempSensor.resolution;
+				int entitySize = tempSensor.getResolution();
 				//OLD CODE int entitySize = s2.getEntityHandles(cb).sensorDefinition.resolution;
 				int temp = mbb.getInt(mbbOffset, entitySize);
 				mbbOffset += entitySize;
