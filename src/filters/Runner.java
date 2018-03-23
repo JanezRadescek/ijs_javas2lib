@@ -31,7 +31,6 @@ public class Runner {
 		r.setTVP(ime);
 		//r.saveTVP(ime);
 		
-		
 	}
 	
 	
@@ -186,7 +185,8 @@ public class Runner {
 		samplesTime = new ArrayList<Double>();
 		samplesVoltage = new ArrayList<Float>();
 		packetsTime = new ArrayList<Double>();
-
+		packetsCounter = new ArrayList<Double>();
+		
 		//OUT maybe you need to create unittest dir
 
 
@@ -219,7 +219,7 @@ public class Runner {
 		Map<Byte, SensorDefinition> tsensors = f2.getSensorDefinitions();
 
 		int Cbase = 0;
-		Float Cprevious = 0f;
+		double Cprevious = 0f;
 		double previousT = 0;
 
 		for(StreamPacket pack:tpackets)
@@ -247,7 +247,7 @@ public class Runner {
 				sensorData.add(t);
 			}
 
-			Float Ctemp = sensorData.get(14) + Cbase;
+			double Ctemp = sensorData.get(14) + Cbase;
 			if(Cprevious> Ctemp)
 			{
 				Ctemp += 1024;
@@ -267,6 +267,7 @@ public class Runner {
 				samplesVoltage.add(sensorData.get(i));
 			}
 			packetsTime.add((double) pack.timestamp);
+			packetsCounter.add(Ctemp);
 			Cprevious = Ctemp;
 			
 		}

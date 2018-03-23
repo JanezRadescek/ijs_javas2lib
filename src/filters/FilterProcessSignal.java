@@ -265,8 +265,12 @@ public class FilterProcessSignal extends Filter {
 			
 			long timestampNew = (long) ((tempC - intercept)/slope);
 			pushStremPacket(tempP.handle, timestampNew, tempP.len, tempP.data);
+			
+			writtenC = tempC;
+			writtenT = timestampNew;
 		}
 		
+		 
 
 		previousBlockC = curentBlockC;
 		previousBlockP = curentBlockP;
