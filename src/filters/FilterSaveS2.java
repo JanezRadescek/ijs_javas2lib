@@ -12,6 +12,11 @@ import si.ijs.e6.S2.StoreStatus;
 import si.ijs.e6.S2.StructDefinition;
 import si.ijs.e6.S2.TimestampDefinition;
 
+/**
+ * Saves data into s2 file. 
+ * @author janez
+ *
+ */
 public class FilterSaveS2 extends Filter {
 
 	private S2 s2;
@@ -27,7 +32,7 @@ public class FilterSaveS2 extends Filter {
 	public FilterSaveS2(String directory)
 	{
 		s2 = new S2();
-		//TODO zakaj ne moremo S2.store/load dati
+		//TODO zakaj ne moremo S2.store/load dati directoryAndName ??
 		File f = new File(directory);
 		storeS = s2.store(f.getParentFile(), f.getName());
 	}
@@ -101,6 +106,7 @@ public class FilterSaveS2 extends Filter {
 		return true;
 	}
 
+	//TODO S2 we get should be a valid S2 therefor it should write timestamps too.
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
 		lastTimestamp = nanoSecondTimestamp;
@@ -123,7 +129,7 @@ public class FilterSaveS2 extends Filter {
 				lastTime.replace(t, lastTimestamp);
 		}*/
 
-		int maxBits = timestampDefinitions.get(handle).byteSize * 8;
+		int maxBits = timestampDefinitions.get(handle).getByteSize() * 8;
 
 		long diff = timestamp - lastTime.get(handle);
 		long writeReadyDiff = timestampDefinitions.get(handle).toImplementationFormat(new Nanoseconds(diff));

@@ -15,6 +15,11 @@ import java.util.Arrays;
 import java.util.Collection;
 
 
+/**
+ * Unit test for Cli and consequently callbacks/filters
+ * @author janez
+ *
+ */
 public class CliTest {
 	// static variables so that they can be initialized in BeforeClass - before tests are executed
 	//static String inFile = "generated.s2";

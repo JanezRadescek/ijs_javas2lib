@@ -7,6 +7,11 @@ import si.ijs.e6.S2.SensorDefinition;
 import si.ijs.e6.S2.StructDefinition;
 import si.ijs.e6.S2.TimestampDefinition;
 
+/**
+ * changes handles. Since it must remain valid S2 values in struct definitions are also remaped accourdingly
+ * @author janez
+ *
+ */
 public class RemapHandle extends Filter {
 
 	private Map<Byte,Byte> remap;

@@ -11,6 +11,11 @@ import callBacks.MultiBitBuffer;
 import si.ijs.e6.S2.SensorDefinition;
 import si.ijs.e6.S2.StructDefinition;
 
+/**
+ * Filter which saves as CSV. Since CSV is very restrictive only timestamps, handles and actual datas will be saved.
+ * @author janez
+ *
+ */
 public class FilterSaveCSV extends Filter{
 
 	PrintStream out;
@@ -122,6 +127,7 @@ public class FilterSaveCSV extends Filter{
 
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
+		//when we get first packet we write head of csv first
 		if(!body)
 		{
 			body = true;
@@ -136,17 +142,15 @@ public class FilterSaveCSV extends Filter{
 		}
 
 		ArrayList<Float> sensorData = new ArrayList<>();
-
 		//hardcoded conversion
 		MultiBitBuffer mbb = new MultiBitBuffer(data);
 		int mbbOffset = 0;
-
 		for (char element : structDefinitions.get(handle).elementsInOrder.toCharArray())
 		{
 			byte cb = (byte) element;
 			if (sensorDefinitions.get(cb) != null){
 				SensorDefinition tempSensor = sensorDefinitions.get(cb);
-				int entitySize = (int) tempSensor.getResolution();
+				int entitySize = tempSensor.getResolution();
 				//OLD CODE int entitySize = s2.getEntityHandles(cb).sensorDefinition.resolution;
 				int temp = mbb.getInt(mbbOffset, entitySize);
 				mbbOffset += entitySize;
@@ -176,7 +180,7 @@ public class FilterSaveCSV extends Filter{
 		}
 		printLine();
 
-
+		//push
 		pushStremPacket(handle, timestamp, len, data);
 		return true;
 	}

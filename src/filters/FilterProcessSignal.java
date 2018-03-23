@@ -10,6 +10,12 @@ import si.ijs.e6.MultiBitBuffer;
 import si.ijs.e6.S2.SensorDefinition;
 import si.ijs.e6.S2.StructDefinition;
 
+/**
+ * Linear regresion is performed locally and then timestamps of packets are changed appropriatly. 
+ * Due to time changes old timestamp are removed and added new one where needed.
+ * @author janez
+ *
+ */
 public class FilterProcessSignal extends Filter {
 
 	private final long defaultLength = ((long)1E9) * 60L * 3L;
@@ -20,7 +26,7 @@ public class FilterProcessSignal extends Filter {
 	private final int noInterations;
 	
 
-	//need to get caunters 
+	//needed to get caunters 
 	private Map<Byte,StructDefinition> mapStruct= new HashMap<Byte,StructDefinition>();
 	private Map<Byte,SensorDefinition> mapSensor= new HashMap<Byte,SensorDefinition>();
 
@@ -108,7 +114,8 @@ public class FilterProcessSignal extends Filter {
 
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
-
+		
+		//we get the counter
 		int c = convertPacket(handle, data);
 		//če je popravi števec
 		if(c>=0)
@@ -127,8 +134,7 @@ public class FilterProcessSignal extends Filter {
 			//curentBlockP.get(0).timestamp
 			if(timestamp > curentBlockStartTime + intervalLength)
 			{
-				//int premalo = 10; //TODO kalibriraj tole :D mogl bi bit
-
+				//if previous is to small we add 
 				if(previousBlockC.size() <= premalo)
 				{
 					if(curentBlockC.size() <= premalo)
@@ -190,8 +196,11 @@ public class FilterProcessSignal extends Filter {
 	}
 
 
-
-
+	/**
+	 * @param handle
+	 * @param data
+	 * @return counter written in data
+	 */
 	private int convertPacket(byte handle, byte[] data) {
 		MultiBitBuffer mbb = new MultiBitBuffer(data);
 
@@ -219,6 +228,9 @@ public class FilterProcessSignal extends Filter {
 
 
 
+	/**
+	 * Linear regresion is performed on previous block, timestamps corrected acourding to results and passed further.
+	 */
 	private void procesOldInterval()
 	{
 		int n = previousBlockC.size();

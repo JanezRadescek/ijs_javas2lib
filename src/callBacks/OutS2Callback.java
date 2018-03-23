@@ -201,7 +201,7 @@ public class OutS2Callback implements ReadLineCallbackInterface {
 					lastTime.replace(t, lastTimestamp);
 			}
 			
-			int maxBits = timestampDefinitions.get(handle).byteSize * 8;
+			int maxBits = timestampDefinitions.get(handle).getByteSize() * 8;
 			long diff = timestamp - lastTime.get(handle);
 			long writeReadyDiff = timestampDefinitions.get(handle).toImplementationFormat(new Nanoseconds(diff));
 			//time stampe iz prvotne ohranjamo.

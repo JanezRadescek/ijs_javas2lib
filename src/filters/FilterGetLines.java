@@ -9,6 +9,12 @@ import si.ijs.e6.S2.SensorDefinition;
 import si.ijs.e6.S2.StructDefinition;
 import si.ijs.e6.S2.TimestampDefinition;
 
+/**
+ * It saves all variables it gets in methonds specified in ReadLineCallbackInterface.
+ * Variables can than be accessed for further use.
+ * @author janez
+ *
+ */
 public class FilterGetLines extends Filter {
 	
 	private Version version;

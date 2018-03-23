@@ -11,6 +11,11 @@ import si.ijs.e6.S2;
 import si.ijs.e6.S2.LoadStatus;
 import si.ijs.e6.S2.SensorDefinition;
 
+/**
+ * Meant for analizing FilterProcessSignal. can be called from matlab/octave.
+ * @author janez
+ *
+ */
 public class Runner {
 	
 	private double startTime = 0*60;
@@ -126,7 +131,7 @@ public class Runner {
 					cb = 'c';
 
 				SensorDefinition tempSensor = tsensors.get(cb);
-				int entitySize = (int) tempSensor.getResolution();
+				int entitySize = tempSensor.getResolution();
 				//OLD CODE int entitySize = s2.getEntityHandles(cb).sensorDefinition.resolution;
 				int temp = mbb.getInt(mbbOffset, entitySize);
 				mbbOffset += entitySize;
@@ -231,7 +236,7 @@ public class Runner {
 					cb = 'c';
 
 				SensorDefinition tempSensor = tsensors.get(cb);
-				int entitySize = (int) tempSensor.getResolution();
+				int entitySize = tempSensor.getResolution();
 				//OLD CODE int entitySize = s2.getEntityHandles(cb).sensorDefinition.resolution;
 				int temp = mbb.getInt(mbbOffset, entitySize);
 				mbbOffset += entitySize;

@@ -8,7 +8,9 @@ import si.ijs.e6.S2.SensorDefinition;
 import si.ijs.e6.S2.StructDefinition;
 import si.ijs.e6.S2.TimestampDefinition;
 
+
 /**
+ * Creates basic Information about S2 file and print it to PrintStream From constructor.
  * @author janez
  *
  */

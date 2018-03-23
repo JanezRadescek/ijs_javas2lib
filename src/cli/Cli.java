@@ -27,7 +27,8 @@ import filters.FilterTime;
 import si.ijs.e6.S2;
 
 /**
- * bere , izrezuje, ... s2 file
+ * parses input String arguments and crates/calls appropriate callbacks and add them to S2 object.
+ * At the end it S2.
  * 
  * @author janez
  *
@@ -85,10 +86,6 @@ public class Cli {
 		input1.setOptionalArg(true);
 
 		options.addOption(input1);
-		/*
-		Option input2 = new Option("v", "vhod. Dodatna datoteka za sestavljanje");
-		input2.setArgs(2);
-		options.addOption(input2);*/
 
 		Option output = new Option(OUTPUT, true, "output. Directory and name of output file");
 		options.addOption(output);
@@ -97,7 +94,6 @@ public class Cli {
 				"Argument represent wanted handles. " +
 				"If we want handle with num. i there has to be 1 on i+1 position from right to left in argument,0 atherwise" +
 				"If we want to keep only handles with 0 and 4 we pass '10001'" );
-		//handle.setArgs(2);
 		options.addOption(handle);
 
 		Option dataTypes = new Option(DATA,true, "datatype. data types we want to keep. Deafault all" +
@@ -240,6 +236,7 @@ public class Cli {
 
 
 			//dodajanje callBackov
+			//TODO completly remove old callbacks
 
 
 
@@ -275,9 +272,9 @@ public class Cli {
 					try {
 						filter = new FilterInfo(new PrintStream(new File(outDir)));
 					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
-						filter = new FilterInfo(System.out);
+						System.out.println("File couldnt be made");
+						return;
 					}
 				}
 				else

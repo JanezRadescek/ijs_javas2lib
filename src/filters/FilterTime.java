@@ -1,5 +1,10 @@
 package filters;
 
+/**
+ * Send further only data in given time interval. 
+ * @author janez
+ *
+ */
 public class FilterTime extends Filter {
 
 	private long start;
