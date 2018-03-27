@@ -6,7 +6,7 @@ commons-io-2.6/
 UnitTests/
 src/donkey/
 Original/
-Matlab/
+Matlab/*
 
 #extensions
 *.class
