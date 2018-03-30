@@ -10,6 +10,8 @@ javaaddpath('C:\Users\janez\workspace\S2_rw\bin\')
 simpleS = javaObject('filters.Runner');
 S = javaObject('e6.ECG.time_sync.Signal');    
 
+close('all') 
+
 %% Initial input parameters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % CONSTANTS
@@ -49,7 +51,7 @@ end
 
 
 %%%%%%%%%%%%%%%%%         ANDREJ TIMESTAMPS           %%%%%%%%%%%%%%%%%%%%%%
-if 0
+if 1
 	int_length = 3;
 
 	S.setIntervalLength(int_length);
@@ -116,43 +118,77 @@ if 0
 end  
 
   
+  
+  
 % PRIMERJAVA vrhov med andrej1.s2 in andrej2.s2
 % andrej1 je "pravi" andrej2 pa ocenjujemo glede na podobnost s pravim andrej1
-if 0
-	vsotaPreh = 0;
-	vsotaZamuj = 0;
-	niPrimerjave = 0;
-	j = -10;
-	k = 10;
-	ii = 1
-	ni = true;
-	najdeni = zeros(size(speaks2),1);
-	for(i = 1:size(speaks2))
-		for iii = j:k
-			if (ii+iii<1 | ii+iii>size(speaks4))
-				continue
-			end
-			aaa = stime2(speaks2(i)) - stime4(speaks4(ii+iii));
-			if abs(aaa) < 2*10^8
-				if aaa>0
-					vsotaZamuj = vsotaZamuj + aaa;
+
+a = 20*10^9;
+zamik = 10*10^9; %% sekunde
+b = a + zamik;
+
+if 1
+	if 1
+		tempP2 = speaks2(stime2(speaks2) > a & stime2(speaks2) < b);
+		tempP4 = speaks4(stime4(speaks4) > a & stime4(speaks4) < b);
+		p = 1;
+		r = 1;
+		najdeni = [];
+		while (p<=size(tempP2)(1) & r <= size(tempP4)(1))
+			aa = stime4(tempP4(r)) - stime2(tempP2(p));
+			if abs(aa) < 2*10^8
+				najdeni = [najdeni, [aa;stime2(tempP2(p))]];
+				p=p+1;
+				r=r+1;
+			else
+				if aa>0
+					p=p+1;
 				else
-					vsotaPreh = vsotaPreh + aaa;
-					
+					r=r+1;
 				end
-				najdeni(i) = aaa;
-				ii = i+1;
-				ni = false;
-				break
+				
+			end
+		end
+	
+	%%stari naèin primerjave vrhov
+	else
+		vsotaPreh = 0;
+		vsotaZamuj = 0;
+		niPrimerjave = 0;
+		j = -10;
+		k = 10;
+		ii = 1
+		ni = true;
+		najdeni = zeros(size(speaks2),1);
+		for(i = 1:size(speaks2))
+			for iii = j:k
+				if (ii+iii<1 | ii+iii>size(speaks4))
+					continue
+				end
+				aaa = stime2(speaks2(i)) - stime4(speaks4(ii+iii));
+				if abs(aaa) < 2*10^8
+					if aaa>0
+						vsotaZamuj = vsotaZamuj + aaa;
+					else
+						vsotaPreh = vsotaPreh + aaa;
+						
+					end
+					najdeni(i) = aaa;
+					ii = i+1;
+					ni = false;
+					break
+				end
+			end  
+			if ni
+				niPrimerjave = niPrimerjave + 1;
+				ii = ii + 1;
+				najdeni(i) = 5*10^7;
+				ni = true;
 			end
 		end  
-		if ni
-			niPrimerjave = niPrimerjave + 1;
-			ii = ii + 1;
-			najdeni(i) = 5*10^7;
-			ni = true;
-		end
-	end  
+	end
+	
+	
 end
   
   
@@ -160,17 +196,14 @@ end
   
 %%%%%%%%%%%%%%%%%%%%%%%%%         PLOT             %%%%%%%%%%%%%%%%%%%%%%%%%%  
   
-close('all') 
+
 
 %%%%  PRMERJAVA VRHOV
 
-if 0
-	
+if size(najdeni)(1) > 1 & 0
 	figure;
 	hold on;
-	plot(stime2(speaks2),najdeni)
-	
-	niPrimerjave
+	plot(najdeni(2,:),najdeni(1,:),'*')
 end	
   
 %%%%  NAPETOS
@@ -178,17 +211,12 @@ end
 if 0
 	figure;
 	hold on; 
-	a = 10*10^9;
-	zamik = 0.3*10^9; %% sekunde
-	b = a + zamik;
 	plot(stime2(stime2>a & stime2<b),svolt2(stime2>a & stime2<b),'-g+')
 end
 if 1
 	figure;
 	hold on; 
-	a = 17*10^9;
-	zamik = 10*10^9; %% sekunde
-	b = a + zamik;
+	
 	%d = 1299;
 	  
 	  
@@ -197,29 +225,46 @@ if 1
 	if 1
 		vz = 0.3;  %%za lepši izris
 		%% 1
+		if 0
 		plot(stime1(stime1>a & stime1<b),svolt1(stime1>a & stime1<b),'-r')
 		BB = stime1(speaks1);
 		CC = BB(BB>a & BB<b);
 		DD = svolt1(speaks1);
 		EE = DD(BB>a & BB<b);
 		plot(CC,EE,'r*')
+		end
 		%% 2	
+		if 1
 		plot(stime2(stime2>a & stime2<b),svolt2(stime2>a & stime2<b)+vz,'-g')
 		BB = stime2(speaks2);
 		CC = BB(BB>a & BB<b);
 		DD = svolt2(speaks2);
 		EE = DD(BB>a & BB<b);
 		plot(CC,EE+2*vz,'g*')
+		end
 		%% 3
-		%plot(stime3(a:b),svolt3(a:b)./100,'-b')
+		if 0
+		plot(stime3(stime3>a & stime3<b),svolt3(stime3>a & stime3<b)./150,'-b')
+		BB = stime3(speaks3);
+		CC = BB(BB>a & BB<b);
+		DD = svolt3(speaks3);
+		EE = DD(BB>a & BB<b);
+		plot(CC,EE./150+2*vz,'b*')
+		end
 		%% 4
+		if 1
 		plot(stime4(stime4>a & stime4<b),svolt4(stime4>a & stime4<b)-vz,'-m')
 		BB = stime4(speaks4);
 		CC = BB(BB>a & BB<b);
 		DD = svolt4(speaks4);
 		EE = DD(BB>a & BB<b);
 		plot(CC,EE+2*vz,'m*')
-		 
+		end
+		
+		if size(najdeni)(1) > 1
+			plot(najdeni(2,:),najdeni(1,:)/10^6,'*')
+		end
+	
 		xlabel('time [ns]')
 		%riši nad prvih nekaj paketi
 	else
