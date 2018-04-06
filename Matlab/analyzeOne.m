@@ -370,6 +370,8 @@ if 1
 			legends = {legends{:}, 'primerjava s2 - andrej metoda'};
 			
 			vsotaA = sum(abs(najdeni2(1,:)))
+			
+			plot([najdeni1(2,1),najdeni1(2,end)],[0,0],'g')
 		end
 		legend(handles(:), legends);
 	
