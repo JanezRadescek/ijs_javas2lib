@@ -24,6 +24,7 @@ public class Runner {
 	private final double startTime = 0*60;
 	private final double endTime = 0.5*60*60;
 	private final double EXPECTED_MAXIMUM = 0.2;
+	private final double EXPECTED_TIME_DIFF = 8*1E6;
 	
 	//C:\Users\janez\workspace\S2_rw\S2files\andrej1.s2  moja datoteka ki jo hočem popraviti
 	final File dir = new File("C:\\Users\\janez\\workspace\\S2_rw\\S2files");
@@ -381,17 +382,21 @@ public class Runner {
 
 		int size = samplesVoltage.size();
 		
-		ArrayList<Integer> peak_list = new ArrayList<>();
+		ArrayList<Integer> peak_list = new ArrayList<Integer>();
 		for (int i = 2; i < samplesVoltage.size() - 3; i++) {
 			if (samplesVoltage.get(i-2) < samplesVoltage.get(i-1) && samplesVoltage.get(i-1) < samplesVoltage.get(i)
 					&& samplesVoltage.get(i) > samplesVoltage.get(i+1) && samplesVoltage.get(i+1) > samplesVoltage.get(i+2)) 
 			{
-				if (samplesVoltage.get(i) > EXPECTED_MAXIMUM / 1.5 && samplesVoltage.get(i) < EXPECTED_MAXIMUM * 1.5) {
+				double dif = samplesTime.get(i+1) - samplesTime.get(i-1);
+				if (samplesVoltage.get(i) > EXPECTED_MAXIMUM / 1.5 && samplesVoltage.get(i) < EXPECTED_MAXIMUM * 1.5
+						&& dif < EXPECTED_TIME_DIFF*2*1.5) 
+				{
 					peak_list.add(i);
 					//                    System.out.println("i, LEFT, left, peak, right, RIGHT =" + i + " " + (double)voltage[i-2] + " " + (double)voltage[i-1] + " " + (double)voltage[i] + " " + (double)voltage[i+1] + " " + (double)voltage[i+2]);
 				}
 			}
 		}
+		
 
 		samplesPeak = peak_list;
 

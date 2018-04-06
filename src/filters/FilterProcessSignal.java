@@ -18,11 +18,11 @@ import si.ijs.e6.S2.StructDefinition;
  */
 public class FilterProcessSignal extends Filter {
 
-	private final long defaultLength = ((long)1E9) * 60L * 3L;  //3 min
+	private final long defaultLength = ((long)1E9) * 60L * 2L;  //3 min
 	//expected number of packets in block
 	private final double vseh = 125 * defaultLength/(1E9);
 	//for calculating new Slopes
-	private final double weight = 0.7;
+	private final double weight;
 	
 	//If less than that we merge previous and curent block
 	private final double premalo=0.1 * vseh;
@@ -67,13 +67,24 @@ public class FilterProcessSignal extends Filter {
 	{
 		this.intervalLength = defaultLength;
 		this.noInterations = 5;
+		this.weight = 0.2;
 	}
 
-	public FilterProcessSignal(long intervalsLength, int noIterations) 
+	public FilterProcessSignal(long intervalsLength, int noIterations, double weight) 
 	{
 		this.intervalLength = intervalsLength;
 		this.noInterations = noIterations;
+		this.weight = weight;
 	}
+	
+	public FilterProcessSignal(long intervalsLength, double weight) 
+	{
+		this.intervalLength = intervalsLength;
+		this.noInterations = 5;
+		this.weight = weight;
+	}
+	
+	
 
 	@Override
 	public boolean onVersion(int versionInt, String version) {
