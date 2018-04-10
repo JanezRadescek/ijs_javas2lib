@@ -48,7 +48,6 @@ public class FilterProcessSignal extends Filter {
 	private double writtenMark = 0;
 	private double writtenSlope = 0;
 	private double writtenIntercept = 0;
-	private boolean curentBad = true;
 	//previous variabls
 	private boolean previousTooBig = true;
 	private double previousMark = 0;
@@ -149,10 +148,7 @@ public class FilterProcessSignal extends Filter {
 			}
 			lastC = c;
 
-			//TODO bi bilo boljše če bi gledali število paketov namesto pretečen čas ?
-			//TODO kombinacija ?? tko kot zdej + če je dovolj paketov kr nared
 			//če smo prečkali meje drugega intervala
-			//curentBlockP.get(0).timestamp
 			if(timestamp > curentBlockStartTime + intervalLength)
 			{
 				//if previous is to small we merge it with curent
@@ -203,7 +199,6 @@ public class FilterProcessSignal extends Filter {
 		}
 		else //DOBIL smo paket z pokvarjenim/brez števca zato se pretvarjamo da ga je zgobil wifi :D. 
 		{
-			//TODO lahko bi mu dal prejšn števec + 14 ? pa čeprov morda ni ?
 		}
 
 		return true;
@@ -295,23 +290,10 @@ public class FilterProcessSignal extends Filter {
 		tempMark3 /= norm;
 		tempMark4 /= norm;
 		
-		/*
-		double tempMark3 = writtenMark;
-		double tempMark4 = previousMark;
-		tempMark3 *= (1-weight);
-		tempMark4 *= weight;
-		
-		norm = tempMark3 + tempMark4; 
-		tempMark3 /= norm;
-		tempMark4 /= norm;
-		*/
-		
-		//Calculate new intercept and slope to make whole thing continious
-		/*we assume already written intervals are written as good as they can be.
-		 *Therefore we calculate left part based on them except if we know
-		 * that the best we could is still bad
-		 *Right part is calculated based on which one is good.
-		 *if both are good/bad we make average 
+		//Calculate new intercept and slope to make whole thing more continious
+		/*we assume already written intervals are written as good as they can be but stil not perfect.
+		 *weight kinda decide how much we rely on neiborhood data
+		 * 
 		 */
 		double x1,x2,y1,y2;
 		x1 = timePrevious[0];

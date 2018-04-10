@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Queue;
 
-import javax.xml.transform.Templates;
-
 import callBacks.MultiBitBuffer;
 import e6.ECG.time_sync.Signal;
 import filters.FilterGetLines.StreamPacket;
@@ -70,11 +68,10 @@ public class Runner {
 		FilterProcessSignal f1 = new FilterProcessSignal();
 		//FilterSaveS2 f2 = new FilterSaveS2(out);
 		FilterSaveCSV f2 = new FilterSaveCSV("C:\\Users\\janez\\workspace\\S2_rw\\UnitTests\\andrej11.csv", true);
-		ls.addReadLineCallback(f0);
 		f0.addChild(f1);
 		f1.addChild(f2);
 
-		System.out.println("save zgleda vredu : " + ls.readAndProcessFile());
+		System.out.println("save zgleda vredu : " + ls.readLines(f0, false));
 		System.out.println(s2.getNotes());
 		
 	}
@@ -106,7 +103,7 @@ public class Runner {
 		f0.addChild(f2);
 		//f1.addChild(f2);
 
-		System.out.println("old zgleda vredu : " + ls.readAndProcessFile());
+		System.out.println("old zgleda vredu : " + ls.readLines(f0, false));
 		System.out.println("Notes : " + s2.getNotes());
 
 		Queue<StreamPacket> tpackets = f2.getPacketQ();
@@ -191,16 +188,15 @@ public class Runner {
 		LoadStatus ls = s2.load(dir, ime);
 
 		FilterTime f0 = new FilterTime(startTime,endTime);
-		//TODO popravi filterprocessignal
 		FilterProcessSignal f1 = new FilterProcessSignal();
-		//FilterSaveS2 f2 = new FilterSaveS2(out);
 		FilterGetLines f2 = new FilterGetLines();
+		
 		ls.addReadLineCallback(f0);
 		f0.addChild(f1);
 		f1.addChild(f2);
 
 		
-		System.out.println("runner zgleda vredu : " + ls.readAndProcessFile());
+		System.out.println("runner zgleda vredu : " + ls.readLines(f0, false));
 		System.out.println("Notes : " + s2.getNotes());
 
 		Queue<StreamPacket> tpackets = f2.getPacketQ();
@@ -325,12 +321,10 @@ public class Runner {
 		{
 			if(samplesTime.get(i)>samplesTime.get(i+1))
 			{
-				double tt = samplesTime.get(i)-samplesTime.get(i+1);
 				nazaj.add(samplesTime.get(i));
 			}
 			if(samplesTime.get(i)==samplesTime.get(i+1))
 			{
-				double tt = samplesTime.get(i)-samplesTime.get(i+1);
 				konstanta.add(i);
 			}
 		}
@@ -377,8 +371,6 @@ public class Runner {
 	 */
 	private void peakSearch() {
 
-		int size = samplesVoltage.size();
-		
 		ArrayList<Integer> peak_list = new ArrayList<Integer>();
 		for (int i = 2; i < samplesVoltage.size() - 3; i++) {
 			if (samplesVoltage.get(i-2) < samplesVoltage.get(i-1) && samplesVoltage.get(i-1) < samplesVoltage.get(i)
