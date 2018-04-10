@@ -18,7 +18,8 @@ import si.ijs.e6.S2.StructDefinition;
  */
 public class FilterProcessSignal extends Filter {
 
-	private final long defaultLength = ((long)1E9) * 60L * 2L;  //3 min
+	private final long defaultLength = ((long)1E9) * 60L * 4L;  //2 min
+	private final double defaultWeight = 0.1;
 	//expected number of packets in block
 	private final double vseh = 125 * defaultLength/(1E9);
 	//for calculating new Slopes
@@ -27,7 +28,6 @@ public class FilterProcessSignal extends Filter {
 	//If less than that we merge previous and curent block
 	private final double premalo=0.1 * vseh;
 
-	//TODO calibrate this for better results
 	private final long intervalLength;
 	private final int noInterations;
 
@@ -62,12 +62,11 @@ public class FilterProcessSignal extends Filter {
 	private int numOverFlovs = 0;
 	private int lastC = -1;
 
-
 	public FilterProcessSignal() 
 	{
 		this.intervalLength = defaultLength;
 		this.noInterations = 5;
-		this.weight = 0.2;
+		this.weight = defaultWeight;
 	}
 
 	public FilterProcessSignal(long intervalsLength, int noIterations, double weight) 
@@ -286,6 +285,17 @@ public class FilterProcessSignal extends Filter {
 		LinearRegression lineCurent = new LinearRegression(timeCurent, counterCurent, noInterations);
 		curentMark = m/vseh;
 
+		
+		double tempMark3 = previousMark;
+		double tempMark4 = curentMark;
+		tempMark3 *= weight;
+		tempMark4 *= (1-weight);
+		
+		norm = tempMark3 + tempMark4; 
+		tempMark3 /= norm;
+		tempMark4 /= norm;
+		
+		/*
 		double tempMark3 = writtenMark;
 		double tempMark4 = previousMark;
 		tempMark3 *= (1-weight);
@@ -294,13 +304,14 @@ public class FilterProcessSignal extends Filter {
 		norm = tempMark3 + tempMark4; 
 		tempMark3 /= norm;
 		tempMark4 /= norm;
-		
+		*/
 		
 		//Calculate new intercept and slope to make whole thing continious
 		/*we assume already written intervals are written as good as they can be.
 		 *Therefore we calculate left part based on them except if we know
 		 * that the best we could is still bad
-		 *Right part is calculated based on which one is good.if both are good/bad we make average 
+		 *Right part is calculated based on which one is good.
+		 *if both are good/bad we make average 
 		 */
 		double x1,x2,y1,y2;
 		x1 = timePrevious[0];
@@ -313,41 +324,6 @@ public class FilterProcessSignal extends Filter {
 
 		y2 = tempMark3 * (linePrevious.slope() * x2 + linePrevious.intercept()) 
 				+ tempMark4 * (lineCurent.slope() * x2 + lineCurent.intercept());
-
-		//OLD code to realize how stupy old one is
-		/*
-		if((previousBad & curentBad) | (!previousBad & !curentBad))
-		{
-			y2 = (     (linePrevious.slope() * x2 + linePrevious.intercept()) + 
-					(lineCurent.slope() * x2 + lineCurent.intercept())     )/2;
-		}
-		else
-		{
-			if(previousBad)
-			{
-				//previous bad curent good
-				y2 = lineCurent.slope() * x2 + lineCurent.intercept();
-			}
-			else
-			{
-				//previous good curent bad
-				y2 = linePrevious.slope() * x2 + linePrevious.intercept();
-			}
-
-		}*/
-
-		//Old way
-		/*
-		if(writtenBad)
-		{
-			//int index = line.sequenceNumber();
-			int index = 0;
-			intercept = previousBlockC.get(index) - slope * previousBlockP.get(index).timestamp;
-		}else
-		{
-			intercept = writtenC - slope * writtenT;
-		}
-		 */
 
 
 		double slope = (y2 - y1) / (x2 - x1);
@@ -374,6 +350,7 @@ public class FilterProcessSignal extends Filter {
 		writtenMark = previousMark;
 		previousTooBig = false;
 		previousMerges = 0;
+		
 	}
 
 }

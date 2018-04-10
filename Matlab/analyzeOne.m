@@ -11,7 +11,7 @@ simpleS = javaObject('filters.Runner');
 S1 = javaObject('e6.ECG.time_sync.Signal');    
 S2 = javaObject('e6.ECG.time_sync.Signal');  
 
-close('all') 
+%close('all') 
 
 %% Initial input parameters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -20,7 +20,10 @@ nanos_in_one_hour = 3600e9;
 colours = 'rgbrmkc';
 
 folder = 'C:\Users\janez\workspace\S2_rw\S2files'
-name = 'andrej1.s2'
+
+
+name1 = 'andrej1.s2'
+name2 = 'andrej2.s2'
   
 
 
@@ -31,12 +34,12 @@ F1original = 0
 F1janez = 1;
 F2janez = 1;
 F1andrej = 1;
-F2andrej = 1;
+F2andrej = 0;
 
 ajanez = 10*10^9;
 aandrej = 47589*10^9;
 
-translacija = 100*10^9;
+translacija = 5*10^9;
 dolzina = 3000*10^9; %% sekunde
 
 	 
@@ -47,7 +50,7 @@ dolzina = 3000*10^9; %% sekunde
 	 
 %%%%%%%%%%%%%%%%%%%%%%   OLD TIMESTAMPS       %%%%%%%%%%%%%%55555
 if F1original
-	simpleS.setOldTVP(name);
+	simpleS.setOldTVP(name1);
 	stime1 = simpleS.getSamplesTimeStamp();
 	stime1 = stime1;% - stime1(1);
 	svolt1 = simpleS.getVoltage();
@@ -63,13 +66,13 @@ end
 
 %%%%%%%%%%%%%%%%%%5       NEW TIMESTAMPS         %%%%%%%%%%%%%%%%%%%%%%%%%%%
 if F1janez
-	simpleS.setNewTVP(name);
+	simpleS.setNewTVP(name1);
 	stime2 = simpleS.getSamplesTimeStamp();
 	stime2 = stime2;% .- stime2(1);
 	svolt2 = simpleS.getVoltage();
 	speaks2 = simpleS.getPeaks() + 1;
 	ptime2 = simpleS.getPacketsTimeStamp();
-	ptime2 = ptime2 .- ptime2(1);
+	ptime2 = ptime2;% .- ptime2(1);
 	pcounter2 = simpleS.getPacketsCounter();  
 end
 
@@ -79,7 +82,7 @@ if F1andrej
 	int_length = 3;
 
 	S1.setIntervalLength(int_length);
-	S1.readS2File(folder, name, 0, 0.5 * nanos_in_one_hour, 0);
+	S1.readS2File(folder, name1, 0, 0.5 * nanos_in_one_hour, 0);
 	S1.processSignal;    
 
 	%#  WARNING andrej meèe not dodatne sample
@@ -97,13 +100,13 @@ end
   
 %%%%%%%%%%%%%%%%%         SECOND FILE           %%%%%%%%%%%%%%%%%%%%%%
 if F2janez
-	simpleS.setNewTVP("andrej2.s2");
+	simpleS.setNewTVP(name2);
 	stime4 = simpleS.getSamplesTimeStamp();
-	stime4 = stime4;% .- stime4(1);
+	stime4 = stime4-4*10^6;% .- stime4(1);
 	svolt4 = simpleS.getVoltage();
 	speaks4 = simpleS.getPeaks() + 1;
 	ptime4 = simpleS.getPacketsTimeStamp();
-	ptime4 = ptime4 .- ptime4(1);
+	ptime4 = ptime4;% .- ptime4(1);
 	pcounter4 = simpleS.getPacketsCounter();  
 end
 
@@ -116,7 +119,7 @@ if F2andrej
 	int_length = 3;
 
 	S2.setIntervalLength(int_length);
-	S2.readS2File(folder, 'andrej2.s2', 0, 0.5 * nanos_in_one_hour, 0);
+	S2.readS2File(folder, name2, 0, 0.5 * nanos_in_one_hour, 0);
 	S2.processSignal;    
 
 	%#  WARNING andrej meèe not dodatne sample
@@ -197,7 +200,6 @@ if 1
 				alpha2 = svolt2(tempP2(p)-1:tempP2(p)+1);
 				p2 = 1/2 * (alpha2(1) - alpha2(3)) / (alpha2(1) - 2* alpha2(2) + alpha2(3));
 				t2 = stime2(tempP2(p)-1) + (stime2(tempP2(p)) - stime2(tempP2(p)-1)) * (1 + p2);
-				
 				
 				%%
 				najdeni1 = [najdeni1, [aa;stime2(tempP2(p));t4-t2]];
@@ -346,14 +348,15 @@ if 1
 		h=plot(CC,EE./150+2*vz,'y*')
 		end
 		
-		if F1janez && F2janez && 1
+		if F1janez && F2janez && 0
 			a = ajanez + translacija;
 			b = a + dolzina;
 			h=plot(najdeni1(2,:),najdeni1(1,:)/10^6,'*');
 			handles = [handles, h];
 			legends = {legends{:}, 'primerjava s2 - janez metoda'};
 			vsotaJ = sum(abs(najdeni1(1,:)))
-			
+		end
+		if F1janez && F2janez && 1
 			h=plot(najdeni1(2,:),najdeni1(3,:)/10^6,'*');
 			handles = [handles, h];
 			legends = {legends{:}, 'primerjava s2 z interpolacijo - janez metoda'};

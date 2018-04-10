@@ -31,14 +31,14 @@ public class Runner {
 	
 	public static void main(String[] args)
 	{
-		String ime = "andrej1.s2";
+		String ime = "dolge1.s2";
 		
 		Runner r = new Runner();
 		System.out.println("BLALA");
-		r.setOldTVP(ime);
+		//r.setOldTVP(ime);
 		r.setNewTVP(ime);
 		//r.saveTVP(ime);
-		r.setAndrejTVP(ime);
+		//r.setAndrejTVP(ime);
 		
 	}
 	
@@ -185,9 +185,6 @@ public class Runner {
 		packetsCounter = new ArrayList<Double>();
 
 		System.out.println("runner START");
-
-
-
 		System.out.println(ime);
 
 		S2 s2 = new S2();
@@ -410,7 +407,6 @@ public class Runner {
 		double[] R = new double[samplesTime.size()];
 		for(int j =0; j<R.length; j++)
 			R[j] = samplesTime.get(j);
-		System.out.println("# of samplesT " + R.length);
 		return R;
 	}
 
@@ -421,7 +417,6 @@ public class Runner {
 		float[] R = new float[samplesVoltage.size()];
 		for(int j =0; j<R.length; j++)
 			R[j] = samplesVoltage.get(j);
-		System.out.println("# of samplesV " + R.length);
 		return R;
 	}
 
@@ -429,7 +424,6 @@ public class Runner {
 		int[] R = new int[samplesPeak.size()];
 		for(int j =0; j<R.length; j++)
 			R[j] = samplesPeak.get(j);
-		System.out.println("# of peaks " + R.length);
 		return R;
 	}
 	
@@ -440,7 +434,6 @@ public class Runner {
 		double[] R = new double[packetsTime.size()];
 		for(int j =0; j<R.length; j++)
 			R[j] = packetsTime.get(j);
-		System.out.println("# of packets " + R.length);
 		return R;
 	}
 	
@@ -451,7 +444,6 @@ public class Runner {
 		double[] R = new double[packetsCounter.size()];
 		for(int j =0; j<R.length; j++)
 			R[j] = packetsCounter.get(j);
-		System.out.println("# of packets " + R.length);
 		return R;
 	}
 
