@@ -22,7 +22,6 @@ public class FilterHandles extends Filter {
 		this.handles = handles;
 	}
 	
-	@Deprecated
 	public FilterHandles(long handles)
 	{
 		ArrayList<Byte> tHandles = new ArrayList<Byte>();

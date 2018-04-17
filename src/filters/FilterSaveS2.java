@@ -120,14 +120,14 @@ public class FilterSaveS2 extends Filter {
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
 
-		/*
+		
 		if (!lastTimestampWriten)
 		{
 			storeS.addTimestamp(new Nanoseconds(lastTimestamp));
 			lastTimestampWriten = true;
 			for(byte t:lastTime.keySet())
 				lastTime.replace(t, lastTimestamp);
-		}*/
+		}
 
 		int maxBits = timestampDefinitions.get(handle).byteSize * 8;
 
@@ -135,10 +135,11 @@ public class FilterSaveS2 extends Filter {
 		long writeReadyDiff = timestampDefinitions.get(handle).toImplementationFormat(new Nanoseconds(diff));
 		if(64 - Long.numberOfLeadingZeros(writeReadyDiff) > maxBits)
 		{
+			//TODO lasttimestamp -> timestamp
 			storeS.addTimestamp(new Nanoseconds(timestamp));
 			for(byte t:lastTime.keySet())
 			{
-				lastTime.replace(t, lastTimestamp);
+				lastTime.replace(t, timestamp);
 			}
 			writeReadyDiff = 0;
 		}

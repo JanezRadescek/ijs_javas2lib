@@ -21,6 +21,7 @@ import filters.FilterData;
 import filters.FilterGetLines;
 import filters.FilterHandles;
 import filters.FilterInfo;
+import filters.FilterProcessSignal;
 import filters.FilterSaveCSV;
 import filters.FilterSaveS2;
 import filters.FilterTime;
@@ -70,8 +71,8 @@ public class Cli {
 				+ " If true streams with same hendels will be merged,"
 				+ " else strems from second file will get new one where needed");
 		options.addOption(HELP, false, "Help");
-		options.addOption(PROCESS_SIGNAL,true, "Proces signal. If argument is true it will process"
-				+ " as if the frequency of sensor is constant. Otherwise ");
+		options.addOption(PROCESS_SIGNAL,false, "Proces signal. If argument is true it will process"
+				+ " as if the frequency of sensor is constant. Simple processsing. Otherwise it will split into intervals");
 
 		Option time = new Option(TIME, "time. zacetni in koncni cas izseka, ki nas zanima. 3 argument if we aproximate "
 				+ "datas without own time with last previous time"
@@ -251,7 +252,9 @@ public class Cli {
 				FirtstReader gre = new FirtstReader(file1, bob);
 				loadS1.addReadLineCallback(gre);
 				loadS2.addReadLineCallback(bob);
-				//merge(file1, loadS1, file2, loadS2, izhodDir, mergeHandles);
+
+				loadS1.readAndProcessFile();
+				loadS2.readAndProcessFile();
 
 			}else if (cmd.hasOption(MEARGE))
 			{
@@ -264,11 +267,9 @@ public class Cli {
 			{
 				//TODO callback je star zbriši ga ko bo testruner deloval
 				ctask = STATISTIKA;
-				StatisticsCallback callback;
 				FilterInfo filter;
 				if(outDir !=null)
 				{
-					callback = new StatisticsCallback(file1, outDir);
 					try {
 						filter = new FilterInfo(new PrintStream(new File(outDir)));
 					} catch (FileNotFoundException e) {
@@ -280,10 +281,9 @@ public class Cli {
 				else
 				{
 					filter = new FilterInfo(System.out);
-					callback = new StatisticsCallback(file1);
 				}
-				loadS1.addReadLineCallback(filter);
-			
+				//loadS1.addReadLineCallback(filter);
+				loadS1.readLines(filter, false);
 			}
 
 			if(cmd.hasOption(CUT))
@@ -291,19 +291,18 @@ public class Cli {
 				ctask = CUT;
 				if(outDir != null)
 				{
-					if(true)
+					if(false)
 					{
 						//old way with callbacks
 
 						OutS2Callback callback = new OutS2Callback(file1, ab, nonEss, handles, dataT, outDir);
-						loadS1.addReadLineCallback(callback);
+						//loadS1.addReadLineCallback(callback);
+						loadS1.readLines(callback, false);
 
 					}else
 					{
 						//new way
-						FilterGetLines getlines = new FilterGetLines();
-						//
-						FilterTime filterT = new FilterTime(ab[0], ab[1], nonEss);
+						FilterTime filterT = new FilterTime(ab[0], ab[1]);
 						FilterData filterD = new FilterData(dataT);
 						FilterHandles filterH = new FilterHandles(handles);
 						FilterSaveS2 filterS = new FilterSaveS2(outDir);
@@ -312,9 +311,8 @@ public class Cli {
 						filterT.addChild(filterD);
 						filterD.addChild(filterH);
 						filterH.addChild(filterS);
-						//
-						filterS.addChild(getlines);
-						
+						loadS1.readLines(filterT, false);
+
 					}
 
 				}else
@@ -328,21 +326,10 @@ public class Cli {
 				ctask = READ;
 				if(outDir != null)
 				{
+					//new way with filters
 
-
-					if(true)
-					{
-						// old way with callback
-						OutCSVCallback callback = new OutCSVCallback(file1, ab, handles, outDir);
-						loadS1.addReadLineCallback(callback);
-					}else
-					{
-
-						//new way with filters
-
-						FilterSaveCSV filter = new FilterSaveCSV(outDir, dataMapping);
-						loadS1.addReadLineCallback(filter);
-					}
+					FilterSaveCSV filter = new FilterSaveCSV(outDir, dataMapping);
+					loadS1.readLines(filter, false);
 
 				}else
 				{
@@ -354,36 +341,24 @@ public class Cli {
 
 			if(cmd.hasOption(PROCESS_SIGNAL))
 			{
+				/*
 				ctask = PROCESS_SIGNAL;
-
 				simpleProcessing = Boolean.parseBoolean(cmd.getOptionValue(PROCESS_SIGNAL));
 				FixTime callback = new FixTime(file1, ab, nonEss, handles, dataT, outDir, simpleProcessing);
 				loadS1.addReadLineCallback(callback);
+				 */
+				FilterProcessSignal filterP = new FilterProcessSignal();
+				filterP.addChild(new FilterSaveS2(outDir));
+				
+				loadS1.readLines(filterP, false);
 			}
 
 
-			boolean everythingOk = true;
 
-			if(PROCESS_FIRST_S2.contains(ctask))
-			{
-				//preberemo prvi S2 in obdelamo
-				System.out.println("using file "+file1.getFilePath());
-				everythingOk &= loadS1.readAndProcessFile();
-				System.out.println(file1.getNotes());
-				//samo opcija b potrebuje drugi file
-			}
-			if (PROCESS_SECOND_S2.contains(ctask))
-			{
-				System.out.println("using file "+file2.getFilePath());
-				everythingOk &= loadS2.readAndProcessFile();
-				System.out.println(file2.getNotes());
-			}
 
-			if (everythingOk){
-				System.out.println("THE END" + "\n");
-			} else {
-				System.err.println("Error in procesing S2 file");
-			}
+
+			System.out.println("THE END of CLI" + "\n");
+
 
 		}
 		else

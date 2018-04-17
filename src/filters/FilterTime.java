@@ -13,8 +13,32 @@ public class FilterTime extends Filter {
 
 	private long lastRecordedTime = 0;
 	
+	
 	/**
-	 * [start, end)
+	 * [start, end) in nanoseconds
+	 * @param start 
+	 * @param end
+	 */
+	public FilterTime(long start, long end)
+	{
+		this.start = start;
+		this.end = end;
+		this.filterTimeLessData = false;
+	}
+	
+	/**
+	 * @param start in seconds
+	 * @param end in seconds
+	 * @param filterTimeLessData
+	 */
+	public FilterTime(long start, long end, boolean filterTimeLessData)
+	{
+		this(start,end);
+		this.filterTimeLessData = filterTimeLessData;
+	}
+	
+	/**
+	 * [start, end) in seconds
 	 * @param start 
 	 * @param end
 	 */

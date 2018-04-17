@@ -6,6 +6,9 @@ import static org.junit.Assert.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import filters.Runner;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,9 +32,14 @@ public class CliTest {
 	static String inCSV = "izpis2.csv";
 	static String inTXT = "info2.txt";
 	static String inDirName = inDir +File.separator+ inFile;
+
+	static String inDirNameSignal1 = "." + File.separator + "S2files" + File.separator+ "andrej1.s2";
+	static String inDirNameSignal2 = "." + File.separator + "S2files" + File.separator+ "andrej2.s2";
 	
 	static String outDir = "." + File.separator + "UnitTests";
 	
+	
+
 	//static String inDirNameO = "."+File.separator+"Original"+File.separator+"test2.s2";
 
 
@@ -121,18 +129,18 @@ public class CliTest {
 
 		checkCopy();
 		//first 3 lines are struct definitions
-		
+
 		//samo za generated
 		/*
 		assertEquals("Testing singletons time 17",1+1, checkSingleton(17L));
 		assertEquals("Testing singletons time 16",1+3, checkSingleton(16L));
 		assertEquals("Testing singletons time 15",1+0, checkSingleton(15L));
-		*/
+		 */
 
 		//samo za test2.s2
 		long time = 8855834815L;
 		assertEquals("Testing singletons time "+time,1+1, checkSingleton(time));
-		
+
 		deleteUnimportant(false,"111");
 		//deleteUnimportant(true,"100");
 
@@ -291,23 +299,28 @@ public class CliTest {
 		}
 	}
 
-	//if something goes wrong we dont want to delete files
 
-	
-	@Test(expected = NullPointerException.class)
-	public void SignalTest1()
-	{
-		Cli.main(new String[]{"-p", "false","-i",outDir +File.separator+"test2.s2"});
-	}
-	
+
+
 	@Test
 	public void SignalTest2()
 	{
-		Cli.main(new String[]{"-p", "true","-i", inDirName, "-o", outDir +File.separator+ "test2-popravljenaEasy.s2"});
-		Cli.main(new String[]{"-p", "false", "-i", inDirName, "-o", outDir +File.separator+ "test2-popravljena.s2"});
+		final double metrikaR = 10;
+		String ime1 = "andrej1-popravljena.s2";
+		String ime2 = "andrej2-popravljena.s2";
+		String out1 = outDir +File.separator+ ime1;
+		String out2 = outDir +File.separator+ ime2;
+		Cli.main(new String[]{"-p", "-i", inDirNameSignal1, "-o", out1});
+		Cli.main(new String[]{"-p", "-i", inDirNameSignal2, "-o", out2});
+
+		Runner r = new Runner();
+		double R = r.unitRun(outDir,out1, out2);
+		
+		assertTrue("je blizu ? : ",R <=1.5*metrikaR);
+		assertTrue("je boljše ? : ",R <=metrikaR);
 	}
-	
-	
+
+
 	@AfterClass
 	public static void clean()
 	{
