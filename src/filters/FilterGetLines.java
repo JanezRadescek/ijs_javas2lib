@@ -8,6 +8,12 @@ import java.util.Queue;
 import si.ijs.e6.S2.SensorDefinition;
 import si.ijs.e6.S2.StructDefinition;
 import si.ijs.e6.S2.TimestampDefinition;
+import suportingClasses.Comment;
+import suportingClasses.SpecialMessage;
+import suportingClasses.StreamPacket;
+import suportingClasses.Line;
+import suportingClasses.TimeStamp;
+import suportingClasses.Version;
 
 /**
  * It saves all variables it gets in methonds specified in ReadLineCallbackInterface.
@@ -22,7 +28,7 @@ public class FilterGetLines extends Filter {
 	private Map<Byte, SensorDefinition> sensorDefinitions = new HashMap<Byte, SensorDefinition>();
 	private Map<Byte, StructDefinition> structDefinitions = new HashMap<Byte, StructDefinition>(); 
 	private Map<Byte, TimestampDefinition> timestampDefinitions = new HashMap<Byte, TimestampDefinition>();
-	private Queue<TimeData> timeDataQ = new LinkedList<TimeData>();
+	private Queue<Line> timeDataQ = new LinkedList<Line>();
 	private Queue<StreamPacket> packetQ = new LinkedList<StreamPacket>();
 	
 	long lastExplicitTimestamp = 0;
@@ -67,7 +73,7 @@ public class FilterGetLines extends Filter {
 	 * (comments and special messages are given last read timestamp)
 	 * @return the timeDataQ
 	 */
-	public Queue<TimeData> getTimeDataQ() {
+	public Queue<Line> getTimeDataQ() {
 		return timeDataQ;
 	}
 
@@ -150,80 +156,6 @@ public class FilterGetLines extends Filter {
 
 		pushStremPacket(handle, timestamp, len, data);
 		return true;
-	}
-	
-	
-	
-
-	//CLASSES WE NEED TOO SAVE THINGS
-	
-	public static class Version
-	{
-		public int intVersion;
-		public String version;
-		
-		public Version(int intVersion, String version)
-		{
-			this.intVersion = intVersion;
-			this.version = version;
-		}
-	}
-	
-	public static class TimeData
-	{
-		long timestamp;
-		public TimeData(long timestamp)
-		{
-			this.timestamp = timestamp;
-		}
-	}
-
-	public static class Comment extends TimeData
-	{
-		String comment;
-		public Comment(long timestamp, String comment) {
-			super(timestamp);
-			this.comment = comment;
-		}
-		
-	}
-	
-	public static class SpecialMessage extends TimeData
-	{
-		char who;
-		char what;
-		String message;
-		public SpecialMessage(long timestamp, char who, char what, String message)
-		{
-			super(timestamp);
-			this.who = who;
-			this.what = what;
-			this.message = message;
-		}
-	}
-	
-	public static class TimeStamp extends TimeData
-	{
-
-		public TimeStamp(long timestamp) {
-			super(timestamp);
-		}
-		
-	}
-	
-	public static class StreamPacket extends TimeData
-	{
-		byte handle;
-		int len;
-		byte[] data;
-		
-		public StreamPacket(byte handle, long timestamp, int len, byte[] data)
-		{
-			super(timestamp);
-			this.handle = handle;
-			this.len = len;
-			this.data = data;
-		}
 	}
 	
 }

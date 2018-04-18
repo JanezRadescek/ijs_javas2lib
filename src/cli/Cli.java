@@ -1,24 +1,18 @@
 package cli;
 
 import java.lang.Exception;
-
+import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.io.UnsupportedEncodingException;
 import org.apache.commons.cli.*;
 
 import callBacks.FirtstReader;
-import callBacks.FixTime;
-import callBacks.OutCSVCallback;
-import callBacks.OutS2Callback;
 import callBacks.SecondReader;
-import callBacks.StatisticsCallback;
-import filters.Filter;
 import filters.FilterData;
-import filters.FilterGetLines;
 import filters.FilterHandles;
 import filters.FilterInfo;
 import filters.FilterProcessSignal;
@@ -36,9 +30,40 @@ import si.ijs.e6.S2;
  */
 public class Cli {
 
-	public static void main(String[] args){
+	public static void main(String[] args)
+	{
+		start(args);
+		System.exit(0);
+	}
 
-		final String PASS = "pass";
+	public static String GuiCliLink(String[] args)
+	{
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		
+		PrintStream ps = null;
+		
+		try {
+			ps = new PrintStream(baos, true, "utf-8");
+			
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return e.getMessage();
+		}
+		start(args, ps, ps);
+		String sOut = new String(baos.toByteArray(), StandardCharsets.UTF_8);
+		
+		ps.close();
+		
+		return sOut;
+	}
+	
+	public static void start(String[] args)
+	{
+		Cli.start(args, System.out, System.err);
+	}
+
+	public static void start(String[] args, PrintStream outPS, PrintStream errPS)
+	{
 		final String STATISTIKA = "s";
 		final String CUT = "c";
 		final String READ = "r";
@@ -47,19 +72,11 @@ public class Cli {
 
 		final String PROCESS_SIGNAL = "p";
 
-		final HashSet<String> PROCESS_FIRST_S2 = new HashSet<String>(
-				Arrays.asList(new String[]{STATISTIKA, CUT, READ, MEARGE, HELP, PROCESS_SIGNAL}));
-		final HashSet<String> PROCESS_SECOND_S2 = new HashSet<String>(
-				Arrays.asList(new String[]{MEARGE}));
-
 		final String TIME = "t";
 		final String INPUT = "i";
 		final String OUTPUT = "o";
 		final String HANDLES = "h";
 		final String DATA = "d";
-
-		//curent task
-		String ctask = PASS;
 
 		//parsanje vhodnih podatkov
 		Options options = new Options();
@@ -111,18 +128,18 @@ public class Cli {
 		try {
 			cmd = parser.parse(options, args);
 		} catch (UnrecognizedOptionException e) {
-			System.err.println("Unrecognized argument: "+e.getOption());
+			errPS.println("Unrecognized argument: "+e.getOption());
 
 
-			PrintWriter pw = new PrintWriter(System.err);
+			PrintWriter pw = new PrintWriter(errPS);
 			formatter.printUsage(pw, 80, args[0], options);
 			pw.flush();
 			return;
 		} catch (ParseException e) {
 
 			formatter.printHelp("Cli",header,options,footer);
-			System.err.println("Exception caught while parting input arguments:");
-			e.printStackTrace(System.err);
+			errPS.println("Exception caught while parting input arguments:");
+			e.printStackTrace(errPS);
 
 			return;
 		}
@@ -153,7 +170,7 @@ public class Cli {
 				//inFname1 = cmd.getOptionValues("i")[1];
 			}catch(Exception e)
 			{
-				System.out.println("Option i need directory and name of input S2 file. TERMINATE");
+				outPS.println("Option i need directory and name of input S2 file. TERMINATE");
 				return;
 			}
 			file1 = new S2();
@@ -165,7 +182,6 @@ public class Cli {
 			String outDir = null;
 			long handles = Long.MAX_VALUE;
 			byte dataT = Byte.MAX_VALUE;
-			boolean simpleProcessing = true;
 			boolean dataMapping = true;
 
 			//second input S2 file directory and name
@@ -178,7 +194,7 @@ public class Cli {
 				}
 				catch(Exception r)
 				{
-					System.out.println("Option i needs directory and name of second input file. TERMINATE");
+					outPS.println("Option i needs directory and name of second input file. TERMINATE");
 					return;
 				}
 			}
@@ -193,12 +209,12 @@ public class Cli {
 					ab[0] = (long)aa;
 					ab[1] = (long)bb;
 				}catch(NumberFormatException e){
-					System.out.println("Arguments at" +TIME+ "must be float float boolean");
+					outPS.println("Arguments at" +TIME+ "must be float float boolean");
 					return;
 				}
 				if (ab[0]>ab[1])
 				{
-					System.out.println("Starting time must be lower than ending. TERMINATE");
+					outPS.println("Starting time must be lower than ending. TERMINATE");
 					return;
 				}
 			}
@@ -210,7 +226,7 @@ public class Cli {
 					//izhodName = cmd.getOptionValues("o")[1];
 				} catch(Exception e)
 				{
-					System.out.println("Option "+OUTPUT+" needs file directory and name. TERMINATE");
+					outPS.println("Option "+OUTPUT+" needs file directory and name. TERMINATE");
 					return;
 				}
 			}
@@ -220,7 +236,7 @@ public class Cli {
 				try{
 					handles = Long.parseLong(cmd.getOptionValue(HANDLES),2);
 				}catch(NumberFormatException e){
-					System.out.println("argument of "+HANDLES+" must be a number in binary format. TERMINATE");
+					outPS.println("argument of "+HANDLES+" must be a number in binary format. TERMINATE");
 					return;
 				}
 			}
@@ -230,20 +246,16 @@ public class Cli {
 				try{
 					dataT = Byte.parseByte(cmd.getOptionValue(DATA),2);
 				}catch(NumberFormatException e){
-					System.out.println("argument of "+DATA+" must be a number in binary format. TERMINATE");
+					outPS.println("argument of "+DATA+" must be a number in binary format. TERMINATE");
 					return;
 				}
 			}
 
 
-			//dodajanje callBackov
-			//TODO completly remove old callbacks
-
 
 
 			if(cmd.hasOption(MEARGE) && inDirectory2!=null && outDir!=null)
 			{
-				ctask = MEARGE;
 				file2 = new S2();
 				loadS2 = file2.load(inDirectory2.getParentFile(), inDirectory2.getName());
 				boolean mergeHandles = Boolean.parseBoolean(cmd.getOptionValue(MEARGE));
@@ -258,15 +270,13 @@ public class Cli {
 
 			}else if (cmd.hasOption(MEARGE))
 			{
-				System.err.println("If we want to use -m(concat 2 S2 files)"+
+				errPS.println("If we want to use -m(concat 2 S2 files)"+
 						"we need option -i with second argument (second S2 file) and -o(output S2 file). TERMINATE");
 				return;
 			}
 
 			if(cmd.hasOption(STATISTIKA))
 			{
-				//TODO callback je star zbriši ga ko bo testruner deloval
-				ctask = STATISTIKA;
 				FilterInfo filter;
 				if(outDir !=null)
 				{
@@ -274,13 +284,13 @@ public class Cli {
 						filter = new FilterInfo(new PrintStream(new File(outDir)));
 					} catch (FileNotFoundException e) {
 						e.printStackTrace();
-						System.out.println("File couldnt be made");
+						outPS.println("File couldnt be made");
 						return;
 					}
 				}
 				else
 				{
-					filter = new FilterInfo(System.out);
+					filter = new FilterInfo(outPS);
 				}
 				//loadS1.addReadLineCallback(filter);
 				loadS1.readLines(filter, false);
@@ -288,42 +298,31 @@ public class Cli {
 
 			if(cmd.hasOption(CUT))
 			{
-				ctask = CUT;
 				if(outDir != null)
 				{
-					if(false)
-					{
-						//old way with callbacks
 
-						OutS2Callback callback = new OutS2Callback(file1, ab, nonEss, handles, dataT, outDir);
-						//loadS1.addReadLineCallback(callback);
-						loadS1.readLines(callback, false);
+					//new way
+					FilterTime filterT = new FilterTime(ab[0], ab[1], nonEss);
+					FilterData filterD = new FilterData(dataT);
+					FilterHandles filterH = new FilterHandles(handles);
+					FilterSaveS2 filterS = new FilterSaveS2(outDir);
 
-					}else
-					{
-						//new way
-						FilterTime filterT = new FilterTime(ab[0], ab[1]);
-						FilterData filterD = new FilterData(dataT);
-						FilterHandles filterH = new FilterHandles(handles);
-						FilterSaveS2 filterS = new FilterSaveS2(outDir);
+					loadS1.addReadLineCallback(filterT);
+					filterT.addChild(filterD);
+					filterD.addChild(filterH);
+					filterH.addChild(filterS);
+					loadS1.readLines(filterT, false);
 
-						loadS1.addReadLineCallback(filterT);
-						filterT.addChild(filterD);
-						filterD.addChild(filterH);
-						filterH.addChild(filterS);
-						loadS1.readLines(filterT, false);
 
-					}
 
 				}else
 				{
-					System.err.println("Option c-cut need option o-out(directory and name of output file). TERMINATE");
+					errPS.println("Option c-cut need option o-out(directory and name of output file). TERMINATE");
 				}
 			}
 
 			if(cmd.hasOption(READ))
 			{
-				ctask = READ;
 				if(outDir != null)
 				{
 					//new way with filters
@@ -333,7 +332,7 @@ public class Cli {
 
 				}else
 				{
-					System.err.println("Option r-read need option o-out(directory and name of output file). TERMINATE");
+					errPS.println("Option r-read need option o-out(directory and name of output file). TERMINATE");
 				}
 			}
 
@@ -341,42 +340,22 @@ public class Cli {
 
 			if(cmd.hasOption(PROCESS_SIGNAL))
 			{
-				/*
-				ctask = PROCESS_SIGNAL;
-				simpleProcessing = Boolean.parseBoolean(cmd.getOptionValue(PROCESS_SIGNAL));
-				FixTime callback = new FixTime(file1, ab, nonEss, handles, dataT, outDir, simpleProcessing);
-				loadS1.addReadLineCallback(callback);
-				 */
+				FilterTime filterT = new FilterTime(ab[0], ab[1]);
 				FilterProcessSignal filterP = new FilterProcessSignal();
+				filterT.addChild(filterP);
 				filterP.addChild(new FilterSaveS2(outDir));
-				
-				loadS1.readLines(filterP, false);
+
+				loadS1.readLines(filterT, false);
 			}
 
-
-
-
-
-			System.out.println("THE END of CLI" + "\n");
-
+			outPS.println("The End of CLI" + "\n");
+			
 
 		}
 		else
 		{
-			System.out.println("Input is mandatory. TERMINATE");
+			outPS.println("Input is mandatory. TERMINATE");
 			formatter.printHelp("Cli",header,options,footer);
 		}
-
-
-	}
-
-	public static void start(String[] args)
-	{
-		Cli.start(args, System.out);
-	}
-
-	public static void start(String[] args, PrintStream out)
-	{
-
 	}
 }

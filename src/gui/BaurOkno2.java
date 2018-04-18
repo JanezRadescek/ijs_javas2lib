@@ -19,6 +19,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -145,17 +147,43 @@ public class BaurOkno2 extends JFrame {
 			JButton btnNewButton = new JButton("GO");
 			btnNewButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
+					
+					Console cc = new Console();
+					String haha = "AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH";
+					cc.setText(haha);
+					
+					/*
 					if(evaluate())
 					{
 						try
 						{
-							Cli.main(cliArgs);
-							txtCliArgs.setText("DONE. Hopefully correctly.");
+							String CliR = Cli.GuiCliLink(cliArgs);
+							
+							JScrollPane Console = new JScrollPane(new JTextArea(CliR),
+									JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+							
+							JOptionPane.showMessageDialog(contentPane, Console, "Console", JOptionPane.PLAIN_MESSAGE);
 						}catch(Error e)
 						{
 							txtCliArgs.setText(e.getMessage());
 						}
-					}
+					}*/
 				}
 			});
 			panel_ArgsGo.add(btnNewButton, "cell 1 0,grow");
@@ -530,6 +558,18 @@ public class BaurOkno2 extends JFrame {
 			panel_radioButtons.add(rdbtn1, "cell 0 0,grow");
 			JRadioGRoup.add(rdbtn1);
 			skupina.add(rdbtn1);
+			
+			Radijo rdbtnSdisplay = new Radijo("Statistics Display","-s");
+			rdbtnSdisplay.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					act = rdbtnSdisplay;
+					allowedGroups=new String[]{"main input"};
+					enableButtons();
+				}
+			});
+			panel_radioButtons.add(rdbtnSdisplay, "cell 0 0,grow");
+			JRadioGRoup.add(rdbtnSdisplay);
+			skupina.add(rdbtnSdisplay);
 
 			Radijo rdbtn2 = new Radijo("CSV","-r");
 			rdbtn2.addActionListener(new ActionListener() {

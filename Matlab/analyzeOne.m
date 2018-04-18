@@ -33,14 +33,16 @@ F1original = 0
 
 F1janez = 1;
 F2janez = 1;
-F1andrej = 1;
+F1andrej = 0;
 F2andrej = 0;
 
-ajanez = 10*10^9;
+%ajanez = 10*10^9;
+%spodnja za testiranje jave zgornja veèino uporab
+ajanez = 0*10^9;
 aandrej = 47589*10^9;
 
-translacija = 5*10^9;
-dolzina = 3000*10^9; %% sekunde
+translacija = 0*10^9;
+dolzina = 3600*10^9; %% sekunde
 
 	 
 	 
@@ -50,7 +52,7 @@ dolzina = 3000*10^9; %% sekunde
 	 
 %%%%%%%%%%%%%%%%%%%%%%   OLD TIMESTAMPS       %%%%%%%%%%%%%%55555
 if F1original
-	simpleS.setOldTVP(name1);
+	simpleS.getOldSamples(name1);
 	stime1 = simpleS.getSamplesTimeStamp();
 	stime1 = stime1;% - stime1(1);
 	svolt1 = simpleS.getVoltage();
@@ -66,7 +68,7 @@ end
 
 %%%%%%%%%%%%%%%%%%5       NEW TIMESTAMPS         %%%%%%%%%%%%%%%%%%%%%%%%%%%
 if F1janez
-	simpleS.setNewTVP(name1);
+	simpleS.getNewSamples(name1);
 	stime2 = simpleS.getSamplesTimeStamp();
 	stime2 = stime2;% .- stime2(1);
 	svolt2 = simpleS.getVoltage();
@@ -100,7 +102,7 @@ end
   
 %%%%%%%%%%%%%%%%%         SECOND FILE           %%%%%%%%%%%%%%%%%%%%%%
 if F2janez
-	simpleS.setNewTVP(name2);
+	simpleS.getNewSamples(name2);
 	stime4 = simpleS.getSamplesTimeStamp();
 	stime4 = stime4-4*10^6;% .- stime4(1);
 	svolt4 = simpleS.getVoltage();

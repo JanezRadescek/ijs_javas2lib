@@ -7,10 +7,10 @@ import java.util.Queue;
 
 import callBacks.MultiBitBuffer;
 import e6.ECG.time_sync.Signal;
-import filters.FilterGetLines.StreamPacket;
 import si.ijs.e6.S2;
 import si.ijs.e6.S2.LoadStatus;
 import si.ijs.e6.S2.SensorDefinition;
+import suportingClasses.StreamPacket;
 
 /**
  * Meant for analizing FilterProcessSignal. can be called from matlab/octave.
@@ -20,22 +20,25 @@ import si.ijs.e6.S2.SensorDefinition;
 public class Runner {
 
 	private final double startTime = 0*60;
-	private final double endTime = 0.5*60*60;
+	private final double endTime = 1*60*60;
 	private final double EXPECTED_MAXIMUM = 0.2;
 	private final double EXPECTED_TIME_DIFF = 8*1E6;
 
 	//C:\Users\janez\workspace\S2_rw\S2files\andrej1.s2  moja datoteka ki jo hočem popraviti
 	File dir = new File("C:\\Users\\janez\\workspace\\S2_rw\\S2files");
 
-	ArrayList<Double> samplesTime;
+	ArrayList<Double> samplesTime4;
 	ArrayList<Double> packetsTime;
 	ArrayList<Double> packetsCounter;
-	ArrayList<Float> samplesVoltage;
-	ArrayList<Integer> samplesPeak;
+	ArrayList<Float> samplesVoltage4;
+	ArrayList<Integer> samplesPeak4;
 
-	ArrayList<Double> samplesTime1;
-	ArrayList<Integer> samplesPeak1;
-	ArrayList<Float> samplesVoltage1;
+	ArrayList<Double> samplesTime2;
+	ArrayList<Integer> samplesPeak2;
+	ArrayList<Float> samplesVoltage2;
+	
+	Queue<StreamPacket> tpackets;
+	Map<Byte, SensorDefinition> tsensors;
 
 	public static void main(String[] args)
 	{
@@ -44,7 +47,7 @@ public class Runner {
 		Runner r = new Runner();
 		System.out.println("BLALA");
 		//r.setOldTVP(ime);
-		r.setNewTVP(ime);
+		r.getNewSamples(ime);
 		//r.saveTVP(ime);
 		//r.setAndrejTVP(ime);
 
@@ -55,13 +58,13 @@ public class Runner {
 	public double unitRun(String dire, String ime1, String ime2)
 	{
 		this.dir = new File(dire);
-		setOldTVP(ime1);
+		getOldSamples(ime1);
 
-		samplesPeak1 = samplesPeak;
-		samplesTime1 = samplesTime;
-		samplesVoltage1 = samplesVoltage;
+		samplesPeak2 = samplesPeak4;
+		samplesTime2 = samplesTime4;
+		samplesVoltage2 = samplesVoltage4;
 
-		setOldTVP(ime2);
+		getOldSamples(ime2);
 		return metrics();
 	}
 
@@ -72,8 +75,8 @@ public class Runner {
 	{
 
 
-		samplesTime = new ArrayList<Double>();
-		samplesVoltage = new ArrayList<Float>();
+		samplesTime4 = new ArrayList<Double>();
+		samplesVoltage4 = new ArrayList<Float>();
 
 
 		System.out.println("save START");
@@ -95,18 +98,11 @@ public class Runner {
 
 	}
 
+	public void getOldSamples(String ime)
+	{
+		
 
-	public void setOldTVP(String ime) {
-		//IN
-		//C:\Users\janez\workspace\S2_rw\S2files\andrej1.s2  moja datoteka ki jo hočem popraviti
-
-
-		samplesTime = new ArrayList<Double>();
-		samplesVoltage = new ArrayList<Float>();
-		packetsTime = new ArrayList<Double>();
-		packetsCounter = new ArrayList<Double>();
-
-		System.out.println("old START");
+		System.out.println("get old samples");
 		System.out.println(ime);
 
 		S2 s2 = new S2();
@@ -119,84 +115,19 @@ public class Runner {
 		f0.addChild(f2);
 		//f1.addChild(f2);
 
-		System.out.println("old zgleda vredu : " + ls.readLines(f0, false));
+		ls.readLines(f0, false);
 		System.out.println("Notes : " + s2.getNotes());
 
-		Queue<StreamPacket> tpackets = f2.getPacketQ();
-		Map<Byte, SensorDefinition> tsensors = f2.getSensorDefinitions();
-
-		int Cbase = 0;
-		double Cprevious = 0f;
-		double previousT = 0;
-
-		for(StreamPacket pack:tpackets)
-		{
-			ArrayList<Float> sensorData = new ArrayList<>();
-			MultiBitBuffer mbb = new MultiBitBuffer(pack.data);
-			int mbbOffset = 0;
-			for (int i = 0; i<15; i++)
-			{
-
-				byte cb = (byte) 'e';
-
-				if(i==14)
-					cb = 'c';
-
-				SensorDefinition tempSensor = tsensors.get(cb);
-				int entitySize = tempSensor.getResolution();
-				int temp = mbb.getInt(mbbOffset, entitySize);
-				mbbOffset += entitySize;
-
-				float k = tempSensor.k;
-				float n = tempSensor.n;
-				float t = k*temp + n;
-				sensorData.add(t);
-			}
-
-			double Ctemp = sensorData.get(14) + Cbase;
-			if(Cprevious> Ctemp)
-			{
-				Ctemp += 1024;
-				Cbase += 1024;
-			}
-
-			double timeDiff = pack.timestamp - previousT;
-			double cDiff = Ctemp - Cprevious;
-
-			double k = cDiff/timeDiff;
-			double n = Ctemp - k * pack.timestamp;
-
-			for (int i = 0; i<14; i++)
-			{
-				previousT = (Ctemp - 13 + i - n) /k;
-				samplesTime.add(previousT);
-				samplesVoltage.add(sensorData.get(i));
-			}
-			packetsTime.add((double) pack.timestamp);
-			packetsCounter.add(Ctemp);
-			Cprevious = Ctemp;
-
-		}
-
-		tpackets = null;
-
-		checkPositivefunction();
-
-		removeDCoffset();
-		peakSearch();
-		System.out.println("old DONE" + "\n");
-
-
+		tpackets = f2.getPacketQ();
+		tsensors = f2.getSensorDefinitions();
+		
+		setTVP();
 	}
+	
+	public void getNewSamples(String ime)
+	{
 
-	public void setNewTVP(String ime) {
-
-		samplesTime = new ArrayList<Double>();
-		samplesVoltage = new ArrayList<Float>();
-		packetsTime = new ArrayList<Double>();
-		packetsCounter = new ArrayList<Double>();
-
-		System.out.println("runner START");
+		System.out.println("get new Samples");
 		System.out.println(ime);
 
 		S2 s2 = new S2();
@@ -209,12 +140,22 @@ public class Runner {
 		f0.addChild(f1);
 		f1.addChild(f2);
 
-		System.out.println("runner zgleda vredu : " + ls.readLines(f0, false));
+		ls.readLines(f0, false);
 		System.out.println("Notes : " + s2.getNotes());
 
-		Queue<StreamPacket> tpackets = f2.getPacketQ();
-		Map<Byte, SensorDefinition> tsensors = f2.getSensorDefinitions();
-
+		tpackets = f2.getPacketQ();
+		tsensors = f2.getSensorDefinitions();
+		
+		setTVP();
+	}
+	
+	public void setTVP()
+	{
+		samplesTime4 = new ArrayList<Double>();
+		samplesVoltage4 = new ArrayList<Float>();
+		packetsTime = new ArrayList<Double>();
+		packetsCounter = new ArrayList<Double>();
+		
 		int Cbase = 0;
 		double Cprevious = 0f;
 		double previousT = 0;
@@ -259,8 +200,8 @@ public class Runner {
 			for (int i = 0; i<14; i++)
 			{
 				previousT = (Ctemp - 13 + i - n) /k;
-				samplesTime.add(previousT);
-				samplesVoltage.add(sensorData.get(i));
+				samplesTime4.add(previousT);
+				samplesVoltage4.add(sensorData.get(i));
 			}
 			packetsTime.add((double) pack.timestamp);
 			packetsCounter.add(Ctemp);
@@ -275,13 +216,12 @@ public class Runner {
 		removeDCoffset();
 		peakSearch();
 		System.out.println("runner DONE" + "\n");
-
 	}
 
 	public void setAndrejTVP(String ime) {
 
-		samplesTime = new ArrayList<Double>();
-		samplesVoltage = new ArrayList<Float>();
+		samplesTime4 = new ArrayList<Double>();
+		samplesVoltage4 = new ArrayList<Float>();
 		packetsTime = new ArrayList<Double>();
 		packetsCounter = new ArrayList<Double>();
 
@@ -299,12 +239,12 @@ public class Runner {
 		double[] tempT = s.getSamplesTimeStamp();
 		for(int i =0;i<tempT.length;i++)
 		{
-			samplesTime.add(tempT[i]);
+			samplesTime4.add(tempT[i]);
 		}
 		float[] tempV = s.getVoltage();
 		for(int i =0;i<tempV.length;i++)
 		{
-			samplesVoltage.add(tempV[i]);
+			samplesVoltage4.add(tempV[i]);
 		}
 		double[] tempTP = s.getNewTimeStamp();
 		for(int i =0;i<tempTP.length;i++)
@@ -319,7 +259,7 @@ public class Runner {
 		int[] tempP = s.getPeaks();
 		for(int i =0;i<tempP.length;i++)
 		{
-			samplesPeak.add(tempP[i]);
+			samplesPeak4.add(tempP[i]);
 		}	
 	}
 
@@ -330,13 +270,13 @@ public class Runner {
 	private void checkPositivefunction() {
 		ArrayList<Double> nazaj = new ArrayList<Double>();
 		ArrayList<Integer> konstanta = new ArrayList<Integer>();
-		for(int i =0;i<samplesTime.size()-1;i++)
+		for(int i =0;i<samplesTime4.size()-1;i++)
 		{
-			if(samplesTime.get(i)>samplesTime.get(i+1))
+			if(samplesTime4.get(i)>samplesTime4.get(i+1))
 			{
-				nazaj.add(samplesTime.get(i));
+				nazaj.add(samplesTime4.get(i));
 			}
-			if(samplesTime.get(i)==samplesTime.get(i+1))
+			if(samplesTime4.get(i)==samplesTime4.get(i+1))
 			{
 				konstanta.add(i);
 			}
@@ -354,8 +294,8 @@ public class Runner {
 			{
 				System.out.println("konstanta " + konstanta);
 			}
-			System.out.println("vzorcev " + samplesTime.size());
-			System.out.println("skokov/vzorcev = " + ((float)nazaj.size()/samplesTime.size()));
+			System.out.println("vzorcev " + samplesTime4.size());
+			System.out.println("skokov/vzorcev = " + ((float)nazaj.size()/samplesTime4.size()));
 			System.out.println("1/14 " + ((float)1/14));
 
 		}else
@@ -370,11 +310,11 @@ public class Runner {
 	private void removeDCoffset() {
 
 		double sum = 0;
-		for (double v : samplesVoltage) sum += v;
-		float average = (float) (sum / samplesVoltage.size());
+		for (double v : samplesVoltage4) sum += v;
+		float average = (float) (sum / samplesVoltage4.size());
 
-		for (int i = 0; i < samplesVoltage.size(); i++)
-			samplesVoltage.set(i, samplesVoltage.get(i)-average);
+		for (int i = 0; i < samplesVoltage4.size(); i++)
+			samplesVoltage4.set(i, samplesVoltage4.get(i)-average);
 	}
 
 
@@ -385,12 +325,12 @@ public class Runner {
 	private void peakSearch() {
 
 		ArrayList<Integer> peak_list = new ArrayList<Integer>();
-		for (int i = 2; i < samplesVoltage.size() - 3; i++) {
-			if (samplesVoltage.get(i-2) < samplesVoltage.get(i-1) && samplesVoltage.get(i-1) < samplesVoltage.get(i)
-					&& samplesVoltage.get(i) > samplesVoltage.get(i+1) && samplesVoltage.get(i+1) > samplesVoltage.get(i+2)) 
+		for (int i = 2; i < samplesVoltage4.size() - 3; i++) {
+			if (samplesVoltage4.get(i-2) < samplesVoltage4.get(i-1) && samplesVoltage4.get(i-1) < samplesVoltage4.get(i)
+					&& samplesVoltage4.get(i) > samplesVoltage4.get(i+1) && samplesVoltage4.get(i+1) > samplesVoltage4.get(i+2)) 
 			{
-				double dif = samplesTime.get(i+1) - samplesTime.get(i-1);
-				if (samplesVoltage.get(i) > EXPECTED_MAXIMUM / 1.5 && samplesVoltage.get(i) < EXPECTED_MAXIMUM * 1.5
+				double dif = samplesTime4.get(i+1) - samplesTime4.get(i-1);
+				if (samplesVoltage4.get(i) > EXPECTED_MAXIMUM / 1.5 && samplesVoltage4.get(i) < EXPECTED_MAXIMUM * 1.5
 						&& dif < EXPECTED_TIME_DIFF*2*1.5) 
 				{
 					peak_list.add(i);
@@ -400,7 +340,7 @@ public class Runner {
 		}
 
 
-		samplesPeak = peak_list;
+		samplesPeak4 = peak_list;
 
 	}
 
@@ -408,37 +348,57 @@ public class Runner {
 
 	private double metrics()
 	{
+		double secondBonus = 4e6; 
 		int p2 = 0;
 		int p4 = 0;
-		double vsota = 0;
-		while(p2<=samplesPeak1.size() && p4 <= samplesPeak.size())
+		Double vsota = 0d;
+		while(p2<samplesPeak2.size() && p4 <samplesPeak4.size())
 		{
-			double aa = samplesTime.get(samplesPeak.get(p4)) - samplesTime1.get(samplesPeak1.get(p2));
-			if(Math.abs(aa) < 2* 1E7)
+			int i4 = samplesPeak4.get(p4);
+			int i2 = samplesPeak2.get(p2);
+
+			double aa = samplesTime4.get(i4)-secondBonus - samplesTime2.get(i2);
+			if(aa < 2* 1E7)
 			{
-				double alpha41 = samplesVoltage.get(p4-1);
-				double alpha42 = samplesVoltage.get(p4);
-				double alpha43 = samplesVoltage.get(p4+1);
-				double p44 = 1/2 * (alpha41 -alpha43)/(alpha41 - 2*alpha42 +alpha43);
-				double t4 = samplesTime.get(samplesPeak.get(p4)-1) + (samplesTime.get(samplesPeak.get(p4)) - samplesTime.get(samplesPeak.get(p4)-1)) * (1 + p44);
+				double alpha41 = samplesVoltage4.get(i4-1);
+				double alpha42 = samplesVoltage4.get(i4);
+				double alpha43 = samplesVoltage4.get(i4+1);
+				double p44 = (alpha41 -alpha43)/(alpha41 - 2*alpha42 +alpha43)/2;
+				double t4 = samplesTime4.get(i4-1) + (samplesTime4.get(i4) - samplesTime4.get(i4-1)) * (1 + p44);
+
+				double alpha21 = samplesVoltage2.get(i2-1);
+				double alpha22 = samplesVoltage2.get(i2);
+				double alpha23 = samplesVoltage2.get(i2+1);
+				double p22 = (alpha21 -alpha23)/(alpha21 - 2*alpha22 +alpha23)/2;
+				double t2 = samplesTime2.get(i2-1) + (samplesTime2.get(i2) - samplesTime2.get(i2-1)) * (1 + p22);
+
+				Double razlika = Math.abs(t4-t2);
+
+				if(razlika > 2*Math.abs(aa))
+				{
+					//System.err.println("razlika med dvema vrhoma po interpolaciji je veliko slabša kot pred");
+					razlika = 0d;
+				}
 				
-				double alpha21 = samplesVoltage.get(p4-1);
-				double alpha22 = samplesVoltage.get(p4);
-				double alpha23 = samplesVoltage.get(p4+1);
-				double p22 = 1/2 * (alpha21 -alpha23)/(alpha21 - 2*alpha22 +alpha23);
-				double t2 = samplesTime1.get(samplesPeak1.get(p2)-1) + (samplesTime1.get(samplesPeak1.get(p2)) - samplesTime1.get(samplesPeak1.get(p2)-1)) * (1 + p22);
-				
-				vsota += Math.abs(t4-t2);
-				
+				if(razlika.equals(Double.NaN))
+				{
+					System.out.println("ralika med dvema vrhovoma je NaN");
+				}
+				vsota += razlika;
+
 				p2++;
 				p4++;
 			}
 			else
 			{
 				if(aa>0)
+				{
 					p2++;
+				}
 				else
+				{
 					p4++;
+				}
 			}
 		}
 
@@ -451,9 +411,9 @@ public class Runner {
 	 * @return the samplesT
 	 */
 	public double[] getSamplesTimeStamp() {
-		double[] R = new double[samplesTime.size()];
+		double[] R = new double[samplesTime4.size()];
 		for(int j =0; j<R.length; j++)
-			R[j] = samplesTime.get(j);
+			R[j] = samplesTime4.get(j);
 		return R;
 	}
 
@@ -461,16 +421,16 @@ public class Runner {
 	 * @return the samplesV
 	 */
 	public float[] getVoltage() {
-		float[] R = new float[samplesVoltage.size()];
+		float[] R = new float[samplesVoltage4.size()];
 		for(int j =0; j<R.length; j++)
-			R[j] = samplesVoltage.get(j);
+			R[j] = samplesVoltage4.get(j);
 		return R;
 	}
 
 	public int[] getPeaks() {
-		int[] R = new int[samplesPeak.size()];
+		int[] R = new int[samplesPeak4.size()];
 		for(int j =0; j<R.length; j++)
-			R[j] = samplesPeak.get(j);
+			R[j] = samplesPeak4.get(j);
 		return R;
 	}
 

@@ -2,13 +2,18 @@ package filters;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import e6.ECG.time_sync.LinearRegression;
-import filters.FilterGetLines.StreamPacket;
 import si.ijs.e6.MultiBitBuffer;
 import si.ijs.e6.S2.SensorDefinition;
 import si.ijs.e6.S2.StructDefinition;
+import suportingClasses.Comment;
+import suportingClasses.StreamPacket;
+import suportingClasses.Line;
+import suportingClasses.SpecialMessage;
+import suportingClasses.TimeStamp;
 
 /**
  * Linear regresion is performed locally and then timestamps of packets are changed appropriatly. 
@@ -24,7 +29,7 @@ public class FilterProcessSignal extends Filter {
 	private final double vseh = 125 * defaultLength/(1E9);
 	//for calculating new Slopes
 	private final double weight;
-	
+
 	//If less than that we merge previous and curent block
 	private final double premalo=0.1 * vseh;
 
@@ -39,10 +44,19 @@ public class FilterProcessSignal extends Filter {
 	//previous is wating to see what will happen with curent
 	private ArrayList<StreamPacket> previousBlockP = new ArrayList<StreamPacket>();
 	private ArrayList<Integer> previousBlockC = new ArrayList<Integer>();
+
+	private Map<Integer,Line> previousBlockD = new HashMap<Integer,Line>();
+	private LinkedList<Long> previosBlockT = new LinkedList<Long>();
+
 	//curent is getting filled
 	private ArrayList<StreamPacket> curentBlockP = new ArrayList<StreamPacket>();
 	private ArrayList<Integer> curentBlockC = new ArrayList<Integer>();
 
+	private Map<Integer,Line> curentBlockD = new HashMap<Integer,Line>();
+	private LinkedList<Long> curentBlockT = new LinkedList<Long>();
+
+	//last timestamp from packet or timestampline
+	private long lastTimeStamp = 0;
 
 	//written variabls
 	private double writtenMark = 0;
@@ -74,21 +88,35 @@ public class FilterProcessSignal extends Filter {
 		this.noInterations = noIterations;
 		this.weight = weight;
 	}
-	
+
 	public FilterProcessSignal(long intervalsLength, double weight) 
 	{
 		this.intervalLength = intervalsLength;
 		this.noInterations = 5;
 		this.weight = weight;
 	}
-	
-	
+
+
 
 	@Override
 	public boolean onVersion(int versionInt, String version) {
 		if(!version.equals("PCARD"))
 			System.err.print("We are processing S2 file which is not PCARD");
 		pushVersion(versionInt, version);
+		return true;
+	}
+
+	@Override
+	public boolean onComment(String comment) {
+		int key = curentBlockP.size() + curentBlockD.size();
+		curentBlockD.put(key, new Comment(comment));
+		return true;
+	}
+
+	@Override
+	public boolean onSpecialMessage(char who, char what, String message) {
+		int key = curentBlockP.size() + curentBlockD.size();
+		curentBlockD.put(key, new SpecialMessage(who, what, message));
 		return true;
 	}
 
@@ -131,9 +159,19 @@ public class FilterProcessSignal extends Filter {
 	}
 
 
+	@Override
+	public boolean onTimestamp(long nanoSecondTimestamp) {
+		processBlocks(nanoSecondTimestamp);
+
+		curentBlockT.add(nanoSecondTimestamp);
+
+		return true;
+	}
+
 
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
+
 
 		//we get the counter
 		int c = convertPacket(handle, data);
@@ -148,50 +186,8 @@ public class FilterProcessSignal extends Filter {
 			}
 			lastC = c;
 
-			//če smo prečkali meje drugega intervala
-			if(timestamp > curentBlockStartTime + intervalLength)
-			{
-				//if previous is to small we merge it with curent
-				if(previousBlockC.size() <= premalo)
-				{
-					previousTooBig = false;
+			processBlocks(timestamp);
 
-					previousBlockC.addAll(curentBlockC);
-					previousBlockP.addAll(curentBlockP);
-					curentBlockC = new ArrayList<Integer>();
-					curentBlockP = new ArrayList<StreamPacket>();
-					previousMerges++;
-					curentBlockStartTime = timestamp;
-				}
-				else
-				{
-					if(previousTooBig)
-					{
-						procesOldInterval();
-						curentBlockStartTime = timestamp;
-					}
-					else
-					{
-						if(curentBlockC.size() > premalo)
-						{
-							//tole bi se moral dogajat najpogosteje vse ostalo so samo robni primeri.
-							procesOldInterval();
-							curentBlockStartTime = timestamp;
-						}
-						else
-						{
-							previousBlockC.addAll(curentBlockC);
-							previousBlockP.addAll(curentBlockP);
-							curentBlockC = new ArrayList<Integer>();
-							curentBlockP = new ArrayList<StreamPacket>();
-							curentBlockStartTime = timestamp;
-							previousTooBig = true;
-							previousMerges++;
-						}
-					}
-				}
-
-			}
 			//shrani trenutni paket
 			curentBlockC.add(c);
 			curentBlockP.add(new StreamPacket(handle,timestamp,len,data));
@@ -203,6 +199,76 @@ public class FilterProcessSignal extends Filter {
 
 		return true;
 	}
+
+
+	private void processBlocks(long timestamp) {
+
+		//če smo prečkali meje drugega intervala
+		if(timestamp > curentBlockStartTime + intervalLength)
+		{
+			//if previous is to small we merge it with curent
+			if(previousBlockC.size() <= premalo)
+			{
+				previousTooBig = false;
+
+				mergeBlocks();
+
+				curentBlockStartTime = timestamp;
+			}
+			else
+			{
+				if(previousTooBig)
+				{
+					procesOldInterval();
+					curentBlockStartTime = timestamp;
+				}
+				else
+				{
+					if(curentBlockC.size() > premalo)
+					{
+						//tole bi se moral dogajat najpogosteje vse ostalo so samo robni primeri.
+						procesOldInterval();
+						curentBlockStartTime = timestamp;
+					}
+					else
+					{
+						mergeBlocks();
+						curentBlockStartTime = timestamp;
+						previousTooBig = true;
+
+					}
+				}
+			}
+
+		}
+
+	}
+
+	private void mergeBlocks() {
+		previousBlockC.addAll(curentBlockC);
+		previousBlockP.addAll(curentBlockP);
+		previosBlockT.addAll(curentBlockT);
+		previousBlockD.putAll(curentBlockD);
+		curentBlockC = new ArrayList<Integer>();
+		curentBlockP = new ArrayList<StreamPacket>();
+		curentBlockT = new LinkedList<Long>();
+		curentBlockD = new HashMap<Integer,Line>();
+		previousMerges++;
+	}
+
+	private void moveBlocks() {
+		previousBlockC = curentBlockC;
+		previousBlockP = curentBlockP;
+		previosBlockT = curentBlockT;
+		previousBlockD = curentBlockD;
+		curentBlockC = new ArrayList<Integer>();
+		curentBlockP = new ArrayList<StreamPacket>();
+		curentBlockT = new LinkedList<Long>();
+		curentBlockD = new HashMap<Integer,Line>();
+		previousMerges = 0;
+		previousTooBig = false;
+	}
+
 
 
 	/**
@@ -246,12 +312,12 @@ public class FilterProcessSignal extends Filter {
 
 		//Vseh je samo ocena zato se lahko zgodi da dobimo več paketov kot je ocenjeno
 		previousMark = n/((1+previousMerges)*vseh);
-		
+
 		double tempMark1 = writtenMark;
 		double tempMark2 = previousMark;
 		tempMark1 *= (1-weight);
 		tempMark2 *= weight;
-		
+
 		double norm = tempMark1 + tempMark2; 
 		tempMark1 /= norm;
 		tempMark2 /= norm;
@@ -280,16 +346,16 @@ public class FilterProcessSignal extends Filter {
 		LinearRegression lineCurent = new LinearRegression(timeCurent, counterCurent, noInterations);
 		curentMark = m/vseh;
 
-		
+
 		double tempMark3 = previousMark;
 		double tempMark4 = curentMark;
 		tempMark3 *= weight;
 		tempMark4 *= (1-weight);
-		
+
 		norm = tempMark3 + tempMark4; 
 		tempMark3 /= norm;
 		tempMark4 /= norm;
-		
+
 		//Calculate new intercept and slope to make whole thing more continious
 		/*we assume already written intervals are written as good as they can be but stil not perfect.
 		 *weight kinda decide how much we rely on neiborhood data
@@ -302,7 +368,7 @@ public class FilterProcessSignal extends Filter {
 
 		y1 = tempMark1 * (writtenSlope * x1 + writtenIntercept) 
 				+ tempMark2 * (linePrevious.slope() * x1 + linePrevious.intercept());
-		
+
 
 		y2 = tempMark3 * (linePrevious.slope() * x2 + linePrevious.intercept()) 
 				+ tempMark4 * (lineCurent.slope() * x2 + lineCurent.intercept());
@@ -310,28 +376,56 @@ public class FilterProcessSignal extends Filter {
 
 		double slope = (y2 - y1) / (x2 - x1);
 		double intercept = y2 - slope * x2;
+		int pozicija = 0;
 
 		for(int i=0; i<n; i++)
 		{
+			pushLines(pozicija);
+			
 			int tempC = previousBlockC.get(i);
 			StreamPacket tempP = previousBlockP.get(i);
 
 			long timestampNew = (long) ((tempC - intercept)/slope);
+			if(previosBlockT.peekFirst() != null && previosBlockT.peekFirst() <=timestampNew)
+			{
+				pushTimestamp(previosBlockT.pollFirst());
+			}
 			pushStremPacket(tempP.handle, timestampNew, tempP.len, tempP.data);
-
+			
+			pozicija++;
 		}
+		pushLines(pozicija);
+		
 		writtenSlope = slope;
 		writtenIntercept = intercept;
 
 
-		previousBlockC = curentBlockC;
-		previousBlockP = curentBlockP;
-		curentBlockC = new ArrayList<Integer>();
-		curentBlockP = new ArrayList<StreamPacket>();
-
+		moveBlocks();
 		writtenMark = previousMark;
-		previousTooBig = false;
-		previousMerges = 0;
+
+
+
+	}
+
+	private void pushLines(int pozicija) {
+		while(previousBlockD.containsKey(pozicija))
+		{
+			Line li = previousBlockD.remove(pozicija);
+			if(li instanceof Comment)
+			{
+				Comment tempCom = (Comment)li;
+				pushComment(tempCom.comment);
+			}
+			else
+			{
+				if(li instanceof SpecialMessage)
+				{
+					SpecialMessage tempSP = ((SpecialMessage)li);
+					pushSpecilaMessage(tempSP.who, tempSP.what, tempSP.message);
+				}
+			}
+			pozicija++;
+		}
 		
 	}
 
