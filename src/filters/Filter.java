@@ -16,11 +16,18 @@ import si.ijs.e6.S2.TimestampDefinition;
 public abstract class Filter implements ReadLineCallbackInterface
 {
 	ArrayList<Filter> children = new ArrayList<Filter>();
+	ArrayList<Filter> ancestors = new ArrayList<Filter>();
 	
 	public Filter addChild(Filter f)
 	{
 		children.add(f);
+		f.addAncestor(this);
 		return this;
+	}
+	
+	public void addAncestor(Filter f)
+	{
+		ancestors.add(f);
 	}
 
 

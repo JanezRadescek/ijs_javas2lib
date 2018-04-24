@@ -12,6 +12,7 @@ import java.util.HashMap;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -148,42 +149,48 @@ public class BaurOkno2 extends JFrame {
 			btnNewButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					
-					Console cc = new Console();
-					String haha = "AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
-							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
-							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
-							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
-							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
-							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
-							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
-							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
-							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
-							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
-							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
-							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
-							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
-							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
-							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
-							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + 
+					
+					
+					
+					/*String haha = "AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + "\n" +
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + "\n" +
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + "\n" +
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + "\n" +
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + "\n" +
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + "\n" +
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + "\n" +
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + "\n" +
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + "\n" +
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + "\n" +
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + "\n" +
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + "\n" +
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + "\n" +
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + "\n" +
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + "\n" +
+							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + "\n" +
 							"AHAAAAAAAAAAAAAAAHAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH";
 					cc.setText(haha);
+					*/
 					
-					/*
 					if(evaluate())
 					{
 						try
 						{
 							String CliR = Cli.GuiCliLink(cliArgs);
 							
+							Console cc = new Console();
+							cc.setText(CliR);
+							/*
 							JScrollPane Console = new JScrollPane(new JTextArea(CliR),
 									JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 							
 							JOptionPane.showMessageDialog(contentPane, Console, "Console", JOptionPane.PLAIN_MESSAGE);
+							*/
 						}catch(Error e)
 						{
 							txtCliArgs.setText(e.getMessage());
 						}
-					}*/
+					}//
 				}
 			});
 			panel_ArgsGo.add(btnNewButton, "cell 1 0,grow");
@@ -279,6 +286,7 @@ public class BaurOkno2 extends JFrame {
 
 				Gumb btn_Output = new Gumb("Out directory","-o");
 				Gumb btn_Name = new Gumb("Out name");
+				Kljukica jcb_Display = new Kljukica("Display");
 				Besedilo txt_out = new Besedilo();
 				Besedilo txt_name = new Besedilo();
 				
@@ -298,6 +306,28 @@ public class BaurOkno2 extends JFrame {
 				btn_Output.setEnabled(false);
 				panel_Output.add(btn_Output, BorderLayout.WEST);
 
+				
+				jcb_Display.setEnabled(false);
+				jcb_Display.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						if(jcb_Display.isSelected())
+						{
+							for(Komponenta comp:components.get("out"))
+							{
+								comp.setEnabled(false);
+							}
+							components.put("out",new Komponenta[]{jcb_Display});
+							jcb_Display.setEnabled(true);
+						}else
+						{
+							components.put("out",new Komponenta[]{btn_Output, btn_Name, jcb_Display, textField_Output});
+							enableButtons();
+						}
+					}
+				});
+				panel_Output.add(jcb_Display, BorderLayout.EAST);
+				
+				
 				btn_Name.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						String name = JOptionPane.showInputDialog(panel_Options, "Name of OutPut file. "
@@ -340,7 +370,7 @@ public class BaurOkno2 extends JFrame {
 					}
 				});
 				btn_Name.setEnabled(false);
-				panel_Output.add(btn_Name, BorderLayout.EAST);
+				panel_Output.add(btn_Name, BorderLayout.CENTER);
 
 				textField_Output.addKeyListener(new KeyAdapter() {
 					@Override
@@ -356,7 +386,7 @@ public class BaurOkno2 extends JFrame {
 				panel_Options.add(textField_Output, "cell 1 2,grow");
 				textField_Output.setColumns(10);
 
-				components.put("out",new Komponenta[]{btn_Output, btn_Name, textField_Output});
+				components.put("out",new Komponenta[]{btn_Output, btn_Name, jcb_Display, textField_Output});
 			}
 
 			//time

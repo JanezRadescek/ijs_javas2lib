@@ -2,6 +2,9 @@ package cli;
 
 import java.lang.Exception;
 import java.nio.charset.StandardCharsets;
+
+import javax.naming.OperationNotSupportedException;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,10 +33,24 @@ import si.ijs.e6.S2;
  */
 public class Cli {
 
+	private static final int good = 0;
+	private static final int unknown = 1;
+	private static final int fileError = 2;
+	private static final int badInputArgs = 3;
+	
+	
 	public static void main(String[] args)
 	{
-		start(args);
-		System.exit(0);
+		int code;
+		try 
+		{
+			code = start(args);
+		}
+		catch(Exception e)
+		{
+			code = unknown;
+		}
+		System.exit(code);
 	}
 
 	public static String GuiCliLink(String[] args)
@@ -57,21 +74,22 @@ public class Cli {
 		return sOut;
 	}
 	
-	public static void start(String[] args)
+	public static int start(String[] args)
 	{
-		Cli.start(args, System.out, System.err);
+		return Cli.start(args, System.out, System.err);
 	}
 
-	public static void start(String[] args, PrintStream outPS, PrintStream errPS)
+	public static int start(String[] args, PrintStream outPS, PrintStream errPS)
 	{
 		final String STATISTIKA = "s";
 		final String CUT = "c";
 		final String READ = "r";
 		final String MEARGE = "m";
 		final String HELP = "help";
-
 		final String PROCESS_SIGNAL = "p";
 
+		final String EKRAN = "e";
+		
 		final String TIME = "t";
 		final String INPUT = "i";
 		final String OUTPUT = "o";
@@ -91,6 +109,9 @@ public class Cli {
 		options.addOption(PROCESS_SIGNAL,false, "Proces signal. If argument is true it will process"
 				+ " as if the frequency of sensor is constant. Simple processsing. Otherwise it will split into intervals");
 
+		//TODO parse this somewhere and use it
+		options.addOption(EKRAN,false, "If this flag occur instead of saving thing to file it will return them");
+		
 		Option time = new Option(TIME, "time. zacetni in koncni cas izseka, ki nas zanima. 3 argument if we aproximate "
 				+ "datas without own time with last previous time"
 				+ "-t start end nonEssential. Defaul -t 0 Long.MAX_VALUE true");
@@ -119,6 +140,10 @@ public class Cli {
 				".*1=keeps comments, .*1.=keeps Special, .*1..=keeps meta");
 		options.addOption(dataTypes);
 
+		
+		
+		
+		
 		CommandLineParser parser = new DefaultParser();
 
 		CommandLine cmd = null;
@@ -134,19 +159,19 @@ public class Cli {
 			PrintWriter pw = new PrintWriter(errPS);
 			formatter.printUsage(pw, 80, args[0], options);
 			pw.flush();
-			return;
+			return badInputArgs;
 		} catch (ParseException e) {
 
 			formatter.printHelp("Cli",header,options,footer);
 			errPS.println("Exception caught while parting input arguments:");
 			e.printStackTrace(errPS);
 
-			return;
+			return unknown;
 		}
 		if(cmd.hasOption("help"))
 		{
 			formatter.printHelp("Cli",header,options,footer);
-			return;
+			return good;
 		}
 
 
@@ -171,7 +196,7 @@ public class Cli {
 			}catch(Exception e)
 			{
 				outPS.println("Option i need directory and name of input S2 file. TERMINATE");
-				return;
+				return badInputArgs;
 			}
 			file1 = new S2();
 			loadS1 = file1.load(inDirectory1.getParentFile(), inDirectory1.getName());
@@ -195,7 +220,7 @@ public class Cli {
 				catch(Exception r)
 				{
 					outPS.println("Option i needs directory and name of second input file. TERMINATE");
-					return;
+					return badInputArgs;
 				}
 			}
 			// time interval
@@ -210,12 +235,12 @@ public class Cli {
 					ab[1] = (long)bb;
 				}catch(NumberFormatException e){
 					outPS.println("Arguments at" +TIME+ "must be float float boolean");
-					return;
+					return badInputArgs;
 				}
 				if (ab[0]>ab[1])
 				{
 					outPS.println("Starting time must be lower than ending. TERMINATE");
-					return;
+					return badInputArgs;
 				}
 			}
 			//output direcotry and name 
@@ -227,7 +252,7 @@ public class Cli {
 				} catch(Exception e)
 				{
 					outPS.println("Option "+OUTPUT+" needs file directory and name. TERMINATE");
-					return;
+					return badInputArgs;
 				}
 			}
 			//handle
@@ -237,7 +262,7 @@ public class Cli {
 					handles = Long.parseLong(cmd.getOptionValue(HANDLES),2);
 				}catch(NumberFormatException e){
 					outPS.println("argument of "+HANDLES+" must be a number in binary format. TERMINATE");
-					return;
+					return badInputArgs;
 				}
 			}
 			//"data types"
@@ -247,7 +272,7 @@ public class Cli {
 					dataT = Byte.parseByte(cmd.getOptionValue(DATA),2);
 				}catch(NumberFormatException e){
 					outPS.println("argument of "+DATA+" must be a number in binary format. TERMINATE");
-					return;
+					return badInputArgs;
 				}
 			}
 
@@ -272,7 +297,7 @@ public class Cli {
 			{
 				errPS.println("If we want to use -m(concat 2 S2 files)"+
 						"we need option -i with second argument (second S2 file) and -o(output S2 file). TERMINATE");
-				return;
+				return badInputArgs;
 			}
 
 			if(cmd.hasOption(STATISTIKA))
@@ -285,7 +310,7 @@ public class Cli {
 					} catch (FileNotFoundException e) {
 						e.printStackTrace();
 						outPS.println("File couldnt be made");
-						return;
+						return fileError;
 					}
 				}
 				else
@@ -318,6 +343,7 @@ public class Cli {
 				}else
 				{
 					errPS.println("Option c-cut need option o-out(directory and name of output file). TERMINATE");
+					return badInputArgs;
 				}
 			}
 
@@ -333,6 +359,7 @@ public class Cli {
 				}else
 				{
 					errPS.println("Option r-read need option o-out(directory and name of output file). TERMINATE");
+					return badInputArgs;
 				}
 			}
 
@@ -348,14 +375,14 @@ public class Cli {
 				loadS1.readLines(filterT, false);
 			}
 
-			outPS.println("The End of CLI" + "\n");
-			
+			return good;
 
 		}
 		else
 		{
 			outPS.println("Input is mandatory. TERMINATE");
 			formatter.printHelp("Cli",header,options,footer);
+			return badInputArgs;
 		}
 	}
 }

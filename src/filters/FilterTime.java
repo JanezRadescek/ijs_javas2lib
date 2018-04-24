@@ -12,8 +12,8 @@ public class FilterTime extends Filter {
 	private boolean filterTimeLessData;
 
 	private long lastRecordedTime = 0;
-	
-	
+
+
 	/**
 	 * [start, end) in nanoseconds
 	 * @param start 
@@ -25,7 +25,7 @@ public class FilterTime extends Filter {
 		this.end = end;
 		this.filterTimeLessData = false;
 	}
-	
+
 	/**
 	 * @param start in seconds
 	 * @param end in seconds
@@ -36,7 +36,7 @@ public class FilterTime extends Filter {
 		this(start,end);
 		this.filterTimeLessData = filterTimeLessData;
 	}
-	
+
 	/**
 	 * [start, end) in seconds
 	 * @param start 
@@ -60,15 +60,21 @@ public class FilterTime extends Filter {
 		this.filterTimeLessData = filterTimeLessData;
 	}
 
+	public void changeTime(long start, long end)
+	{
+		this.start = start;
+		this.end = end;
+	}
+
 	@Override
 	public boolean onComment(String comment) {
 		if(!filterTimeLessData || (filterTimeLessData && (start<=lastRecordedTime && lastRecordedTime<end)))
 		{
 			pushComment(comment);
 		}
-		
+
 		return true;
-		
+
 	}
 
 	@Override
@@ -78,7 +84,7 @@ public class FilterTime extends Filter {
 			pushSpecilaMessage(who, what, message);
 		}
 		return true;
-		
+
 	}
 
 	@Override
@@ -95,16 +101,16 @@ public class FilterTime extends Filter {
 			return false;
 		}
 	}
-	
+
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
 		lastRecordedTime = timestamp;
-		
+
 		if(lastRecordedTime<start)
 		{
 			return true;
 		}
-		
+
 		if(start<=lastRecordedTime && lastRecordedTime<end)
 		{
 			pushStremPacket(handle, timestamp, len, data);
@@ -115,8 +121,8 @@ public class FilterTime extends Filter {
 			pushEndofFile();
 			return false;
 		}
-			
-		
+
+
 	}
 
 }

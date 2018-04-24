@@ -40,7 +40,7 @@ public class RemapHandle extends Filter {
 		String elementsNew = "";
 		for(char element:definition.elementsInOrder.toCharArray())
 		{
-			elementsNew += (char)(byte)remap.getOrDefault(handle, handle);
+			elementsNew += (char)(byte)remap.getOrDefault(element, (byte) element);
 		}
 		definition.elementsInOrder = elementsNew;
 		pushDefinition(remap.getOrDefault(handle, handle), definition);
