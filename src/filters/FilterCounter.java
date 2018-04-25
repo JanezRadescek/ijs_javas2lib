@@ -41,78 +41,78 @@ public class FilterCounter extends Filter {
 	@Override
 	public boolean onVersion(int versionInt, String version) {
 		counter++;
-		pushVersion(versionInt, version);
-		return counter<=maxLines;
+		
+		return counter<=maxLines & pushVersion(versionInt, version);
 	}
 
 	@Override
 	public boolean onMetadata(String key, String value) {
 		counter++;
-		pushMetadata(key, value);
-		return counter<=maxLines;
+		
+		return counter<=maxLines & pushMetadata(key, value);
 	}
 
 	@Override
 	public boolean onComment(String comment) {
 		counter++;
-		pushComment(comment);
-		return counter<=maxLines;
+		
+		return counter<=maxLines & pushComment(comment);
 	}
 
 	@Override
 	public boolean onSpecialMessage(char who, char what, String message) {
 		counter++;
-		pushSpecilaMessage(who, what, message);
-		return counter<=maxLines;
+		
+		return counter<=maxLines & pushSpecilaMessage(who, what, message);
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
 		counter++;
-		pushDefinition(handle, definition);
-		return counter<=maxLines;
+		
+		return counter<=maxLines & pushDefinition(handle, definition);
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
 		counter++;
-		pushDefinition(handle, definition);
-		return counter<=maxLines;
+		
+		return counter<=maxLines & pushDefinition(handle, definition);
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, TimestampDefinition definition) {
 		counter++;
-		pushDefinition(handle, definition);
-		return counter<=maxLines;
+		
+		return counter<=maxLines & pushDefinition(handle, definition);
 	}
 
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
 		counter++;
-		pushTimestamp(nanoSecondTimestamp);
-		return counter<=maxLines;
+		
+		return counter<=maxLines & pushTimestamp(nanoSecondTimestamp);
 	}
 
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
 		counter++;
-		pushStremPacket(handle, timestamp, len, data);
-		return counter<=maxLines;
+		
+		return counter<=maxLines & pushStremPacket(handle, timestamp, len, data);
 	}
 
 	@Override
 	public boolean onError(int lineNum, String error) {
 		counter++;
-		pushError(lineNum, error);
-		return counter<=maxLines;
+		
+		return counter<=maxLines & pushError(lineNum, error);
 	}
 
 	@Override
 	public boolean onUnknownLineType(byte type, int len, byte[] data) {
 		counter++;
-		pushUnknownLineType(type, len, data);
-		return counter<=maxLines;
+		
+		return counter<=maxLines & pushUnknownLineType(type, len, data);
 	}
 
 

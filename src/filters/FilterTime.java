@@ -12,6 +12,8 @@ public class FilterTime extends Filter {
 	private boolean filterTimeLessData;
 
 	private long lastRecordedTime = 0;
+	
+	boolean overWasSend = false;
 
 
 	/**
@@ -60,7 +62,7 @@ public class FilterTime extends Filter {
 		this.filterTimeLessData = filterTimeLessData;
 	}
 
-	public void changeTime(long start, long end)
+	public void setTimeInterval(long start, long end)
 	{
 		this.start = start;
 		this.end = end;
@@ -70,7 +72,7 @@ public class FilterTime extends Filter {
 	public boolean onComment(String comment) {
 		if(!filterTimeLessData || (filterTimeLessData && (start<=lastRecordedTime && lastRecordedTime<end)))
 		{
-			pushComment(comment);
+			return pushComment(comment);
 		}
 
 		return true;
@@ -81,7 +83,7 @@ public class FilterTime extends Filter {
 	public boolean onSpecialMessage(char who, char what, String message) {
 		if(!filterTimeLessData || (filterTimeLessData && (start<=lastRecordedTime && lastRecordedTime<end)))
 		{
-			pushSpecilaMessage(who, what, message);
+			return pushSpecilaMessage(who, what, message);
 		}
 		return true;
 
@@ -92,13 +94,16 @@ public class FilterTime extends Filter {
 		lastRecordedTime = nanoSecondTimestamp;
 		if(lastRecordedTime<end)
 		{
-			pushTimestamp(nanoSecondTimestamp);
-			return true;
+			return pushTimestamp(nanoSecondTimestamp);
 		}
 		else
 		{
-			pushEndofFile();
-			return false;
+			if(!overWasSend)
+			{
+				pushEndofFile();
+				overWasSend = true;
+			}
+			return true;
 		}
 	}
 
@@ -113,13 +118,16 @@ public class FilterTime extends Filter {
 
 		if(start<=lastRecordedTime && lastRecordedTime<end)
 		{
-			pushStremPacket(handle, timestamp, len, data);
-			return true;
+			return pushStremPacket(handle, timestamp, len, data);
 		}
 		else
 		{
-			pushEndofFile();
-			return false;
+			if(!overWasSend)
+			{
+				pushEndofFile();
+				overWasSend = true;
+			}
+			return true;
 		}
 
 
