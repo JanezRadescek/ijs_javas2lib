@@ -15,16 +15,20 @@ import si.ijs.e6.S2.TimestampDefinition;
  */
 public abstract class Filter implements ReadLineCallbackInterface
 {
+	//TODO BUG otrok lahko ustavi pa tega nikjer ne upoštevamo razen na koncu
+	
 	ArrayList<Filter> children = new ArrayList<Filter>();
+	@Deprecated
 	ArrayList<Filter> ancestors = new ArrayList<Filter>();
 	
 	public Filter addChild(Filter f)
 	{
 		children.add(f);
 		f.addAncestor(this);
-		return this;
+		return f;
 	}
 	
+	@Deprecated
 	public void addAncestor(Filter f)
 	{
 		ancestors.add(f);
@@ -33,53 +37,59 @@ public abstract class Filter implements ReadLineCallbackInterface
 
 	@Override
 	public boolean onComment(String comment) {
-		pushComment(comment);
-		return true;
+		return pushComment(comment);
 	}
-	protected void pushComment(String comment) {
+	protected boolean pushComment(String comment) {
+		boolean r = true;
 		for(Filter c:children)
 		{
-			c.onComment(comment);
+			r &= c.onComment(comment);
 		}
+		return r;
 	}
 
 
 	@Override
 	public boolean onVersion(int versionInt, String version) {
-		pushVersion(versionInt, version);
-		return true;
+		return pushVersion(versionInt, version);
 	}
-	protected void pushVersion(int versionInt, String version) {
+	protected boolean pushVersion(int versionInt, String version) {
+		boolean r = true;
 		for(Filter c:children)
 		{
-			c.onVersion(versionInt, version);
+			r &= c.onVersion(versionInt, version);
 		}
+		return r;
 	}
 
 
 	@Override
 	public boolean onSpecialMessage(char who, char what, String message) {
-		pushSpecilaMessage(who, what, message);
-		return true;
+		
+		return pushSpecilaMessage(who, what, message);
 	}
-	protected void pushSpecilaMessage(char who, char what, String message) {
+	protected boolean pushSpecilaMessage(char who, char what, String message) {
+		boolean r = true;
 		for(Filter c:children)
 		{
-			c.onSpecialMessage(who, what, message);
+			r &= c.onSpecialMessage(who, what, message);
 		}
+		return r;
 	}
 
 
 	@Override
 	public boolean onMetadata(String key, String value) {
-		pushMetadata(key, value);
-		return true;
+		
+		return pushMetadata(key, value);
 	}
-	protected void pushMetadata(String key, String value) {
+	protected boolean pushMetadata(String key, String value) {
+		boolean r = true;
 		for(Filter c:children)
 		{
-			c.onMetadata(key, value);
+			r &= c.onMetadata(key, value);
 		}
+		return r;
 	}
 
 
@@ -111,91 +121,103 @@ public abstract class Filter implements ReadLineCallbackInterface
 
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
-		pushDefinition(handle, definition);
-		return true;
+	
+		return pushDefinition(handle, definition);
 	}
-	protected void pushDefinition(byte handle, SensorDefinition definition) {
+	protected boolean pushDefinition(byte handle, SensorDefinition definition) {
+		boolean r = true;
 		for(Filter c:children)
 		{
-			c.onDefinition(handle, definition);
+			r &= c.onDefinition(handle, definition);
 		}
+		return r;
 	}
 
 
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
-		pushDefinition(handle, definition);
-		return true;
+		return pushDefinition(handle, definition);
 	}
-	protected void pushDefinition(byte handle, StructDefinition definition) {
+	protected boolean pushDefinition(byte handle, StructDefinition definition) {
+		boolean r = true;
 		for(Filter c:children)
 		{
-			c.onDefinition(handle, definition);
+			r &= c.onDefinition(handle, definition);
 		}
+		return r;
 	}
 
 
 	@Override
 	public boolean onDefinition(byte handle, TimestampDefinition definition) {
-		pushDefinition(handle, definition);
-		return true;
+		return pushDefinition(handle, definition);
 	}
-	protected void pushDefinition(byte handle, TimestampDefinition definition) {
+	protected boolean pushDefinition(byte handle, TimestampDefinition definition) {
+		boolean r = true;
 		for(Filter c:children)
 		{
-			c.onDefinition(handle, definition);
+			r &= c.onDefinition(handle, definition);
 		}
+		return r;
 	}
 
 
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
-		pushTimestamp(nanoSecondTimestamp);
-		return true;
+		
+		return pushTimestamp(nanoSecondTimestamp);
 	}
-	protected void pushTimestamp(long nanoSecondTimestamp) {
+	protected boolean pushTimestamp(long nanoSecondTimestamp) {
+		boolean r= true;
 		for(Filter c:children)
 		{
-			c.onTimestamp(nanoSecondTimestamp);
+			r &= c.onTimestamp(nanoSecondTimestamp);
 		}
+		return r;
 	}
 
 
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
-		pushStremPacket(handle, timestamp, len, data);
-		return true;
+		
+		return pushStremPacket(handle, timestamp, len, data);
 	}
-	protected void pushStremPacket(byte handle, long timestamp, int len, byte[] data) {
+	protected boolean pushStremPacket(byte handle, long timestamp, int len, byte[] data) {
+		boolean r = true;
 		for(Filter c:children)
 		{
-			c.onStreamPacket(handle, timestamp, len, data);
+			r &= c.onStreamPacket(handle, timestamp, len, data);
 		}
+		return r;
 	}
 
 
 	@Override
 	public boolean onUnknownLineType(byte type, int len, byte[] data) {
-		pushUnknownLineType(type, len, data);
-		return true;
+		
+		return pushUnknownLineType(type, len, data);
 	}
-	protected void pushUnknownLineType(byte type, int len, byte[] data) {
+	protected boolean pushUnknownLineType(byte type, int len, byte[] data) {
+		boolean r = true;
 		for(Filter c:children)
 		{
-			c.onUnknownLineType(type, len, data);
+			r &= c.onUnknownLineType(type, len, data);
 		}
+		return r;
 	}
 
 
 	@Override
 	public boolean onError(int lineNum, String error) {
-		pushError(lineNum, error);
-		return true;
+		
+		return pushError(lineNum, error);
 	}
-	protected void pushError(int lineNum, String error) {
+	protected boolean pushError(int lineNum, String error) {
+		boolean r = true;
 		for(Filter c:children)
 		{
-			c.onError(lineNum, error);
+			r &= c.onError(lineNum, error);
 		}
+		return r;
 	}
 }
