@@ -84,60 +84,61 @@ public class FilterGetLines extends Filter {
 		return packetQ;
 	}
 
+	//OVERRIDES
+	
 	@Override
 	public boolean onVersion(int versionInt, String version) {
 		this.version = new Version(versionInt, version);
 
-		pushVersion(versionInt, version);
-		return true;
+		return pushVersion(versionInt, version);
 	}
 	
 	@Override
 	public boolean onComment(String comment) {
 		timeDataQ.add(new Comment(lastExplicitTimestamp, comment));
 
-		pushComment(comment);
-		return true;
+		
+		return pushComment(comment);
 	}
 	
 	@Override
 	public boolean onSpecialMessage(char who, char what, String message) {
 		timeDataQ.add(new SpecialMessage(lastExplicitTimestamp, who, what, message));
 		
-		pushSpecilaMessage(who, what, message);
-		return true;
+		
+		return pushSpecilaMessage(who, what, message);
 	}
 	
 	@Override
 	public boolean onMetadata(String key, String value) {
 		metadata.put(key, value);
 		
-		pushMetadata(key, value);
-		return true;
+		
+		return pushMetadata(key, value);
 	}
 	
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
 		sensorDefinitions.put(handle, definition);
 		
-		pushDefinition(handle, definition);
-		return true;
+		
+		return pushDefinition(handle, definition);
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
 		structDefinitions.put(handle, definition);
 		
-		pushDefinition(handle, definition);
-		return true;
+		
+		return pushDefinition(handle, definition);
 	}
 	
 	@Override
 	public boolean onDefinition(byte handle, TimestampDefinition definition) {
 		timestampDefinitions.put(handle, definition);
 		
-		pushDefinition(handle, definition);
-		return true;
+		
+		return pushDefinition(handle, definition);
 	}
 	
 	@Override
@@ -145,8 +146,8 @@ public class FilterGetLines extends Filter {
 		lastExplicitTimestamp = nanoSecondTimestamp;
 		timeDataQ.add(new TimeStamp(nanoSecondTimestamp));
 		
-		pushTimestamp(nanoSecondTimestamp);
-		return true;
+		
+		return pushTimestamp(nanoSecondTimestamp);
 	}
 	
 	@Override
@@ -154,8 +155,8 @@ public class FilterGetLines extends Filter {
 		lastExplicitTimestamp = timestamp;
 		packetQ.add(new StreamPacket(handle,timestamp,len,data));
 
-		pushStremPacket(handle, timestamp, len, data);
-		return true;
+		
+		return pushStremPacket(handle, timestamp, len, data);
 	}
 	
 }

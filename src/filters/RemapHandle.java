@@ -31,8 +31,8 @@ public class RemapHandle extends Filter {
 	
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
-		pushDefinition(remap.getOrDefault(handle, handle), definition);
-		return true;
+		
+		return pushDefinition(remap.getOrDefault(handle, handle), definition);
 	}
 	
 	@Override
@@ -43,21 +43,21 @@ public class RemapHandle extends Filter {
 			elementsNew += (char)(byte)remap.getOrDefault(element, (byte) element);
 		}
 		definition.elementsInOrder = elementsNew;
-		pushDefinition(remap.getOrDefault(handle, handle), definition);
-		return true;
+		
+		return pushDefinition(remap.getOrDefault(handle, handle), definition);
 	}
 	
 	@Override
 	public boolean onDefinition(byte handle, TimestampDefinition definition) {
-		pushDefinition(remap.getOrDefault(handle, handle), definition);
-		return true;
+		
+		return pushDefinition(remap.getOrDefault(handle, handle), definition);
 	}
 	
 
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
-		pushStremPacket(remap.getOrDefault(handle, handle), timestamp, len, data);
-		return true;
+		
+		return pushStremPacket(remap.getOrDefault(handle, handle), timestamp, len, data);
 	}
 	
 }

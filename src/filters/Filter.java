@@ -15,7 +15,6 @@ import si.ijs.e6.S2.TimestampDefinition;
  */
 public abstract class Filter implements ReadLineCallbackInterface
 {
-	//TODO BUG otrok lahko ustavi pa tega nikjer ne upoštevamo razen na koncu
 	
 	ArrayList<Filter> children = new ArrayList<Filter>();
 	@Deprecated

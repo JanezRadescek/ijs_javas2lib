@@ -105,8 +105,8 @@ public class FilterSaveCSV extends Filter{
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
 		sensorDefinitions.put(handle, definition);
-		pushDefinition(handle, definition);
-		return true;
+		
+		return pushDefinition(handle, definition);
 	}
 
 
@@ -120,8 +120,8 @@ public class FilterSaveCSV extends Filter{
 			maxColumns = temp;
 		}
 
-		pushDefinition(handle, definition);
-		return true;
+		
+		return pushDefinition(handle, definition);
 	}
 
 
@@ -181,8 +181,8 @@ public class FilterSaveCSV extends Filter{
 		printLine();
 
 		//push
-		pushStremPacket(handle, timestamp, len, data);
-		return true;
+		
+		return pushStremPacket(handle, timestamp, len, data);
 	}
 
 

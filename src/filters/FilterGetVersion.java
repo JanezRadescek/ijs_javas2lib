@@ -1,7 +1,5 @@
 package filters;
 
-import suportingClasses.Version;
-
 public class FilterGetVersion extends Filter {
 	
 	public int versionInt;

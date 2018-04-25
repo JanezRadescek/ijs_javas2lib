@@ -41,30 +41,30 @@ public class FilterSaveS2 extends Filter {
 	@Override
 	public boolean onVersion(int versionInt, String version) {
 		storeS.setVersion(versionInt, version);
-		pushVersion(versionInt, version);
-		return true;
+		
+		return pushVersion(versionInt, version);
 	}
 
 	@Override
 	public boolean onComment(String comment) {
 		//TODO baje obstaja addComment. trenutno maš addTextmessage
 		storeS.addTextMessage(comment);
-		pushComment(comment);
-		return true;
+		
+		return pushComment(comment);
 	}
 
 	@Override
 	public boolean onSpecialMessage(char who, char what, String message) {
 		storeS.addSpecialTextMessage((byte)who, MessageType.convert((byte)what), message, -1);
-		pushSpecilaMessage(who, what, message);
-		return true;
+		
+		return pushSpecilaMessage(who, what, message);
 	}
 
 	@Override
 	public boolean onMetadata(String key, String value) {
 		storeS.addMetadata(key, value);
-		pushMetadata(key, value);
-		return true;
+		
+		return pushMetadata(key, value);
 	}
 
 	@Override
@@ -84,8 +84,8 @@ public class FilterSaveS2 extends Filter {
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
 		storeS.addDefinition(handle, definition);
-		pushDefinition(handle, definition);
-		return true;
+		
+		return pushDefinition(handle, definition);
 	}
 
 	@Override
@@ -93,8 +93,8 @@ public class FilterSaveS2 extends Filter {
 		lastTime.put(handle, 0L);
 		
 		storeS.addDefinition(handle, definition);
-		pushDefinition(handle, definition);
-		return true;
+		
+		return pushDefinition(handle, definition);
 	}
 
 	@Override
@@ -102,8 +102,8 @@ public class FilterSaveS2 extends Filter {
 		timestampDefinitions.put(handle, definition);
 
 		storeS.addDefinition(handle, definition);
-		pushDefinition(handle, definition);
-		return true;
+		
+		return pushDefinition(handle, definition);
 	}
 
 	//TODO S2 we get should be a valid S2 therefor it should write timestamps too.
@@ -112,8 +112,8 @@ public class FilterSaveS2 extends Filter {
 		lastTimestamp = nanoSecondTimestamp;
 		lastTimestampWriten = false;
 
-		pushTimestamp(nanoSecondTimestamp);
-		return true;
+		
+		return pushTimestamp(nanoSecondTimestamp);
 	}
 
 
@@ -146,8 +146,8 @@ public class FilterSaveS2 extends Filter {
 		storeS.addSensorPacket(handle, writeReadyDiff, data);
 		lastTime.replace(handle, timestamp);
 
-		pushStremPacket(handle, timestamp, len, data);
-		return true;
+		
+		return pushStremPacket(handle, timestamp, len, data);
 	}
 
 

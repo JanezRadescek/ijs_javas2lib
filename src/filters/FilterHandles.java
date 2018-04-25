@@ -12,16 +12,16 @@ import si.ijs.e6.S2.TimestampDefinition;
  */
 public class FilterHandles extends Filter {
 
-	private byte[] handles;
+	private ArrayList<Byte> handles = new ArrayList<Byte>();
 
 	/**
 	 * @param handles byte array of handles and its data we want to send forward
 	 */
-	public FilterHandles(byte[] handles)
+	public FilterHandles(ArrayList<Byte> handles)
 	{
 		this.handles = handles;
 	}
-	
+
 	public FilterHandles(long handles)
 	{
 		ArrayList<Byte> tHandles = new ArrayList<Byte>();
@@ -30,32 +30,23 @@ public class FilterHandles extends Filter {
 			if((handles & 1<<i) != 0)
 				tHandles.add(i);
 		}
-		this.handles = new byte[tHandles.size()];
-		for(byte i=0; i<tHandles.size(); i++)
-			this.handles[i] = tHandles.get(i);
+		this.handles = tHandles;
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
-		for(byte hand: handles)
+		if(handles.contains(handle))
 		{
-			if(hand == handle)
-			{
-				pushDefinition(handle, definition);
-			}
+			return pushDefinition(handle, definition);
 		}
 		return true;
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, TimestampDefinition definition) {
-		for(byte hand: handles)
+		if(handles.contains(handle))
 		{
-
-			if(hand == handle)
-			{
-				pushDefinition(handle, definition);
-			}
+			return pushDefinition(handle, definition);
 		}
 		return true;
 	}
@@ -63,12 +54,9 @@ public class FilterHandles extends Filter {
 
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
-		for(byte hand: handles)
+		if(handles.contains(handle))
 		{
-			if(hand == handle)
-			{
-				pushStremPacket(handle, timestamp, len, data);
-			}
+			return pushStremPacket(handle, timestamp, len, data);
 		}
 		return true;
 	}

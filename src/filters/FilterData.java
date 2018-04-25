@@ -25,7 +25,7 @@ public class FilterData extends Filter
 	public boolean onComment(String comment) {
 		if((data & C) != 0)
 		{
-			pushComment(comment);
+			return pushComment(comment);
 		}
 		return true;
 	}
@@ -34,7 +34,7 @@ public class FilterData extends Filter
 	public boolean onSpecialMessage(char who, char what, String message) {
 		if((data & SM) != 0)
 		{
-			pushSpecilaMessage(who, what, message);
+			return pushSpecilaMessage(who, what, message);
 		}
 		return true;
 	}
@@ -43,7 +43,7 @@ public class FilterData extends Filter
 	public boolean onMetadata(String key, String value) {
 		if((data & MD) != 0)
 		{
-			pushMetadata(key, value);
+			return pushMetadata(key, value);
 		}
 		return true;
 	}

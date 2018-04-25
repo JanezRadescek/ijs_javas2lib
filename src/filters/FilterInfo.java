@@ -42,7 +42,7 @@ public class FilterInfo extends Filter {
 	{
 		this(out, true);
 	}
-	
+
 	public FilterInfo(PrintStream out, boolean printAfter)
 	{
 		this.out = out;
@@ -137,62 +137,61 @@ public class FilterInfo extends Filter {
 	public boolean onComment(String comment) {
 		generalCounter.merge("comment", 1, Integer::sum);
 
-		pushComment(comment);
-		return true;
+
+		return pushComment(comment);
 	}
 
 	@Override
 	public boolean onVersion(int versionInt, String version) {
 		this.versionInt = versionInt;
 		this.version = version;
-		pushVersion(versionInt, version);
-		return true;
+
+		return pushVersion(versionInt, version);
 	}
 
 	@Override
 	public boolean onSpecialMessage(char who, char what, String message) {
 		special.merge(what, 1, Integer::sum);
 
-		pushSpecilaMessage(who, what, message);
-		return true;
+
+		return pushSpecilaMessage(who, what, message);
 	}
 
 	@Override
 	public boolean onMetadata(String key, String value) {
 		metaData.put(key, value);
 
-		pushMetadata(key, value);
-		return true;
+
+		return pushMetadata(key, value);
 	}
-	
-	
+
+
 	@Override
 	public boolean onEndOfFile() {
 		this.end = true;
 		if(printAfter)
 			izpisi();
-		
+
 		pushEndofFile();
 		return false;
 	}
-	
+
 	@Override
 	public boolean onUnmarkedEndOfFile() {
 		this.end = true;
 		if(printAfter)
 			izpisi();
-		
+
 		pushUnmarkedEndofFile();
 		return false;
 	}
-	
+
 
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
 		generalCounter.merge("Definitions", 1, Integer::sum);
 
-		pushDefinition(handle, definition);
-		return true;
+		return pushDefinition(handle, definition);
 	}
 
 	@Override
@@ -200,16 +199,14 @@ public class FilterInfo extends Filter {
 		structDefinitions.put(handle, definition.elementsInOrder);
 		generalCounter.merge("Definitions", 1, Integer::sum);
 
-		pushDefinition(handle, definition);
-		return true;
+		return pushDefinition(handle, definition);
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, TimestampDefinition definition) {
 		generalCounter.merge("Definitions", 1, Integer::sum);
 
-		pushDefinition(handle, definition);
-		return true;
+		return pushDefinition(handle, definition);
 	}
 
 	@Override
@@ -225,8 +222,7 @@ public class FilterInfo extends Filter {
 			endTime = nanoSecondTimestamp;
 		}
 
-		pushTimestamp(nanoSecondTimestamp);
-		return true;
+		return pushTimestamp(nanoSecondTimestamp);
 	}
 
 	@Override
@@ -247,24 +243,21 @@ public class FilterInfo extends Filter {
 			sensorCounter.merge(element, 1, Integer::sum);
 		}
 
-		pushStremPacket(handle, timestamp, len, data);
-		return true;
+		return pushStremPacket(handle, timestamp, len, data);
 	}
 
 	@Override
 	public boolean onUnknownLineType(byte type, int len, byte[] data) {
 		generalCounter.merge("UnknownLineType", 1, Integer::sum);
 
-		pushUnknownLineType(type, len, data);
-		return true;
+		return pushUnknownLineType(type, len, data);
 	}
 
 	@Override
 	public boolean onError(int lineNum, String error) {
 		generalCounter.merge("Error", 1, Integer::sum);
 
-		pushError(lineNum, error);
-		return true;
+		return pushError(lineNum, error);
 	}
 
 
