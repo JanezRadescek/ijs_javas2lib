@@ -19,6 +19,7 @@ public abstract class Filter implements ReadLineCallbackInterface
 	ArrayList<Filter> children = new ArrayList<Filter>();
 	@Deprecated
 	ArrayList<Filter> ancestors = new ArrayList<Filter>();
+	public String errors = "";
 	
 	public Filter addChild(Filter f)
 	{

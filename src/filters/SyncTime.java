@@ -60,9 +60,9 @@ public class SyncTime extends Sync {
 	/**
 	 * @param ls load status of second file
 	 * @param firstFilter
-	 * @param middleFilter last filter of second file
+	 * @param secondaryInput last filter of second file
 	 */
-	public SyncTime(LoadStatus ls,Filter firstFilter, Filter middleFilter) 
+	public SyncTime(LoadStatus ls,Filter firstFilter, Filter secondaryInput) 
 	{
 		this();
 		this.ls = ls;
@@ -75,7 +75,7 @@ public class SyncTime extends Sync {
 		ftS = new FilterTime(0, lastTimeP, false, FilterTime.PAUSE);
 		fvS = new FilterGetVersion();
 		
-		middleFilter.addChild(cdtS);
+		secondaryInput.addChild(cdtS);
 		cdtS.addChild(ftS);
 		ftS.addChild(fvS);
 		
@@ -101,7 +101,7 @@ public class SyncTime extends Sync {
 		}
 		else
 		{
-			Errors += "Versions of S2 files arent equal.\n";
+			errors += "Versions of S2 files arent equal.\n";
 			return false;
 		}
 	}
@@ -116,7 +116,7 @@ public class SyncTime extends Sync {
 		{
 			if(metaP.size() == 3)
 			{
-				Errors += "Metadata "+key+" is duplicated. "+value+" will be used.\n";
+				errors += "Metadata "+key+" is duplicated. "+value+" will be used.\n";
 			}
 			
 			metaP.put(key, value);

@@ -10,8 +10,7 @@ public abstract class Sync extends Filter {
 		Filter firstFilter;
 		Filter secondaryOutPut;
 		//primary
-		Filter primaryOutPut;
-		String Errors = "";
+		Filter primaryOutPut = this;
 		
 		
 		@Override
