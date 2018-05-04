@@ -20,7 +20,8 @@ public class ChangeDateTime extends Filter {
 
 	long posibleCorection = 0;
 	private long corection = 0;
-	boolean pushMeta;
+	boolean pushMeta = true;
+	boolean parse = false;
 
 	public ChangeDateTime()
 	{
@@ -29,6 +30,7 @@ public class ChangeDateTime extends Filter {
 	public ChangeDateTime(long corection)
 	{
 		this.posibleCorection = corection;
+		parse = true;
 	}
 
 	public ChangeDateTime(String date, String time, String zone, boolean pushMeta) {
@@ -36,6 +38,7 @@ public class ChangeDateTime extends Filter {
 		timeM2 = time;
 		zoneM2 = zone;
 		this.pushMeta = pushMeta;
+		parse = true;
 	}
 
 	
@@ -65,7 +68,7 @@ public class ChangeDateTime extends Filter {
 			return true;
 		}
 
-		if(pushMeta && dateM1 != null && timeM1 == null && zoneM1 !=null)
+		if(parse && dateM1 != null && timeM1 == null && zoneM1 !=null)
 		{
 			parseMeta();
 		}
@@ -153,11 +156,11 @@ public class ChangeDateTime extends Filter {
 	// NEW METHODS
 	
 	
-	void pushNewMeta()
+	void pushMeta()
 	{
-		pushMetadata("date", dateM2);
-		pushMetadata("time", timeM2);
-		pushMetadata("timezone", zoneM2);
+		pushMetadata("date", dateM1);
+		pushMetadata("time", timeM1);
+		pushMetadata("timezone", zoneM1);
 	}
 	
 	
@@ -178,12 +181,7 @@ public class ChangeDateTime extends Filter {
 		return Math.max(0, posibleCorection);
 	}
 	
-	public void setPosibleCorection(long c)
-	{
-		posibleCorection = c;
-	}
-	
-	public void setPosible(long posibleCorection)
+	public void setPosibleCorection(long posibleCorection)
 	{
 		this.posibleCorection = posibleCorection;
 	}

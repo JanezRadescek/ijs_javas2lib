@@ -12,16 +12,13 @@ import si.ijs.e6.S2.LoadStatus;
  * @author janez
  *
  */
-public class FilterMerge extends Filter {
+public class SyncTime extends Sync {
 
 	//TODO unfinished class 
 	
-	//stuff for second S2 file
-	private LoadStatus ls;
-	private Filter firstFilter;
-	//COMON
-	Pipe exitFilter;
-	//filters for regulating second S2
+	//IMPLEMENTATIONS STUFF
+
+	//filters for regulating secondary S2
 	ChangeDateTime cdtS;
 	FilterTime ftS;
 	FilterGetVersion fvS;
@@ -39,14 +36,14 @@ public class FilterMerge extends Filter {
 	/**
 	 * Stuff we need to do on construction
 	 */
-	private FilterMerge()
+	private SyncTime()
 	{
 		specialMeta.add("date");
 		specialMeta.add("time");
 		specialMeta.add("timezone");
 	}
 
-	public FilterMerge(LoadStatus ls) 
+	public SyncTime(LoadStatus ls) 
 	{
 		this(ls, new Pipe());
 	}
@@ -55,7 +52,7 @@ public class FilterMerge extends Filter {
 	 * @param ls load status of second file
 	 * @param firstFilter 
 	 */
-	public FilterMerge(LoadStatus ls, Filter firstFilter) 
+	public SyncTime(LoadStatus ls, Filter firstFilter) 
 	{
 		this(ls, firstFilter,firstFilter);
 	}
@@ -65,41 +62,33 @@ public class FilterMerge extends Filter {
 	 * @param firstFilter
 	 * @param middleFilter last filter of second file
 	 */
-	public FilterMerge(LoadStatus ls,Filter firstFilter, Filter middleFilter) 
+	public SyncTime(LoadStatus ls,Filter firstFilter, Filter middleFilter) 
 	{
 		this();
 		this.ls = ls;
 		this.firstFilter = firstFilter;
 
-		//COMON EXIT
-		exitFilter = new Pipe();
-		
+
+
 		//SECONDARY PIPES
 		cdtS = new ChangeDateTime();
-		ftS = new FilterTime(0, lastTimeP);
+		ftS = new FilterTime(0, lastTimeP, false, FilterTime.PAUSE);
 		fvS = new FilterGetVersion();
-
+		
 		middleFilter.addChild(cdtS);
 		cdtS.addChild(ftS);
 		ftS.addChild(fvS);
-		fvS.addChild(exitFilter);
+		
+		//SECONDARY EXIT
+		secondaryOutPut = fvS;
 
 		//PRIMARY PIPES AFTER MERGE
 		cdtP = new ChangeDateTime();
 
 		children.add(cdtP);
-		cdtP.addChild(exitFilter);
-
-
+		primaryOutPut = cdtP;
 
 	}
-
-	@Override
-	public Filter addChild(Filter f) {
-		exitFilter.addChild(f);
-		return f;
-	}
-
 
 	@Override
 	public boolean onVersion(int versionInt, String version) {
@@ -112,6 +101,7 @@ public class FilterMerge extends Filter {
 		}
 		else
 		{
+			Errors += "Versions of S2 files arent equal.\n";
 			return false;
 		}
 	}
@@ -124,6 +114,11 @@ public class FilterMerge extends Filter {
 		}
 		else
 		{
+			if(metaP.size() == 3)
+			{
+				Errors += "Metadata "+key+" is duplicated. "+value+" will be used.\n";
+			}
+			
 			metaP.put(key, value);
 
 			if(metaP.size() == 3)
@@ -134,21 +129,15 @@ public class FilterMerge extends Filter {
 				{
 					cdtP.setPosibleCorection(-cdtS.getNeededCorection());
 					cdtP.parseMeta();
-					cdtP.pushNewMeta();
 				}
 				else
 				{
-					//we changed secondary meta therefore this one stays the same
-					cdtS.pushNewMeta();
+					//we changed secondary meta therefore primary stays the same
+					cdtS.pushMeta();
 				}
 			}
 			return true;
 		}
 	}
-	
-	
-	
-
-
 
 }

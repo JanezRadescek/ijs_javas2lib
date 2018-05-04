@@ -15,7 +15,7 @@ import si.ijs.e6.S2.TimestampDefinition;
  */
 public abstract class Filter implements ReadLineCallbackInterface
 {
-	
+	//TODO rename package filters to pipeline and this to prototype
 	ArrayList<Filter> children = new ArrayList<Filter>();
 	@Deprecated
 	ArrayList<Filter> ancestors = new ArrayList<Filter>();
