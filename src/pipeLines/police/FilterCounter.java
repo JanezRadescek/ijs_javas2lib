@@ -1,5 +1,6 @@
-package filters;
+package pipeLines.police;
 
+import pipeLines.Pipe;
 import si.ijs.e6.S2.SensorDefinition;
 import si.ijs.e6.S2.StructDefinition;
 import si.ijs.e6.S2.TimestampDefinition;
@@ -10,7 +11,7 @@ import si.ijs.e6.S2.TimestampDefinition;
  * @author janez
  *
  */
-public class FilterCounter extends Filter {
+public class FilterCounter extends Pipe {
 
 	private int counter;
 	private int maxLines;

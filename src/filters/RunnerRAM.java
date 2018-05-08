@@ -2,6 +2,8 @@ package filters;
 
 import java.io.File;
 
+import pipeLines.filters.SaveS2;
+import pipeLines.filters.FilterTime;
 import si.ijs.e6.S2;
 import si.ijs.e6.S2.LoadStatus;
 
@@ -30,7 +32,7 @@ public class RunnerRAM {
 
 		FilterTime f0 = new FilterTime(startTime,endTime);
 		FilterProcessSignal f1 = new FilterProcessSignal();
-		FilterSaveS2 f2 = new FilterSaveS2(dir.getAbsolutePath() + File.separator+"kopija"+ime);
+		SaveS2 f2 = new SaveS2(dir.getAbsolutePath() + File.separator+"kopija"+ime);
 		//FilterSaveCSV f2 = new FilterSaveCSV("C:\\Users\\janez\\workspace\\S2_rw\\UnitTests\\andrej11.csv", true);
 		ls.addReadLineCallback(f0);
 		f0.addChild(f1);

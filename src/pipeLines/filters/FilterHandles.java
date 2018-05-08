@@ -1,7 +1,8 @@
-package filters;
+package pipeLines.filters;
 
 import java.util.ArrayList;
 
+import pipeLines.Pipe;
 import si.ijs.e6.S2.StructDefinition;
 import si.ijs.e6.S2.TimestampDefinition;
 
@@ -10,7 +11,7 @@ import si.ijs.e6.S2.TimestampDefinition;
  * @author janez
  *
  */
-public class FilterHandles extends Filter {
+public class FilterHandles extends Pipe {
 
 	private ArrayList<Byte> handles = new ArrayList<Byte>();
 

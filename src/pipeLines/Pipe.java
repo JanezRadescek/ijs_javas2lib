@@ -1,4 +1,4 @@
-package filters;
+package pipeLines;
 
 import java.util.ArrayList;
 
@@ -13,26 +13,22 @@ import si.ijs.e6.S2.TimestampDefinition;
  * @author janez
  *
  */
-public abstract class Filter implements ReadLineCallbackInterface
+public class Pipe implements ReadLineCallbackInterface
 {
 	//TODO rename package filters to pipeline and this to prototype
-	ArrayList<Filter> children = new ArrayList<Filter>();
+	
+	protected ArrayList<Pipe> children = new ArrayList<Pipe>();
 	@Deprecated
-	ArrayList<Filter> ancestors = new ArrayList<Filter>();
+	ArrayList<Pipe> ancestors = new ArrayList<Pipe>();
 	public String errors = "";
 	
-	public Filter addChild(Filter f)
+	public Pipe addChild(Pipe f)
 	{
 		children.add(f);
-		f.addAncestor(this);
 		return f;
 	}
 	
-	@Deprecated
-	public void addAncestor(Filter f)
-	{
-		ancestors.add(f);
-	}
+	
 
 
 	@Override
@@ -41,7 +37,7 @@ public abstract class Filter implements ReadLineCallbackInterface
 	}
 	protected boolean pushComment(String comment) {
 		boolean r = true;
-		for(Filter c:children)
+		for(Pipe c:children)
 		{
 			r &= c.onComment(comment);
 		}
@@ -55,7 +51,7 @@ public abstract class Filter implements ReadLineCallbackInterface
 	}
 	protected boolean pushVersion(int versionInt, String version) {
 		boolean r = true;
-		for(Filter c:children)
+		for(Pipe c:children)
 		{
 			r &= c.onVersion(versionInt, version);
 		}
@@ -70,7 +66,7 @@ public abstract class Filter implements ReadLineCallbackInterface
 	}
 	protected boolean pushSpecilaMessage(char who, char what, String message) {
 		boolean r = true;
-		for(Filter c:children)
+		for(Pipe c:children)
 		{
 			r &= c.onSpecialMessage(who, what, message);
 		}
@@ -85,7 +81,7 @@ public abstract class Filter implements ReadLineCallbackInterface
 	}
 	protected boolean pushMetadata(String key, String value) {
 		boolean r = true;
-		for(Filter c:children)
+		for(Pipe c:children)
 		{
 			r &= c.onMetadata(key, value);
 		}
@@ -99,7 +95,7 @@ public abstract class Filter implements ReadLineCallbackInterface
 		return false;
 	}
 	protected void pushEndofFile() {
-		for(Filter c:children)
+		for(Pipe c:children)
 		{
 			c.onEndOfFile();
 		}
@@ -112,7 +108,7 @@ public abstract class Filter implements ReadLineCallbackInterface
 		return false;
 	}
 	protected void pushUnmarkedEndofFile() {
-		for(Filter c:children)
+		for(Pipe c:children)
 		{
 			c.onUnmarkedEndOfFile();
 		}
@@ -126,7 +122,7 @@ public abstract class Filter implements ReadLineCallbackInterface
 	}
 	protected boolean pushDefinition(byte handle, SensorDefinition definition) {
 		boolean r = true;
-		for(Filter c:children)
+		for(Pipe c:children)
 		{
 			r &= c.onDefinition(handle, definition);
 		}
@@ -140,7 +136,7 @@ public abstract class Filter implements ReadLineCallbackInterface
 	}
 	protected boolean pushDefinition(byte handle, StructDefinition definition) {
 		boolean r = true;
-		for(Filter c:children)
+		for(Pipe c:children)
 		{
 			r &= c.onDefinition(handle, definition);
 		}
@@ -154,7 +150,7 @@ public abstract class Filter implements ReadLineCallbackInterface
 	}
 	protected boolean pushDefinition(byte handle, TimestampDefinition definition) {
 		boolean r = true;
-		for(Filter c:children)
+		for(Pipe c:children)
 		{
 			r &= c.onDefinition(handle, definition);
 		}
@@ -169,7 +165,7 @@ public abstract class Filter implements ReadLineCallbackInterface
 	}
 	protected boolean pushTimestamp(long nanoSecondTimestamp) {
 		boolean r= true;
-		for(Filter c:children)
+		for(Pipe c:children)
 		{
 			r &= c.onTimestamp(nanoSecondTimestamp);
 		}
@@ -184,7 +180,7 @@ public abstract class Filter implements ReadLineCallbackInterface
 	}
 	protected boolean pushStremPacket(byte handle, long timestamp, int len, byte[] data) {
 		boolean r = true;
-		for(Filter c:children)
+		for(Pipe c:children)
 		{
 			r &= c.onStreamPacket(handle, timestamp, len, data);
 		}
@@ -199,7 +195,7 @@ public abstract class Filter implements ReadLineCallbackInterface
 	}
 	protected boolean pushUnknownLineType(byte type, int len, byte[] data) {
 		boolean r = true;
-		for(Filter c:children)
+		for(Pipe c:children)
 		{
 			r &= c.onUnknownLineType(type, len, data);
 		}
@@ -214,7 +210,7 @@ public abstract class Filter implements ReadLineCallbackInterface
 	}
 	protected boolean pushError(int lineNum, String error) {
 		boolean r = true;
-		for(Filter c:children)
+		for(Pipe c:children)
 		{
 			r &= c.onError(lineNum, error);
 		}

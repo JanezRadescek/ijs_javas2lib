@@ -1,9 +1,13 @@
-package filters;
+package pipeLines.conglomerates;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import pipeLines.Pipe;
+import pipeLines.filters.ChangeDateTime;
+import pipeLines.filters.GetVersion;
+import pipeLines.filters.FilterTime;
 import si.ijs.e6.S2.LoadStatus;
 
 /**
@@ -21,7 +25,7 @@ public class SyncTime extends Sync {
 	//filters for regulating secondary S2
 	ChangeDateTime cdtS;
 	FilterTime ftS;
-	FilterGetVersion fvS;
+	GetVersion fvS;
 	//PRIMARY PIPELINES
 	ChangeDateTime cdtP;
 
@@ -52,7 +56,7 @@ public class SyncTime extends Sync {
 	 * @param ls load status of second file
 	 * @param firstFilter 
 	 */
-	public SyncTime(LoadStatus ls, Filter firstFilter) 
+	public SyncTime(LoadStatus ls, Pipe firstFilter) 
 	{
 		this(ls, firstFilter,firstFilter);
 	}
@@ -62,7 +66,7 @@ public class SyncTime extends Sync {
 	 * @param firstFilter
 	 * @param secondaryInput last filter of second file
 	 */
-	public SyncTime(LoadStatus ls,Filter firstFilter, Filter secondaryInput) 
+	public SyncTime(LoadStatus ls,Pipe firstFilter, Pipe secondaryInput) 
 	{
 		this();
 		this.ls = ls;
@@ -73,7 +77,7 @@ public class SyncTime extends Sync {
 		//SECONDARY PIPES
 		cdtS = new ChangeDateTime();
 		ftS = new FilterTime(0, lastTimeP, false, FilterTime.PAUSE);
-		fvS = new FilterGetVersion();
+		fvS = new GetVersion();
 		
 		secondaryInput.addChild(cdtS);
 		cdtS.addChild(ftS);

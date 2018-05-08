@@ -1,4 +1,4 @@
-package filters;
+package pipeLines.filters;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import callBacks.MultiBitBuffer;
+import pipeLines.Pipe;
 import si.ijs.e6.S2.SensorDefinition;
 import si.ijs.e6.S2.StructDefinition;
 
@@ -16,7 +17,7 @@ import si.ijs.e6.S2.StructDefinition;
  * @author janez
  *
  */
-public class FilterSaveCSV extends Filter{
+public class SaveCSV extends Pipe{
 
 	PrintStream out;
 
@@ -38,7 +39,7 @@ public class FilterSaveCSV extends Filter{
 	 * @param directory string representing file directory AND name
 	 * @param dataMapping boolean value. if true packets will be translated acording to sensor definitions.
 	 */
-	public FilterSaveCSV(String directory, boolean dataMapping)
+	public SaveCSV(String directory, boolean dataMapping)
 	{
 		this.dataMapping = dataMapping;
 		try {

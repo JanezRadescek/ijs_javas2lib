@@ -1,7 +1,9 @@
-package filters;
+package pipeLines.filters;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
+
+import pipeLines.Pipe;
 
 /**
  * Date in meta can only be set backwards not forwards as not to get negative timestamps
@@ -9,7 +11,7 @@ import java.time.ZonedDateTime;
  * @author janez
  *
  */
-public class ChangeDateTime extends Filter {
+public class ChangeDateTime extends Pipe {
 
 	String dateM1 = null;
 	String timeM1 = null;
@@ -80,7 +82,7 @@ public class ChangeDateTime extends Filter {
 	 * Called when we have read metadata with time and date.
 	 * calculate time diference betwen files and set first date and time for new S2
 	 */
-	void parseMeta()
+	public void parseMeta()
 	{
 		ZonedDateTime date1;
 		ZonedDateTime date2;
@@ -156,7 +158,7 @@ public class ChangeDateTime extends Filter {
 	// NEW METHODS
 	
 	
-	void pushMeta()
+	public void pushMeta()
 	{
 		pushMetadata("date", dateM1);
 		pushMetadata("time", timeM1);

@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import e6.ECG.time_sync.LinearRegression;
+import pipeLines.Pipe;
 import si.ijs.e6.MultiBitBuffer;
 import si.ijs.e6.S2.SensorDefinition;
 import si.ijs.e6.S2.StructDefinition;
@@ -21,7 +22,7 @@ import suportingClasses.TimeStamp;
  * @author janez
  *
  */
-public class FilterProcessSignal extends Filter {
+public class FilterProcessSignal extends Pipe {
 
 	private final long defaultLength = ((long)1E9) * 60L * 4L;  //2 min
 	private final double defaultWeight = 0.1;
@@ -102,8 +103,8 @@ public class FilterProcessSignal extends Filter {
 	public boolean onVersion(int versionInt, String version) {
 		if(!version.equals("PCARD"))
 			System.err.print("We are processing S2 file which is not PCARD");
-		pushVersion(versionInt, version);
-		return true;
+		
+		return pushVersion(versionInt, version);
 	}
 
 	@Override
@@ -146,16 +147,16 @@ public class FilterProcessSignal extends Filter {
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
 		mapSensor.put(handle, definition);
 
-		pushDefinition(handle, definition);
-		return true;
+		
+		return pushDefinition(handle, definition);
 	}
 
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
 		mapStruct.put(handle, definition);
 
-		pushDefinition(handle, definition);
-		return true;
+		
+		return pushDefinition(handle, definition);
 	}
 
 
@@ -378,6 +379,8 @@ public class FilterProcessSignal extends Filter {
 		double intercept = y2 - slope * x2;
 		int pozicija = 0;
 
+		//TODO for dej v metodo, vsakič še za nazaj pospravmo če smo slučajno prekinil pushanje
+		
 		for(int i=0; i<n; i++)
 		{
 			pushLines(pozicija);

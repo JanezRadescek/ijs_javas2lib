@@ -1,6 +1,8 @@
-package filters;
+package pipeLines.filters;
 
-public class FilterData extends Filter 
+import pipeLines.Pipe;
+
+public class FilterData extends Pipe 
 {
 	public final int S2_version = 1;
 	

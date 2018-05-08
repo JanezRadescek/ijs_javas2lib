@@ -1,6 +1,8 @@
-package filters;
+package pipeLines.filters;
 
-public class FilterGetVersion extends Filter {
+import pipeLines.Pipe;
+
+public class GetVersion extends Pipe {
 	
 	public int versionInt;
 	public String version;

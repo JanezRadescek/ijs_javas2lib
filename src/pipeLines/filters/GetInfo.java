@@ -1,9 +1,10 @@
-package filters;
+package pipeLines.filters;
 
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import pipeLines.Pipe;
 import si.ijs.e6.S2.SensorDefinition;
 import si.ijs.e6.S2.StructDefinition;
 import si.ijs.e6.S2.TimestampDefinition;
@@ -14,7 +15,7 @@ import si.ijs.e6.S2.TimestampDefinition;
  * @author janez
  *
  */
-public class FilterInfo extends Filter {
+public class GetInfo extends Pipe {
 
 	boolean start = false;
 	boolean end = false;
@@ -38,12 +39,12 @@ public class FilterInfo extends Filter {
 	int versionInt;
 	String version;
 
-	public FilterInfo(PrintStream out)
+	public GetInfo(PrintStream out)
 	{
 		this(out, true);
 	}
 
-	public FilterInfo(PrintStream out, boolean printAfter)
+	public GetInfo(PrintStream out, boolean printAfter)
 	{
 		this.out = out;
 		this.printAfter = printAfter;

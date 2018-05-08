@@ -15,13 +15,13 @@ import org.apache.commons.cli.*;
 
 import callBacks.FirtstReader;
 import callBacks.SecondReader;
-import filters.FilterData;
-import filters.FilterHandles;
-import filters.FilterInfo;
 import filters.FilterProcessSignal;
-import filters.FilterSaveCSV;
-import filters.FilterSaveS2;
-import filters.FilterTime;
+import pipeLines.filters.FilterData;
+import pipeLines.filters.FilterHandles;
+import pipeLines.filters.GetInfo;
+import pipeLines.filters.SaveCSV;
+import pipeLines.filters.SaveS2;
+import pipeLines.filters.FilterTime;
 import si.ijs.e6.S2;
 
 /**
@@ -302,11 +302,11 @@ public class Cli {
 
 			if(cmd.hasOption(STATISTIKA))
 			{
-				FilterInfo filter;
+				GetInfo filter;
 				if(outDir !=null)
 				{
 					try {
-						filter = new FilterInfo(new PrintStream(new File(outDir)));
+						filter = new GetInfo(new PrintStream(new File(outDir)));
 					} catch (FileNotFoundException e) {
 						e.printStackTrace();
 						outPS.println("File couldnt be made");
@@ -315,7 +315,7 @@ public class Cli {
 				}
 				else
 				{
-					filter = new FilterInfo(outPS);
+					filter = new GetInfo(outPS);
 				}
 				//loadS1.addReadLineCallback(filter);
 				loadS1.readLines(filter, false);
@@ -330,7 +330,7 @@ public class Cli {
 					FilterTime filterT = new FilterTime(ab[0], ab[1], nonEss);
 					FilterData filterD = new FilterData(dataT);
 					FilterHandles filterH = new FilterHandles(handles);
-					FilterSaveS2 filterS = new FilterSaveS2(outDir);
+					SaveS2 filterS = new SaveS2(outDir);
 
 					loadS1.addReadLineCallback(filterT);
 					filterT.addChild(filterD);
@@ -353,7 +353,7 @@ public class Cli {
 				{
 					//new way with filters
 
-					FilterSaveCSV filter = new FilterSaveCSV(outDir, dataMapping);
+					SaveCSV filter = new SaveCSV(outDir, dataMapping);
 					loadS1.readLines(filter, false);
 
 				}else
@@ -370,7 +370,7 @@ public class Cli {
 				FilterTime filterT = new FilterTime(ab[0], ab[1]);
 				FilterProcessSignal filterP = new FilterProcessSignal();
 				filterT.addChild(filterP);
-				filterP.addChild(new FilterSaveS2(outDir));
+				filterP.addChild(new SaveS2(outDir));
 
 				loadS1.readLines(filterT, false);
 			}

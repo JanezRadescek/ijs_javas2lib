@@ -1,9 +1,11 @@
-package filters;
+package pipeLines.conglomerates;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import pipeLines.Pipe;
+import pipeLines.filters.RemapHandle;
 import si.ijs.e6.S2.LoadStatus;
 
 /**
@@ -17,7 +19,7 @@ public class SyncHandles extends Sync {
 	RemapHandle rhS;
 	RemapHandle rhP;
 	
-	public SyncHandles(LoadStatus ls, Filter firsFilter, Filter secondaryInput)
+	public SyncHandles(LoadStatus ls, Pipe firsFilter, Pipe secondaryInput)
 	{
 		this.ls = ls;
 		this.firstFilter = firsFilter;

@@ -1,9 +1,10 @@
-package filters;
+package pipeLines.filters;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import pipeLines.Pipe;
 import si.ijs.e6.S2;
 import si.ijs.e6.S2.MessageType;
 import si.ijs.e6.S2.Nanoseconds;
@@ -17,7 +18,7 @@ import si.ijs.e6.S2.TimestampDefinition;
  * @author janez
  *
  */
-public class FilterSaveS2 extends Filter {
+public class SaveS2 extends Pipe {
 
 	private S2 s2;
 	StoreStatus storeS;
@@ -29,7 +30,7 @@ public class FilterSaveS2 extends Filter {
 	/**
 	 * @param directory directory AND name of new S2 file in which we will save
 	 */
-	public FilterSaveS2(String directory)
+	public SaveS2(String directory)
 	{
 		s2 = new S2();
 		//TODO zakaj ne moremo S2.store/load dati directoryAndName ??

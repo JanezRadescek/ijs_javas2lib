@@ -1,10 +1,11 @@
-package filters;
+package pipeLines.filters;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
+import pipeLines.Pipe;
 import si.ijs.e6.S2.SensorDefinition;
 import si.ijs.e6.S2.StructDefinition;
 import si.ijs.e6.S2.TimestampDefinition;
@@ -16,12 +17,12 @@ import suportingClasses.TimeStamp;
 import suportingClasses.Version;
 
 /**
- * It saves all variables it gets in methonds specified in ReadLineCallbackInterface.
- * Variables can than be accessed for further use.
+ * It saves ALL variables/lines it gets in methonds specified in ReadLineCallbackInterface.
+ * Variables/lines can than be accessed for further use via getters. 
  * @author janez
  *
  */
-public class FilterGetLines extends Filter {
+public class GetLines extends Pipe {
 	
 	private Version version;
 	private Map<String, String> metadata = new HashMap<String, String>();

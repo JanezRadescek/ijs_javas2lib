@@ -1,11 +1,13 @@
-package filters;
+package pipeLines.filters;
+
+import pipeLines.Pipe;
 
 /**
  * Send further only data in given time interval. 
  * @author janez
  *
  */
-public class FilterTime extends Filter {
+public class FilterTime extends Pipe {
 	//CENCEPTUAL THINGIS
 	private long start;
 	private long end;

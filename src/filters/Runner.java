@@ -7,6 +7,9 @@ import java.util.Queue;
 
 import callBacks.MultiBitBuffer;
 import e6.ECG.time_sync.Signal;
+import pipeLines.filters.GetLines;
+import pipeLines.filters.SaveCSV;
+import pipeLines.filters.FilterTime;
 import si.ijs.e6.S2;
 import si.ijs.e6.S2.LoadStatus;
 import si.ijs.e6.S2.SensorDefinition;
@@ -89,7 +92,7 @@ public class Runner {
 		FilterTime f0 = new FilterTime(startTime,endTime);
 		FilterProcessSignal f1 = new FilterProcessSignal();
 		//FilterSaveS2 f2 = new FilterSaveS2(out);
-		FilterSaveCSV f2 = new FilterSaveCSV("C:\\Users\\janez\\workspace\\S2_rw\\UnitTests\\andrej11.csv", true);
+		SaveCSV f2 = new SaveCSV("C:\\Users\\janez\\workspace\\S2_rw\\UnitTests\\andrej11.csv", true);
 		f0.addChild(f1);
 		f1.addChild(f2);
 
@@ -110,7 +113,7 @@ public class Runner {
 
 		FilterTime f0 = new FilterTime(startTime,endTime);
 		//FilterProcessSignal f1 = new FilterProcessSignal();
-		FilterGetLines f2 = new FilterGetLines();
+		GetLines f2 = new GetLines();
 
 		f0.addChild(f2);
 		//f1.addChild(f2);
@@ -135,7 +138,7 @@ public class Runner {
 
 		FilterTime f0 = new FilterTime(startTime,endTime);
 		FilterProcessSignal f1 = new FilterProcessSignal();
-		FilterGetLines f2 = new FilterGetLines();
+		GetLines f2 = new GetLines();
 
 		f0.addChild(f1);
 		f1.addChild(f2);
