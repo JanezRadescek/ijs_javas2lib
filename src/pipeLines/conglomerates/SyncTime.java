@@ -1,13 +1,11 @@
 package pipeLines.conglomerates;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.io.File;
 import java.util.Map;
-
 import pipeLines.Pipe;
 import pipeLines.filters.ChangeDateTime;
-import pipeLines.filters.GetVersion;
-import pipeLines.filters.FilterTime;
+import pipeLines.filters.GetSuportingLines;
+import si.ijs.e6.S2;
 import si.ijs.e6.S2.LoadStatus;
 
 /**
@@ -16,132 +14,67 @@ import si.ijs.e6.S2.LoadStatus;
  * @author janez
  *
  */
-public class SyncTime extends Sync {
-
-	//TODO unfinished class 
-	
+public class SyncTime extends Sync { 
 	//IMPLEMENTATIONS STUFF
 
 	//filters for regulating secondary S2
 	ChangeDateTime cdtS;
-	FilterTime ftS;
-	GetVersion fvS;
 	//PRIMARY PIPELINES
 	ChangeDateTime cdtP;
 
-	//stuff we need to know for some time
-	long lastTimeP = 0;
 
 
-	//CONSTANTS
-	ArrayList<String> specialMeta = new ArrayList<String>();
-	Map<String,String> metaP = new HashMap<String,String>();
 
 	/**
-	 * Stuff we need to do on construction
+	 * @param secondaryInput last filter of secondary file
+	 * @param primaraS2 File of primary S2 file
+	 * @param secondaryS2 File of secondary S2 file
 	 */
-	private SyncTime()
+	public SyncTime(Pipe primaryInput, Pipe secondaryInput,  File primaryS2, File secondaryS2) 
 	{
-		specialMeta.add("date");
-		specialMeta.add("time");
-		specialMeta.add("timezone");
-	}
+		super(primaryInput, secondaryInput);
+		S2 temS21 = new S2();
+		S2 temS22 = new S2();
+		LoadStatus ls1 = temS21.load(primaryS2.getParentFile(), primaryS2.getName());
+		LoadStatus ls2 = temS22.load(secondaryS2.getParentFile(), secondaryS2.getName());
 
-	public SyncTime(LoadStatus ls) 
-	{
-		this(ls, new Pipe());
+		GetSuportingLines gsl1 = new GetSuportingLines();
+		GetSuportingLines gsl2 = new GetSuportingLines();
+
+		ls1.readLines(gsl1 , false);
+		ls2.readLines(gsl2 , false);
+
+		Map<String, String> meta1 = gsl1.getMeta();
+		Map<String, String> meta2 = gsl2.getMeta();
+
+
+		buildSyncTime(meta1, meta2);
+
 	}
 
 	/**
-	 * @param ls load status of second file
-	 * @param firstFilter 
-	 */
-	public SyncTime(LoadStatus ls, Pipe firstFilter) 
-	{
-		this(ls, firstFilter,firstFilter);
-	}
-
-	/**
-	 * @param ls load status of second file
+	 * @param ls load status of secondary file
 	 * @param firstFilter
-	 * @param secondaryInput last filter of second file
+	 * @param secondaryInput last filter of secondary file
+	 * @param meta1 metadata from primary S2 file
+	 * @param meta2 metadata from secondary S2 file
 	 */
-	public SyncTime(LoadStatus ls,Pipe firstFilter, Pipe secondaryInput) 
+	public SyncTime(Pipe primaryInput, Pipe secondaryInput,  Map<String, String> meta1, Map<String, String> meta2) 
 	{
-		this();
-		this.ls = ls;
-		this.firstFilter = firstFilter;
+		super(primaryInput, secondaryInput);
+		buildSyncTime(meta1, meta2);
+	}
 
-
-
-		//SECONDARY PIPES
-		cdtS = new ChangeDateTime();
-		ftS = new FilterTime(0, lastTimeP, false, FilterTime.PAUSE);
-		fvS = new GetVersion();
-		
-		secondaryInput.addChild(cdtS);
-		cdtS.addChild(ftS);
-		ftS.addChild(fvS);
-		
-		//SECONDARY EXIT
-		secondaryOutPut = fvS;
-
-		//PRIMARY PIPES AFTER MERGE
-		cdtP = new ChangeDateTime();
-
-		children.add(cdtP);
+	private void buildSyncTime(Map<String, String> meta1, Map<String, String> meta2)
+	{
+		//PRIMARY PIPES 
+		cdtP = new ChangeDateTime(meta1, meta2);
+		primaryInPut.addChild(cdtP);
 		primaryOutPut = cdtP;
 
+		//SECONDARY PIPES
+		cdtS = new ChangeDateTime(meta2, meta1);
+		secondaryInPut.addChild(cdtS);
+		secondaryOutPut = cdtS;
 	}
-
-	@Override
-	public boolean onVersion(int versionInt, String version) {
-
-		ls.readLines(firstFilter, true);
-
-		if(versionInt == fvS.versionInt && version.equals(fvS.version))
-		{
-			return true;
-		}
-		else
-		{
-			errors += "Versions of S2 files arent equal.\n";
-			return false;
-		}
-	}
-
-	@Override
-	public boolean onMetadata(String key, String value) {
-		if(!specialMeta.contains(key))
-		{
-			return super.onMetadata(key, value);
-		}
-		else
-		{
-			if(metaP.size() == 3)
-			{
-				errors += "Metadata "+key+" is duplicated. "+value+" will be used.\n";
-			}
-			
-			metaP.put(key, value);
-
-			if(metaP.size() == 3)
-			{
-				cdtS.setMetaM2(metaP.get("date"), metaP.get("time"), metaP.get("timezone"));
-				cdtS.parseMeta();
-				if(cdtS.getNeededCorection() != 0)
-				{
-					cdtP.setPosibleCorection(-cdtS.getNeededCorection());
-					cdtP.parseMeta();
-				}
-				else
-				{
-					//we changed secondary meta therefore primary stays the same
-					cdtS.pushMeta();
-				}
-			}
-			return true;
-		}
-	}
-
 }

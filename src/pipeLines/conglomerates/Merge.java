@@ -1,4 +1,4 @@
-package pipeLines.filters;
+package pipeLines.conglomerates;
 
 import java.util.ArrayList;
 

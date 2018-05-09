@@ -1,8 +1,9 @@
 package pipeLines.filters;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import pipeLines.Pipe;
 import si.ijs.e6.S2.SensorDefinition;
@@ -17,7 +18,7 @@ import si.ijs.e6.S2.TimestampDefinition;
 public class RemapHandle extends Pipe {
 
 	private Map<Byte,Byte> remap;
-	private ArrayList<Byte> reservedHandles = new ArrayList<Byte>();
+	private Set<Byte> reservedHandles = new HashSet<Byte>();
 	
 	private Map<Byte,StructDefinition> oldDefinitions = new HashMap<Byte,StructDefinition>();
 	/**
@@ -25,27 +26,32 @@ public class RemapHandle extends Pipe {
 	 */
 	public RemapHandle(Map<Byte, Byte> remap) {
 		this.remap = remap;
+		reservedHandles.addAll(remap.values());
+			
 	}
 	
 	public RemapHandle(byte handleOld, byte handleNew) {
 		this.remap = new HashMap<Byte,Byte>();
 		remap.put(handleOld, handleNew);
+		reservedHandles.add(handleNew);
 	}
 	
 	
 	public void setRemap(Map<Byte, Byte> remap)
 	{
 		this.remap = remap;
+		reservedHandles = new HashSet<Byte>(remap.values());
 	}
 	
-	public void addRemap(Byte oldValue, Byte newValue)
+	public void addRemap(Byte handleOld, Byte handleNew)
 	{
-		remap.put(oldValue, newValue);
+		remap.put(handleOld, handleNew);
+		reservedHandles.add(handleNew);
 	}
 	
 	//SETTERS
-	
-	public void setReserved(ArrayList<Byte> rh)
+	@Deprecated
+	public void setReserved(Set<Byte> rh)
 	{
 		reservedHandles = rh;
 	}
@@ -58,7 +64,7 @@ public class RemapHandle extends Pipe {
 		{
 			findNewRemap128(handle);
 		}
-		//TODO NEDELA PROV 1
+		
 		return pushDefinition(remap.get(handle), definition);
 	}
 	
@@ -67,7 +73,6 @@ public class RemapHandle extends Pipe {
 	public boolean onDefinition(byte handle, StructDefinition definition) {
 		
 		oldDefinitions.put(handle, definition);
-		//TODO en onDefinition vrne false kje bomo to reportal če si jih shranjujemo ? M
 		
 		String elementsNew = "";
 		for(char element:definition.elementsInOrder.toCharArray())
@@ -75,7 +80,7 @@ public class RemapHandle extends Pipe {
 			elementsNew += (char)(byte)remap.getOrDefault(element, (byte) element);
 		}
 		definition.elementsInOrder = elementsNew;
-		//TODO NEDELA PROV 2
+
 		if(!remap.containsKey(handle))
 		{
 			findNewRemap32(handle);
@@ -85,7 +90,7 @@ public class RemapHandle extends Pipe {
 	
 	@Override
 	public boolean onDefinition(byte handle, TimestampDefinition definition) {
-		//TODO NEDELA PROV 3
+		
 		if(!remap.containsKey(handle))
 		{
 			findNewRemap32(handle);

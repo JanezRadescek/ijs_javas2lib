@@ -8,28 +8,34 @@ import si.ijs.e6.S2.LoadStatus;
  * @author janez
  *
  */
-public abstract class Sync extends Pipe {
-	
+public abstract class Sync{
+
 	//"INTERFACE STUFF"
-		//secondary
-		LoadStatus ls;
-		Pipe firstFilter;
-		Pipe secondaryOutPut;
-		//primary
-		Pipe primaryOutPut = this;
-		
-		
-		@Override
-		public Pipe addChild(Pipe f) {
-			primaryOutPut.addChild(f);
-			return f;
-		}
-		
-		/**
-		 * @return the secondaryOutPut
-		 */
-		public Pipe getSecondaryOutPut() {
-			return secondaryOutPut;
-		}
+	Pipe primaryInPut;
+	Pipe secondaryInPut;
+	Pipe primaryOutPut;
+	Pipe secondaryOutPut;
+
+	public Sync(Pipe primaryInput, Pipe secondaryInput)
+	{
+		this.primaryInPut = primaryInput;
+		this.secondaryInPut = secondaryInput;
+	}
+
+	/**
+	 * @return the primaryOutPut
+	 */
+	public Pipe getPrimaryOutPut() {
+		return primaryOutPut;
+	}
+
+	/**
+	 * @return the secondaryOutPut
+	 */
+	public Pipe getSecondaryOutPut() {
+		return secondaryOutPut;
+	}
+
+
 
 }
