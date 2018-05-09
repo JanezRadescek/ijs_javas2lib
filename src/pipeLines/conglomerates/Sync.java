@@ -16,6 +16,8 @@ public abstract class Sync{
 	Pipe primaryOutPut;
 	Pipe secondaryOutPut;
 
+	String error = "";
+	
 	public Sync(Pipe primaryInput, Pipe secondaryInput)
 	{
 		this.primaryInPut = primaryInput;

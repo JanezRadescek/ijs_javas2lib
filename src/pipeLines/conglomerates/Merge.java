@@ -12,7 +12,7 @@ import si.ijs.e6.S2.TimestampDefinition;
  * @author janez
  *
  */
-public class Merge extends Pipe {
+public class Merge extends Pipe{
 	
 	int versionInt = -1;
 	String version = "";
@@ -100,8 +100,4 @@ public class Merge extends Pipe {
 			return super.onDefinition(handle, definition);
 		}
 	}
-	
-	
-	
-	
 }
