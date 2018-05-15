@@ -210,7 +210,7 @@ public class SecondReader implements ReadLineCallbackInterface {
 				|| !version.equals(VERSIONLONG) || !versionFirst.version.equals(VERSIONLONG))
 		{
 			System.err.println("One of the read S2 file is not version " 
-					+ VERSION + " " + versionFirst.version);
+					+ VERSION + " " + VERSIONLONG + "First file has " + versionFirst.intVersion + " " + versionFirst.version + " . Second has " + versionInt + " " + version);
 			return false;
 		}
 		else

@@ -1,5 +1,6 @@
 package pipeLines;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 import si.ijs.e6.S2.ReadLineCallbackInterface;
@@ -15,12 +16,9 @@ import si.ijs.e6.S2.TimestampDefinition;
  */
 public class Pipe implements ReadLineCallbackInterface
 {
-	//TODO rename package filters to pipeline and this to prototype
 	
-	protected ArrayList<Pipe> children = new ArrayList<Pipe>();
-	@Deprecated
-	ArrayList<Pipe> ancestors = new ArrayList<Pipe>();
-	public String errors = "";
+	ArrayList<Pipe> children = new ArrayList<Pipe>();
+	protected PrintStream out;
 	
 	public Pipe addChild(Pipe f)
 	{
@@ -28,7 +26,12 @@ public class Pipe implements ReadLineCallbackInterface
 		return f;
 	}
 	
+	public void setPrintStream(PrintStream print)
+	{
+		out = print;
+	}
 	
+//    OVERRIDES	
 
 
 	@Override

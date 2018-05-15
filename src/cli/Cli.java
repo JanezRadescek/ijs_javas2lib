@@ -16,6 +16,8 @@ import org.apache.commons.cli.*;
 import callBacks.FirtstReader;
 import callBacks.SecondReader;
 import filters.FilterProcessSignal;
+import pipeLines.Pipe;
+import pipeLines.conglomerates.SmartMerge;
 import pipeLines.filters.FilterData;
 import pipeLines.filters.FilterHandles;
 import pipeLines.filters.GetInfo;
@@ -37,8 +39,8 @@ public class Cli {
 	private static final int unknown = 1;
 	private static final int fileError = 2;
 	private static final int badInputArgs = 3;
-	
-	
+
+
 	public static void main(String[] args)
 	{
 		int code;
@@ -56,24 +58,24 @@ public class Cli {
 	public static String GuiCliLink(String[] args)
 	{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		
+
 		PrintStream ps = null;
-		
+
 		try {
 			ps = new PrintStream(baos, true, "utf-8");
-			
+
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 			return e.getMessage();
 		}
 		start(args, ps, ps);
 		String sOut = new String(baos.toByteArray(), StandardCharsets.UTF_8);
-		
+
 		ps.close();
-		
+
 		return sOut;
 	}
-	
+
 	public static int start(String[] args)
 	{
 		return Cli.start(args, System.out, System.err);
@@ -89,7 +91,7 @@ public class Cli {
 		final String PROCESS_SIGNAL = "p";
 
 		final String EKRAN = "e";
-		
+
 		final String TIME = "t";
 		final String INPUT = "i";
 		final String OUTPUT = "o";
@@ -111,7 +113,7 @@ public class Cli {
 
 		//TODO parse this somewhere and use it
 		options.addOption(EKRAN,false, "If this flag occur instead of saving thing to file it will return them");
-		
+
 		Option time = new Option(TIME, "time. zacetni in koncni cas izseka, ki nas zanima. 3 argument if we aproximate "
 				+ "datas without own time with last previous time"
 				+ "-t start end nonEssential. Defaul -t 0 Long.MAX_VALUE true");
@@ -140,10 +142,10 @@ public class Cli {
 				".*1=keeps comments, .*1.=keeps Special, .*1..=keeps meta");
 		options.addOption(dataTypes);
 
-		
-		
-		
-		
+
+
+
+
 		CommandLineParser parser = new DefaultParser();
 
 		CommandLine cmd = null;
@@ -281,17 +283,28 @@ public class Cli {
 
 			if(cmd.hasOption(MEARGE) && inDirectory2!=null && outDir!=null)
 			{
-				file2 = new S2();
-				loadS2 = file2.load(inDirectory2.getParentFile(), inDirectory2.getName());
-				boolean mergeHandles = Boolean.parseBoolean(cmd.getOptionValue(MEARGE));
+				if(false)
+				{
+					file2 = new S2();
+					loadS2 = file2.load(inDirectory2.getParentFile(), inDirectory2.getName());
+					boolean mergeHandles = Boolean.parseBoolean(cmd.getOptionValue(MEARGE));
 
-				SecondReader bob = new SecondReader(file2, outDir, mergeHandles);
-				FirtstReader gre = new FirtstReader(file1, bob);
-				loadS1.addReadLineCallback(gre);
-				loadS2.addReadLineCallback(bob);
+					SecondReader bob = new SecondReader(file2, outDir, mergeHandles);
+					FirtstReader gre = new FirtstReader(file1, bob);
 
-				loadS1.readAndProcessFile();
-				loadS2.readAndProcessFile();
+					loadS1.readLines(gre, false);
+					loadS2.readLines(bob, false);
+				}else
+				{
+					file2 = new S2();
+					loadS2 = file2.load(inDirectory2.getParentFile(), inDirectory2.getName());
+					Pipe pipeP = new Pipe();
+					Pipe pipeS = new Pipe();
+					SmartMerge sm = new SmartMerge(loadS2, pipeS, pipeP, pipeS, inDirectory1, inDirectory2, false, errPS);
+					
+					sm.getPrimaryOutPut().addChild(new SaveS2(outDir, errPS));
+					loadS1.readLines(pipeP, false);
+				}
 
 			}else if (cmd.hasOption(MEARGE))
 			{
@@ -328,9 +341,9 @@ public class Cli {
 
 					//new way
 					FilterTime filterT = new FilterTime(ab[0], ab[1], nonEss);
-					FilterData filterD = new FilterData(dataT);
+					FilterData filterD = new FilterData(dataT,errPS);
 					FilterHandles filterH = new FilterHandles(handles);
-					SaveS2 filterS = new SaveS2(outDir);
+					SaveS2 filterS = new SaveS2(outDir, errPS);
 
 					loadS1.addReadLineCallback(filterT);
 					filterT.addChild(filterD);
@@ -353,13 +366,13 @@ public class Cli {
 				{
 					//new way with filters
 
-					SaveCSV filter = new SaveCSV(outDir, dataMapping);
+					SaveCSV filter = new SaveCSV(outDir, dataMapping, errPS);
 					loadS1.readLines(filter, false);
 
 				}else
 				{
-					errPS.println("Option r-read need option o-out(directory and name of output file). TERMINATE");
-					return badInputArgs;
+					SaveCSV filter = new SaveCSV(outPS, dataMapping, errPS);
+					loadS1.readLines(filter, false);
 				}
 			}
 
@@ -370,11 +383,15 @@ public class Cli {
 				FilterTime filterT = new FilterTime(ab[0], ab[1]);
 				FilterProcessSignal filterP = new FilterProcessSignal();
 				filterT.addChild(filterP);
-				filterP.addChild(new SaveS2(outDir));
+				filterP.addChild(new SaveS2(outDir, errPS));
 
 				loadS1.readLines(filterT, false);
 			}
 
+			if(file1.getNotes().length() > 0)
+			{
+				errPS.print(file1.getNotes());
+			}
 			return good;
 
 		}

@@ -34,6 +34,9 @@ public class GetLines extends Pipe {
 	
 	long lastExplicitTimestamp = 0;
 	
+	
+	//  GETTERS
+	
 	/**
 	 * @return the version
 	 */

@@ -26,6 +26,8 @@ public class GetSuportingLines extends Pipe {
 		specialMeta.add("timezone");
 	}
 	
+	//  OVERRIDES
+	
 	@Override
 	public boolean onVersion(int versionInt, String version) {
 		this.vsersionInt = versionInt;
@@ -60,7 +62,7 @@ public class GetSuportingLines extends Pipe {
 		return super.onDefinition(handle, definition);
 	}
 
-	
+	//GETTERS
 
 	/**
 	 * @return the vsersionInt

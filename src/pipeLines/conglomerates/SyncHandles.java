@@ -37,8 +37,8 @@ public class SyncHandles extends Sync {
 		GetSuportingLines gsl1 = new GetSuportingLines();
 		GetSuportingLines gsl2 = new GetSuportingLines();
 
-		ls1.readLines(gsl1 , false);
-		ls2.readLines(gsl2 , false);
+		ls1.readLines(gsl1 , true);
+		ls2.readLines(gsl2 , true);
 
 		Set<Byte> handles1 = gsl1.getUsedHandles();
 		Set<Byte> handles2 = gsl2.getUsedHandles();
@@ -77,11 +77,15 @@ public class SyncHandles extends Sync {
 				byte t = 0;
 				for(int j=start;j<end;j++)
 				{
-					if(!handles1.contains((byte)j) && !remapForSecondary.containsValue((byte)j));
+					if(!handles1.contains((byte)j) && !remapForSecondary.containsValue((byte)j))
 					{
 						t = (byte) j;
 						break;
 					}
+				}
+				if(t == i)
+				{
+					out.println("Out of new handles. Handle " + i+ " stayed the same eventhoug it shoudnt.");
 				}
 				remapForSecondary.put(i, t);
 				

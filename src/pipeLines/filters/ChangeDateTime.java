@@ -1,5 +1,6 @@
 package pipeLines.filters;
 
+import java.io.PrintStream;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Map;
@@ -29,13 +30,16 @@ public class ChangeDateTime extends Pipe {
 
 
 
-	public ChangeDateTime(long corection)
+	public ChangeDateTime(long corection, PrintStream print)
 	{
+		out = print;
 		this.posibleCorection = corection;
 		preMeta = false;
 	}
 
-	public ChangeDateTime(String date2, String time2, String zone2) {
+	public ChangeDateTime(String date2, String time2, String zone2, PrintStream print) {
+		out = print;
+		
 		dateM2 = date2;
 		timeM2 = time2;
 		zoneM2 = zone2;
@@ -50,33 +54,32 @@ public class ChangeDateTime extends Pipe {
 	 * @param time2 time on which we want to set this S2
 	 * @param zone2 zone on which we want to set this S2
 	 */
-	public ChangeDateTime(String date1, String time1, String zone1, String date2, String time2, String zone2) {
+	public ChangeDateTime(String date1, String time1, String zone1, String date2, String time2, String zone2, PrintStream print) {
+		this(date2,time2,zone2, print);
+		
 		dateM1 = date1;
 		timeM1 = time1;
 		zoneM1 = zone1;
 
-
-		dateM2 = date2;
-		timeM2 = time2;
-		zoneM2 = zone2;
-	
-		parseMeta();
+		try
+		{
+			parseMeta();
+		}
+		catch(Exception e)
+		{
+			out.println(e.getMessage());
+		}
 
 		preMeta = true;
 	}
-	
-	public ChangeDateTime(Map<String,String> meta1, Map<String, String> meta2) {
-		this(meta1.get("date"), meta1.get("time"), meta1.get("timezone"), meta2.get("date"), meta2.get("time"), meta2.get("timezone"));
+
+	public ChangeDateTime(Map<String,String> meta1, Map<String, String> meta2, PrintStream print) {
+		this(meta1.get("date"), meta1.get("time"), meta1.get("timezone"), meta2.get("date"), meta2.get("time"), meta2.get("timezone"), print);
 	}
 
 
 
 
-	/*
-	 * DOES NOT RETURN DESCENDATS RESULTS!
-	 * (non-Javadoc)
-	 * @see filters.Filter#onMetadata(java.lang.String, java.lang.String)
-	 */
 	@Override
 	public boolean onMetadata(String key, String value) {
 		if(!preMeta)
@@ -98,7 +101,15 @@ public class ChangeDateTime extends Pipe {
 
 			if(dateM1 != null && timeM1 == null && zoneM1 !=null)
 			{
-				parseMeta();
+				try
+				{
+					parseMeta();
+				}
+				catch(Exception e)
+				{
+					out.println(e.getMessage());
+					return false;
+				}
 
 				boolean R = true;
 				if(posibleCorection>0)

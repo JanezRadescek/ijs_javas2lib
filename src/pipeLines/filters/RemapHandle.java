@@ -49,12 +49,7 @@ public class RemapHandle extends Pipe {
 		reservedHandles.add(handleNew);
 	}
 	
-	//SETTERS
-	@Deprecated
-	public void setReserved(Set<Byte> rh)
-	{
-		reservedHandles = rh;
-	}
+	
 	
 	//OVERRIDES
 	
@@ -131,7 +126,7 @@ public class RemapHandle extends Pipe {
 				return;
 			}
 		}
-		errors += "We are out of handles. Handle "+handle+" will get default handle 0";
+		out.println("We are out of handles. Handle "+handle+" will get default handle 0");
 		remap.put(handle, (byte) 0);
 		
 	}
@@ -146,7 +141,7 @@ public class RemapHandle extends Pipe {
 				return;
 			}
 		}
-		errors += "We are out of handles. Handle "+handle+" will get default handle 32";
+		out.println("We are out of handles. Handle "+handle+" will get default handle 32");
 		remap.put(handle, (byte) 32);
 
 		

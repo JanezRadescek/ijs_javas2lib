@@ -3,6 +3,11 @@ package pipeLines.filters;
 import pipeLines.Pipe;
 import si.ijs.e6.S2.LoadStatus;
 
+/**
+ * Class used to read secondary file up to last ready time
+ * @author janez
+ *
+ */
 public class Sprevodnik extends Pipe {
 	
 	LoadStatus lsS;
@@ -20,8 +25,21 @@ public class Sprevodnik extends Pipe {
 		
 		secondaryInPut.addChild(ft);
 		secondayOutPut = ft;
-		
-		
+			
+	}
+	
+	@Override
+	public boolean onUnmarkedEndOfFile() {
+		ft.setTimeInterval(0, Long.MAX_VALUE);
+		lsS.readLines(firstPipeS, true);
+		return super.onUnmarkedEndOfFile();
+	}
+	
+	@Override
+	public boolean onEndOfFile() {
+		ft.setTimeInterval(0, Long.MAX_VALUE);
+		lsS.readLines(firstPipeS, true);
+		return super.onEndOfFile();
 	}
 	
 	@Override

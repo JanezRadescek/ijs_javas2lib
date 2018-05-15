@@ -1,6 +1,7 @@
 package pipeLines.filters;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,8 +31,9 @@ public class SaveS2 extends Pipe {
 	/**
 	 * @param directory directory AND name of new S2 file in which we will save
 	 */
-	public SaveS2(String directory)
+	public SaveS2(String directory, PrintStream print)
 	{
+		out = print;
 		s2 = new S2();
 		//TODO zakaj ne moremo S2.store/load dati directoryAndName ??
 		File f = new File(directory);
@@ -48,7 +50,6 @@ public class SaveS2 extends Pipe {
 
 	@Override
 	public boolean onComment(String comment) {
-		//TODO baje obstaja addComment. trenutno maš addTextmessage
 		storeS.addTextMessage(comment);
 		
 		return pushComment(comment);
@@ -72,6 +73,10 @@ public class SaveS2 extends Pipe {
 	public boolean onEndOfFile() {
 		storeS.endFile(true);
 		pushEndofFile();
+		if(storeS.getNotes().length() > 0)
+		{
+			out.println(storeS.getNotes());
+		}
 		return false;
 	}
 
@@ -79,6 +84,10 @@ public class SaveS2 extends Pipe {
 	public boolean onUnmarkedEndOfFile() {
 		storeS.endFile(true);
 		pushUnmarkedEndofFile();
+		if(storeS.getNotes().length() > 0)
+		{
+			out.println(storeS.getNotes());
+		}
 		return false;
 	}
 

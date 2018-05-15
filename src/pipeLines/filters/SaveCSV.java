@@ -19,7 +19,7 @@ import si.ijs.e6.S2.StructDefinition;
  */
 public class SaveCSV extends Pipe{
 
-	PrintStream out;
+	PrintStream outCSV;
 
 
 	String[] CSVline;
@@ -29,7 +29,7 @@ public class SaveCSV extends Pipe{
 
 	private Map<Byte,SensorDefinition> sensorDefinitions = new HashMap<Byte,SensorDefinition>();
 	private Map<Byte,StructDefinition> structDefinitions = new HashMap<Byte,StructDefinition>();
-	
+
 
 	private boolean dataMapping;
 
@@ -38,26 +38,43 @@ public class SaveCSV extends Pipe{
 	 * Filter which saves as CSV. Since CSV is very restrictive only timestamps, handles and actual datas will be saved.
 	 * @param directory string representing file directory AND name
 	 * @param dataMapping boolean value. if true packets will be translated acording to sensor definitions.
+	 * @param print PrintStream on which we write any errors or something like that.
 	 */
-	public SaveCSV(String directory, boolean dataMapping)
+	public SaveCSV(String directory, boolean dataMapping, PrintStream print)
 	{
+		out = print;
 		this.dataMapping = dataMapping;
 		try {
-			this.out = new PrintStream(new FileOutputStream(directory));
-			System.out.println("writing data into file " + directory);
+			this.outCSV = new PrintStream(new FileOutputStream(directory));
+			out.println("writing data into file " + directory);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
+	/**
+	 * Filter which saves as CSV. Since CSV is very restrictive only timestamps, handles and actual datas will be saved.
+	 * @param csv PrintStream on which we write CSV
+	 * @param dataMapping boolean value. if true packets will be translated acording to sensor definitions.
+	 * @param print PrintStream on which we write any errors or something like that.
+	 */
+	public SaveCSV(PrintStream csv, boolean dataMapping, PrintStream print)
+	{
+		out = print;
+		this.dataMapping = dataMapping;
+		this.outCSV = csv;
+		out.println("writing data on Console");
+
+	}
+
 
 	private void printLine() {
 		for(int i=0;i<2+maxColumns-1;i++)
 		{
-			out.print(CSVline[i] + ",");
+			outCSV.print(CSVline[i] + ",");
 		}
-		out.println(CSVline[maxColumns+2-1]);
+		outCSV.println(CSVline[maxColumns+2-1]);
 
 	}
 
@@ -77,7 +94,6 @@ public class SaveCSV extends Pipe{
 			printLine();
 		}
 
-		out.close();
 		pushEndofFile();
 		return false;
 	}
@@ -96,8 +112,6 @@ public class SaveCSV extends Pipe{
 			}
 			printLine();
 		}
-
-		out.close();
 		pushUnmarkedEndofFile();
 		return false;
 	}
@@ -106,7 +120,7 @@ public class SaveCSV extends Pipe{
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
 		sensorDefinitions.put(handle, definition);
-		
+
 		return pushDefinition(handle, definition);
 	}
 
@@ -121,7 +135,7 @@ public class SaveCSV extends Pipe{
 			maxColumns = temp;
 		}
 
-		
+
 		return pushDefinition(handle, definition);
 	}
 
@@ -165,7 +179,7 @@ public class SaveCSV extends Pipe{
 				}
 
 			}else{
-				System.out.println("Measurement data encountered invalid sensor: " + (int) (cb));
+				out.println("Measurement data encountered invalid sensor: " + (int) (cb));
 			}
 		}
 		//writing
@@ -182,7 +196,7 @@ public class SaveCSV extends Pipe{
 		printLine();
 
 		//push
-		
+
 		return pushStremPacket(handle, timestamp, len, data);
 	}
 
@@ -197,7 +211,7 @@ public class SaveCSV extends Pipe{
 	private float calculateANDround(int temp, float k, float n) {
 		if(k == 0)
 		{
-			System.err.println("There is k = 0 in file");
+			out.println("There is k = 0 in file");
 			return 0;
 		}
 		float r = k*temp + n;

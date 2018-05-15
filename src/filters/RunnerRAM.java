@@ -32,7 +32,7 @@ public class RunnerRAM {
 
 		FilterTime f0 = new FilterTime(startTime,endTime);
 		FilterProcessSignal f1 = new FilterProcessSignal();
-		SaveS2 f2 = new SaveS2(dir.getAbsolutePath() + File.separator+"kopija"+ime);
+		SaveS2 f2 = new SaveS2(dir.getAbsolutePath() + File.separator+"kopija"+ime, System.out);
 		//FilterSaveCSV f2 = new FilterSaveCSV("C:\\Users\\janez\\workspace\\S2_rw\\UnitTests\\andrej11.csv", true);
 		ls.addReadLineCallback(f0);
 		f0.addChild(f1);

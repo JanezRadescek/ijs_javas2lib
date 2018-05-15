@@ -1,5 +1,7 @@
 package pipeLines.filters;
 
+import java.io.PrintStream;
+
 import pipeLines.Pipe;
 
 public class FilterData extends Pipe 
@@ -13,13 +15,14 @@ public class FilterData extends Pipe
 	
 	private int data;
 
-	public FilterData(int data)
+	public FilterData(int data, PrintStream print)
 	{
+		out = print;
 		this.data = data;
 		if((data & MD) == 0)
 		{
 			data |=MD;
-			System.err.println("Filtering Data. This version of S2 needs meta data. Parameter data set to " + data);
+			out.println("Filtering Data. This version of S2 needs meta data. Parameter data set to " + data);
 		}
 	}
 	

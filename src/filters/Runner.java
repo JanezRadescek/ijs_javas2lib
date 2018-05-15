@@ -92,11 +92,11 @@ public class Runner {
 		FilterTime f0 = new FilterTime(startTime,endTime);
 		FilterProcessSignal f1 = new FilterProcessSignal();
 		//FilterSaveS2 f2 = new FilterSaveS2(out);
-		SaveCSV f2 = new SaveCSV("C:\\Users\\janez\\workspace\\S2_rw\\UnitTests\\andrej11.csv", true);
+		SaveCSV f2 = new SaveCSV("C:\\Users\\janez\\workspace\\S2_rw\\UnitTests\\andrej11.csv", true, System.out);
 		f0.addChild(f1);
 		f1.addChild(f2);
 
-		System.out.println("save zgleda vredu : " + ls.readLines(f0, false));
+		System.out.println("save zgleda vredu : " + ls.readLines(f0, true));
 		System.out.println(s2.getNotes());
 
 	}
@@ -118,7 +118,7 @@ public class Runner {
 		f0.addChild(f2);
 		//f1.addChild(f2);
 
-		ls.readLines(f0, false);
+		ls.readLines(f0, true);
 		System.out.println("Notes : " + s2.getNotes());
 
 		tpackets = f2.getPacketQ();
@@ -143,7 +143,7 @@ public class Runner {
 		f0.addChild(f1);
 		f1.addChild(f2);
 
-		ls.readLines(f0, false);
+		ls.readLines(f0, true);
 		System.out.println("Notes : " + s2.getNotes());
 
 		tpackets = f2.getPacketQ();

@@ -27,18 +27,27 @@ public class CliTest {
 	// static variables so that they can be initialized in BeforeClass - before tests are executed
 	//static String inFile = "generated.s2";
 	//static String inDir  = "." + File.separator + "Generated";
+
+	/*
 	static String inDir  = "." + File.separator + "Original";
 	static String inFile = "test2.s2";
 	static String inCSV = "izpis2.csv";
 	static String inTXT = "info2.txt";
 	static String inDirName = inDir +File.separator+ inFile;
+	 */
+
+	static String inDir  = "." + File.separator + "Generated";
+	static String inFile = "generated.s2";
+	static String inCSV = "generated.csv";
+	static String inTXT = "generated.txt";
+	static String inDirName = inDir +File.separator+ inFile;
 
 	static String inDirNameSignal1 = "." + File.separator + "S2files" + File.separator+ "andrej1.s2";
 	static String inDirNameSignal2 = "." + File.separator + "S2files" + File.separator+ "andrej2.s2";
-	
+
 	static String outDir = "." + File.separator + "UnitTests";
-	
-	
+
+
 
 	//static String inDirNameO = "."+File.separator+"Original"+File.separator+"test2.s2";
 
@@ -131,15 +140,17 @@ public class CliTest {
 		//first 3 lines are struct definitions
 
 		//samo za generated
-		/*
-		assertEquals("Testing singletons time 17",1+1, checkSingleton(17L));
-		assertEquals("Testing singletons time 16",1+3, checkSingleton(16L));
-		assertEquals("Testing singletons time 15",1+0, checkSingleton(15L));
-		 */
-
-		//samo za test2.s2
-		long time = 8855834815L;
-		assertEquals("Testing singletons time "+time,1+1, checkSingleton(time));
+		if(inFile.equals("generated.s2"))
+		{
+			assertEquals("Testing singletons time 17",1+1, checkSingleton(17L));
+			assertEquals("Testing singletons time 16",1+3, checkSingleton(16L));
+			assertEquals("Testing singletons time 15",1+0, checkSingleton(15L));
+		}
+		else
+		{
+			long time = 8855834815L;
+			assertEquals("Testing singletons time "+time,1+1, checkSingleton(time));
+		}
 
 		deleteUnimportant(false,"111");
 		//deleteUnimportant(true,"100");
@@ -234,8 +245,8 @@ public class CliTest {
 		divideAndConquer(17L);//on data
 		divideAndConquer(19L);//on last data
 		divideAndConquer(20L);//after data
-		
-		divideAndConquer(200000000000L);
+
+		divideAndConquer(200000000000L); // 200-ta sekunda
 
 		//nesmiselno za pravo datoteko(ne da se mi rezat prave datoteke :D)
 		//cutMiddle(6L,17L);
@@ -272,7 +283,7 @@ public class CliTest {
 	/** Cut original file at cutTime and reconstruct it again
 	 * @param cutTime
 	 */
-	private void divideAndConquer(Long cutTime)
+	private void divideAndConquer(long cutTime)
 	{
 		//cut S2 at 
 		Cli.start(new String[]{"-c", "-i", inDirName, "-t", "0", Double.toString(cutTime*1E-9), "true",
@@ -303,7 +314,7 @@ public class CliTest {
 
 
 
-
+	/*
 	@Test
 	public void SignalTest2()
 	{
@@ -317,12 +328,12 @@ public class CliTest {
 
 		Runner r = new Runner();
 		double R = r.unitRun(outDir,ime1, ime2);
-		
-		
+
+
 		//assertTrue("je blizu ? : ",R <=1.5*metrikaR);
 		//assertTrue("je boljše ? : ",R <=metrikaR);
 	}
-
+	 */
 
 	@AfterClass
 	public static void clean()

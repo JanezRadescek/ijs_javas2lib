@@ -1,5 +1,6 @@
 package pipeLines.conglomerates;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 import pipeLines.Pipe;
@@ -13,25 +14,28 @@ import si.ijs.e6.S2.TimestampDefinition;
  *
  */
 public class Merge extends Pipe{
-	
+
 	int versionInt = -1;
 	String version = "";
-	
+
 	ArrayList<String> writtenMeta = new ArrayList<String>();
 	ArrayList<Byte> writtenSensor = new ArrayList<Byte>();
 	ArrayList<Byte> writtenStruct = new ArrayList<Byte>();
 	ArrayList<Byte> writtenTime = new ArrayList<Byte>();
-	
-	//TODO little smarter filter
-	public Merge(Pipe primaryInput, Pipe secondaryInput)
+	boolean FirstEnd = true;
+
+
+	public Merge(Pipe primaryInput, Pipe secondaryInput, PrintStream print)
 	{
+		out = print;
+
 		primaryInput.addChild(this);
 		secondaryInput.addChild(this);
 	}
-	
+
 	@Override
 	public boolean onVersion(int versionInt, String version) {
-		if(versionInt == -1)
+		if(this.versionInt == -1)
 		{
 			this.versionInt = versionInt;
 			this.version = version;
@@ -44,13 +48,13 @@ public class Merge extends Pipe{
 			}
 			else
 			{
-				errors += "Merging files do not have same versions. Version 1 = "+this.version+" Version 2 = "+version;
+				out.println("Merging files do not have same versions. Primary version is : "+this.version+" Secondary version is : "+version);
 				return false;
 			}
 		}
 	}
-	
-	
+
+
 	@Override
 	public boolean onMetadata(String key, String value) {
 		if(writtenMeta.contains(key))
@@ -61,10 +65,36 @@ public class Merge extends Pipe{
 			writtenMeta.add(key);
 			return super.onMetadata(key, value);
 		}
-		
+
 	}
-	
-	
+
+	@Override
+	public boolean onEndOfFile() {
+		if(FirstEnd)
+		{
+			FirstEnd = false;
+			return true;
+		}
+		else
+		{
+			return super.onEndOfFile();
+		}
+	}
+
+	@Override
+	public boolean onUnmarkedEndOfFile() {
+		if(FirstEnd)
+		{
+			FirstEnd = false;
+			return true;
+		}
+		else
+		{
+			return super.onUnmarkedEndOfFile();
+		}
+	}
+
+
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
 		if(writtenSensor.contains(handle))
@@ -76,7 +106,7 @@ public class Merge extends Pipe{
 			return super.onDefinition(handle, definition);
 		}
 	}
-	
+
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
 		if(writtenStruct.contains(handle))
@@ -88,7 +118,7 @@ public class Merge extends Pipe{
 			return super.onDefinition(handle, definition);
 		}
 	}
-	
+
 	@Override
 	public boolean onDefinition(byte handle, TimestampDefinition definition) {
 		if(writtenTime.contains(handle))

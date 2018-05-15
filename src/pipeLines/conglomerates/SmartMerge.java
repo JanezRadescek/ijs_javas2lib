@@ -1,6 +1,7 @@
 package pipeLines.conglomerates;
 
 import java.io.File;
+import java.io.PrintStream;
 
 import pipeLines.Pipe;
 import pipeLines.filters.GetSuportingLines;
@@ -18,11 +19,14 @@ public class SmartMerge extends Sync{
 	 * @param primaryS2 File of primary S2
 	 * @param secondaryS2 File of secondary S2
 	 * @param makeNewHandles If true it will create new handles for secondary file where would otherwise overlap.
+	 * @param print Prinstream on which errors etc will be written
 	 */
-	public SmartMerge(LoadStatus lsS, Pipe firstPipeS, Pipe primaryInPut, Pipe secondaryInPut, File primaryS2, File secondaryS2, boolean makeNewHandles)
+	public SmartMerge(LoadStatus lsS, Pipe firstPipeS, Pipe primaryInPut, Pipe secondaryInPut, File primaryS2, File secondaryS2, boolean makeNewHandles, PrintStream print)
 	{
 		super(primaryInPut, secondaryInPut);
 
+		out = print;
+		
 		//get data needed to merge
 		S2 temS21 = new S2();
 		S2 temS22 = new S2();
@@ -32,8 +36,8 @@ public class SmartMerge extends Sync{
 		GetSuportingLines gsl1 = new GetSuportingLines();
 		GetSuportingLines gsl2 = new GetSuportingLines();
 
-		ls1.readLines(gsl1 , false);
-		ls2.readLines(gsl2 , false);
+		ls1.readLines(gsl1 , true);
+		ls2.readLines(gsl2 , true);
 		
 		temS21 = null;
 		temS22 = null;
@@ -42,10 +46,10 @@ public class SmartMerge extends Sync{
 		
 		if(!gsl1.getVersion().equals(gsl2.getVersion()))
 		{
-			error +=  "Versions are not the same. Primary file has version " + gsl1.getVersion() + ". Seconary file has version " +gsl2.getVersion();
+			out.println("Versions are not the same. Primary file has version " + gsl1.getVersion() + ". Seconary file has version " +gsl2.getVersion());
 		}
 
-		SyncTime syncT = new SyncTime(primaryInPut, secondaryInPut, gsl1.getMeta(), gsl2.getMeta());
+		SyncTime syncT = new SyncTime(primaryInPut, secondaryInPut, gsl1.getMeta(), gsl2.getMeta(), print);
 		Sprevodnik sp;
 		
 		if(makeNewHandles)
@@ -60,22 +64,10 @@ public class SmartMerge extends Sync{
 			primaryInPut.addChild(sp);
 		}
 		
-		Merge m = new Merge(sp, sp.getSecondaryOutPut());
+		Merge m = new Merge(sp, sp.getSecondaryOutPut(), this.out);
 		
 		primaryOutPut = m;
-
-		//TODO to nekam vstavi
-		/*
-		  if(versionInt == fvS.versionInt && version.equals(fvS.version))
-		{
-			return pushVersion(versionInt, version);
-		}
-		else
-		{
-			errors += "Versions of S2 files arent equal.\n";
-			return false;
-		}
-		 */
+		secondaryOutPut = m;
 	}
 
 }

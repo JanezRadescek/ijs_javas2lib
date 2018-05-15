@@ -1,5 +1,7 @@
 package pipeLines.conglomerates;
 
+import java.io.PrintStream;
+
 import pipeLines.Pipe;
 import si.ijs.e6.S2.LoadStatus;
 
@@ -16,7 +18,12 @@ public abstract class Sync{
 	Pipe primaryOutPut;
 	Pipe secondaryOutPut;
 
-	String error = "";
+	protected PrintStream out;
+	
+	public void setPrintStream(PrintStream print)
+	{
+		out = print;
+	}
 	
 	public Sync(Pipe primaryInput, Pipe secondaryInput)
 	{

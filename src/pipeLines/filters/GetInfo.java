@@ -20,7 +20,6 @@ public class GetInfo extends Pipe {
 	boolean start = false;
 	boolean end = false;
 	boolean printAfter = false;
-	PrintStream out;
 
 	private Map<String, Integer> generalCounter = new HashMap<String, Integer>();
 	private Map<Byte, Integer> stremCounter = new HashMap<Byte, Integer>();
@@ -39,25 +38,25 @@ public class GetInfo extends Pipe {
 	int versionInt;
 	String version;
 
-	public GetInfo(PrintStream out)
+	public GetInfo(PrintStream print)
 	{
-		this(out, true);
+		this(print, true);
 	}
 
-	public GetInfo(PrintStream out, boolean printAfter)
+	public GetInfo(PrintStream print, boolean printAfter)
 	{
-		this.out = out;
+		this.out = print;
 		this.printAfter = printAfter;
 	}
 
 
 	/**
 	 * writes info
-	 * @param out PrintStrem on which all info will be written
+	 * @param print PrintStrem on which all info will be written
 	 */
-	public void izpisi(PrintStream out)
+	public void izpisi(PrintStream print)
 	{
-		this.out = out;
+		this.out = print;
 		izpisi();
 	}
 
@@ -171,8 +170,9 @@ public class GetInfo extends Pipe {
 	public boolean onEndOfFile() {
 		this.end = true;
 		if(printAfter)
+		{
 			izpisi();
-
+		}
 		pushEndofFile();
 		return false;
 	}
@@ -181,8 +181,9 @@ public class GetInfo extends Pipe {
 	public boolean onUnmarkedEndOfFile() {
 		this.end = true;
 		if(printAfter)
+		{
 			izpisi();
-
+		}
 		pushUnmarkedEndofFile();
 		return false;
 	}
