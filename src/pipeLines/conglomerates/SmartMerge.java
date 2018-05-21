@@ -60,8 +60,8 @@ public class SmartMerge extends Sync{
 		}
 		else
 		{
-			sp = new Sprevodnik(lsS, firstPipeS, secondaryInPut);
-			primaryInPut.addChild(sp);
+			sp = new Sprevodnik(lsS, firstPipeS, syncT.secondaryOutPut);
+			syncT.primaryInPut.addChild(sp);
 		}
 		
 		Merge m = new Merge(sp, sp.getSecondaryOutPut(), this.out);
