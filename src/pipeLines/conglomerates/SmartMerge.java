@@ -18,10 +18,11 @@ public class SmartMerge extends Sync{
 	 * @param secondaryInPut
 	 * @param primaryS2 File of primary S2
 	 * @param secondaryS2 File of secondary S2
+	 * @param syncMetaTime if true it will change date/time in meta (and consequently change timestamps so absolute times doesnt change) so both files have same date/time
 	 * @param makeNewHandles If true it will create new handles for secondary file where would otherwise overlap.
 	 * @param print Prinstream on which errors etc will be written
 	 */
-	public SmartMerge(LoadStatus lsS, Pipe firstPipeS, Pipe primaryInPut, Pipe secondaryInPut, File primaryS2, File secondaryS2, boolean makeNewHandles, PrintStream print)
+	public SmartMerge(LoadStatus lsS, Pipe firstPipeS, Pipe primaryInPut, Pipe secondaryInPut, File primaryS2, File secondaryS2, boolean syncMetaTime, boolean makeNewHandles, PrintStream print)
 	{
 		super(primaryInPut, secondaryInPut);
 
@@ -48,21 +49,33 @@ public class SmartMerge extends Sync{
 		{
 			out.println("Versions are not the same. Primary file has version " + gsl1.getVersion() + ". Seconary file has version " +gsl2.getVersion());
 		}
-
-		SyncTime syncT = new SyncTime(primaryInPut, secondaryInPut, gsl1.getMeta(), gsl2.getMeta(), print);
-		Sprevodnik sp;
 		
+		Sync syncT;
+		if(syncMetaTime)
+		{
+			syncT = new SyncTime(primaryInPut, secondaryInPut, gsl1.getMeta(), gsl2.getMeta(), print);
+		}else
+		{
+			//2 pipes basicly
+			syncT = new Sync(primaryInPut, secondaryInPut);
+		}
+
+
+		
+		Sync syncH;
 		if(makeNewHandles)
 		{
-			SyncHandles syncH = new SyncHandles(syncT.primaryOutPut, syncT.secondaryOutPut, gsl1.getUsedHandles(), gsl2.getUsedHandles());
-			sp = new Sprevodnik(lsS, firstPipeS, syncH.secondaryOutPut);
-			syncH.primaryOutPut.addChild(sp);
+			syncH = new SyncHandles(syncT.primaryOutPut, syncT.secondaryOutPut, gsl1.getUsedHandles(), gsl2.getUsedHandles());
+			
 		}
 		else
 		{
-			sp = new Sprevodnik(lsS, firstPipeS, syncT.secondaryOutPut);
-			syncT.primaryInPut.addChild(sp);
+			//2 pipes basicly
+			syncH = new Sync(syncT.primaryOutPut, syncT.secondaryOutPut);
 		}
+		
+		Sprevodnik sp = new Sprevodnik(lsS, firstPipeS, syncH.secondaryOutPut);
+		syncH.primaryOutPut.addChild(sp);
 		
 		Merge m = new Merge(sp, sp.getSecondaryOutPut(), this.out);
 		

@@ -16,6 +16,11 @@ public class Sprevodnik extends Pipe {
 	private FilterTime ft;
 	
 	
+	/**
+	 * @param lsS load status of secondary file
+	 * @param firstPipeS first callback of first file
+	 * @param secondaryInPut direct ancestor of second file
+	 */
 	public Sprevodnik(LoadStatus lsS, Pipe firstPipeS, Pipe secondaryInPut)
 	{
 		this.lsS = lsS;

@@ -15,7 +15,7 @@ import org.apache.commons.cli.*;
 
 import callBacks.FirtstReader;
 import callBacks.SecondReader;
-import filters.FilterProcessSignal;
+import filtersOld.FilterProcessSignal;
 import pipeLines.Pipe;
 import pipeLines.conglomerates.SmartMerge;
 import pipeLines.filters.FilterData;
@@ -300,7 +300,7 @@ public class Cli {
 					loadS2 = file2.load(inDirectory2.getParentFile(), inDirectory2.getName());
 					Pipe pipeP = new Pipe();
 					Pipe pipeS = new Pipe();
-					SmartMerge sm = new SmartMerge(loadS2, pipeS, pipeP, pipeS, inDirectory1, inDirectory2, false, errPS);
+					SmartMerge sm = new SmartMerge(loadS2, pipeS, pipeP, pipeS, inDirectory1, inDirectory2, false, false, errPS);
 					
 					sm.getPrimaryOutPut().addChild(new SaveS2(outDir, errPS));
 					loadS1.readLines(pipeP, false);

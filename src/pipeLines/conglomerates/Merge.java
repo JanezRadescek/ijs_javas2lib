@@ -130,4 +130,19 @@ public class Merge extends Pipe{
 			return super.onDefinition(handle, definition);
 		}
 	}
+	
+	
+	//FOR debuging purposes only
+	@Override
+	public boolean onTimestamp(long nanoSecondTimestamp) {
+		
+		return super.onTimestamp(nanoSecondTimestamp);
+	}
+	
+	@Override
+	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
+		
+		return super.onStreamPacket(handle, timestamp, len, data);
+	}
+	
 }

@@ -7,7 +7,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import filters.Runner;
+import filtersOld.Runner;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -242,7 +242,10 @@ public class CliTest {
 		divideAndConquer(2L); //before first data
 		divideAndConquer(5L); //on first data
 		divideAndConquer(10L);//betwen data
-		divideAndConquer(17L);//on data
+		divideAndConquer(14L);//just before timestamp
+		divideAndConquer(15L);//on timestamp
+		divideAndConquer(16L);//just after timestamp
+		divideAndConquer(17L);//on middle data
 		divideAndConquer(19L);//on last data
 		divideAndConquer(20L);//after data
 
