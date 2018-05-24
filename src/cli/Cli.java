@@ -70,7 +70,8 @@ public class Cli {
 		}
 		start(args, ps, ps);
 		String sOut = new String(baos.toByteArray(), StandardCharsets.UTF_8);
-
+		
+		
 		ps.close();
 
 		return sOut;
@@ -80,6 +81,13 @@ public class Cli {
 	{
 		return Cli.start(args, System.out, System.err);
 	}
+	
+	public static int start(String[] args, PrintStream outPS)
+	{
+		return Cli.start(args, outPS, outPS);
+	}
+	
+	
 
 	public static int start(String[] args, PrintStream outPS, PrintStream errPS)
 	{
@@ -197,7 +205,7 @@ public class Cli {
 				//inFname1 = cmd.getOptionValues("i")[1];
 			}catch(Exception e)
 			{
-				outPS.println("Option i need directory and name of input S2 file. TERMINATE");
+				errPS.println("Option i need directory and name of input S2 file. TERMINATE");
 				return badInputArgs;
 			}
 			file1 = new S2();
@@ -221,7 +229,7 @@ public class Cli {
 				}
 				catch(Exception r)
 				{
-					outPS.println("Option i needs directory and name of second input file. TERMINATE");
+					errPS.println("Option i needs directory and name of second input file. TERMINATE");
 					return badInputArgs;
 				}
 			}
@@ -236,12 +244,12 @@ public class Cli {
 					ab[0] = (long)aa;
 					ab[1] = (long)bb;
 				}catch(NumberFormatException e){
-					outPS.println("Arguments at" +TIME+ "must be float float boolean");
+					errPS.println("Arguments at" +TIME+ "must be float float boolean");
 					return badInputArgs;
 				}
 				if (ab[0]>ab[1])
 				{
-					outPS.println("Starting time must be lower than ending. TERMINATE");
+					errPS.println("Starting time must be lower than ending. TERMINATE");
 					return badInputArgs;
 				}
 			}
@@ -253,7 +261,7 @@ public class Cli {
 					//izhodName = cmd.getOptionValues("o")[1];
 				} catch(Exception e)
 				{
-					outPS.println("Option "+OUTPUT+" needs file directory and name. TERMINATE");
+					errPS.println("Option "+OUTPUT+" needs file directory and name. TERMINATE");
 					return badInputArgs;
 				}
 			}
@@ -263,7 +271,7 @@ public class Cli {
 				try{
 					handles = Long.parseLong(cmd.getOptionValue(HANDLES),2);
 				}catch(NumberFormatException e){
-					outPS.println("argument of "+HANDLES+" must be a number in binary format. TERMINATE");
+					errPS.println("argument of "+HANDLES+" must be a number in binary format. TERMINATE");
 					return badInputArgs;
 				}
 			}
@@ -273,7 +281,7 @@ public class Cli {
 				try{
 					dataT = Byte.parseByte(cmd.getOptionValue(DATA),2);
 				}catch(NumberFormatException e){
-					outPS.println("argument of "+DATA+" must be a number in binary format. TERMINATE");
+					errPS.println("argument of "+DATA+" must be a number in binary format. TERMINATE");
 					return badInputArgs;
 				}
 			}

@@ -24,8 +24,8 @@ public class GetInfo extends Pipe {
 	private Map<String, Integer> generalCounter = new HashMap<String, Integer>();
 	private Map<Byte, Integer> stremCounter = new HashMap<Byte, Integer>();
 	private Map<Character, Integer> sensorCounter = new HashMap<Character, Integer>();
-	long startTime;
-	long endTime;
+	long startTime = 0;
+	long endTime = 0;
 
 	//save meta for later output
 	Map<String,String> metaData = new HashMap<String, String>();
@@ -38,6 +38,10 @@ public class GetInfo extends Pipe {
 	int versionInt;
 	String version;
 
+	/**
+	 * @param print PrintStream on which we will write data
+	 * 
+	 */
 	public GetInfo(PrintStream print)
 	{
 		this(print, true);
@@ -45,7 +49,8 @@ public class GetInfo extends Pipe {
 
 	public GetInfo(PrintStream print, boolean printAfter)
 	{
-		this.out = print;
+		//  WE USE ERRps BECAUSE WE NEVER PRINT ERRORS IN THIS CLASS. IT WOULD BE MORE CORRECT TO MAKE SOME OTHERPRINTSTREAM BUT HEY :)
+		this.errPS = print;
 		this.printAfter = printAfter;
 	}
 
@@ -56,7 +61,7 @@ public class GetInfo extends Pipe {
 	 */
 	public void izpisi(PrintStream print)
 	{
-		this.out = print;
+		this.errPS = print;
 		izpisi();
 	}
 
@@ -69,67 +74,68 @@ public class GetInfo extends Pipe {
 	 */
 	public void izpisi()
 	{
-		if(out == null)
+		if(errPS == null)
 		{
-			out = System.out;
+			errPS = System.out;
 		}
 		if(!end)
 		{
 			return;
 		}
-		out.println(versionInt + " " + version);
+		errPS.println(versionInt + " " + version);
 		float trajanje = ((float)((endTime - startTime) / 1000000))/1000;
 		float st = ((float)(startTime/1000000))/1000;
 		float et = ((float)(endTime/1000000))/1000;
-		out.println("Start Time at : " + st + "s");
-		out.println("End time at : " + et + "s");
-		out.println("Total time : " + trajanje + "s");
+		errPS.println("Start Time at : " + st + "s");
+		errPS.println("End time at : " + et + "s");
+		errPS.println("Total time : " + trajanje + "s");
 		//metadata
-		out.println("metaData : ");
+		errPS.println("metaData : ");
+		//TODO print all meta not just this one
 		String[] potrebni = {"time", "date", "timezone"};
 		for(String key:potrebni)
 		{
-			out.println("	" + key + " : " + metaData.get(key));
+			errPS.println("	" + key + " : " + metaData.get(key));
 		}
 
-		out.println("Special messeges : ");
+		errPS.println("Special messeges : ");
 		for(char key:special.keySet())
 		{
-			out.println("	" +  key + " : " + special.get(key));
+			errPS.println("	" +  key + " : " + special.get(key));
 		}
 
 		for(String key:generalCounter.keySet())
 		{
-			out.println(key +" : "+ generalCounter.get(key));
+			errPS.println(key +" : "+ generalCounter.get(key));
 		}
 
 
-		out.println("Number of streams : " + stremCounter.size());
+		errPS.println("Number of streams : " + stremCounter.size());
 
 		//stream represantation
-		out.println("Stream represantation: ");
+		errPS.println("Stream represantation: ");
 		for(byte key:structDefinitions.keySet())
 		{
-			out.println("	stream " + key +" : " + structDefinitions.get(key));
+			errPS.println("	stream " + key +" : " + structDefinitions.get(key));
 		}
 
 		//packets
-		out.println("Packets per stream: ");
+		errPS.println("Packets per stream: ");
 		for(byte key:stremCounter.keySet())
 		{
-			out.println("	stream " + key + " : " + stremCounter.get(key));
+			errPS.println("	stream " + key + " : " + stremCounter.get(key));
 		}
 		//samples
-		out.println("Data per sensor type: ");
+		errPS.println("Data per sensor type: ");
 		for(char key:sensorCounter.keySet())
 		{
-			out.println("	sensor " + (char)key + " : " + sensorCounter.get(key));
+			errPS.println("	sensor " + (char)key + " : " + sensorCounter.get(key));
 		}
 
 		if(generalCounter.containsKey("Unknown Lines"))
-			out.println("Unknown Lines : "  + generalCounter.get("Unknown Lines"));
+			errPS.println("Unknown Lines : "  + generalCounter.get("Unknown Lines"));
 		if(generalCounter.containsKey("Errors"))
-			out.println("Errors : "  + generalCounter.get("Errors"));
+			errPS.println("Errors : "  + generalCounter.get("Errors"));
 
 	}
 

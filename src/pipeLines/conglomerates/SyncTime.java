@@ -32,10 +32,10 @@ public class SyncTime extends Sync {
 	 * @param primaraS2 File of primary S2 file
 	 * @param secondaryS2 File of secondary S2 file
 	 */
-	public SyncTime(Pipe primaryInput, Pipe secondaryInput,  File primaryS2, File secondaryS2, PrintStream print) 
+	public SyncTime(Pipe primaryInput, Pipe secondaryInput,  File primaryS2, File secondaryS2, PrintStream errPS) 
 	{
 		super(primaryInput, secondaryInput);
-		out = print;
+		this.errPS = errPS;
 		
 		S2 temS21 = new S2();
 		S2 temS22 = new S2();
@@ -62,22 +62,22 @@ public class SyncTime extends Sync {
 	 * @param meta1 metadata from primary S2 file
 	 * @param meta2 metadata from secondary S2 file
 	 */
-	public SyncTime(Pipe primaryInput, Pipe secondaryInput,  Map<String, String> meta1, Map<String, String> meta2, PrintStream print) 
+	public SyncTime(Pipe primaryInput, Pipe secondaryInput,  Map<String, String> meta1, Map<String, String> meta2, PrintStream errPS) 
 	{
 		super(primaryInput, secondaryInput);
-		out = print;
+		this.errPS = errPS;
 		buildSyncTime(meta1, meta2);
 	}
 
 	private void buildSyncTime(Map<String, String> meta1, Map<String, String> meta2)
 	{
 		//PRIMARY PIPES 
-		cdtP = new ChangeDateTime(meta1, meta2, this.out);
+		cdtP = new ChangeDateTime(meta1, meta2, this.errPS);
 		primaryInPut.addChild(cdtP);
 		primaryOutPut = cdtP;
 
 		//SECONDARY PIPES
-		cdtS = new ChangeDateTime2(meta2, meta1, this.out);
+		cdtS = new ChangeDateTime2(meta2, meta1, this.errPS);
 		secondaryInPut.addChild(cdtS);
 		secondaryOutPut = cdtS;
 	}

@@ -33,7 +33,7 @@ public class SaveS2 extends Pipe {
 	 */
 	public SaveS2(String directory, PrintStream print)
 	{
-		out = print;
+		errPS = print;
 		s2 = new S2();
 		//TODO zakaj ne moremo S2.store/load dati directoryAndName ??
 		File f = new File(directory);
@@ -75,7 +75,7 @@ public class SaveS2 extends Pipe {
 		pushEndofFile();
 		if(storeS.getNotes().length() > 0)
 		{
-			out.println(storeS.getNotes());
+			errPS.println(storeS.getNotes());
 		}
 		return false;
 	}
@@ -86,7 +86,7 @@ public class SaveS2 extends Pipe {
 		pushUnmarkedEndofFile();
 		if(storeS.getNotes().length() > 0)
 		{
-			out.println(storeS.getNotes());
+			errPS.println(storeS.getNotes());
 		}
 		return false;
 	}

@@ -38,15 +38,15 @@ public class SaveCSV extends Pipe{
 	 * Filter which saves as CSV. Since CSV is very restrictive only timestamps, handles and actual datas will be saved.
 	 * @param directory string representing file directory AND name
 	 * @param dataMapping boolean value. if true packets will be translated acording to sensor definitions.
-	 * @param print PrintStream on which we write any errors or something like that.
+	 * @param errPS PrintStream on which we write any errors or something like that.
 	 */
-	public SaveCSV(String directory, boolean dataMapping, PrintStream print)
+	public SaveCSV(String directory, boolean dataMapping, PrintStream errPS)
 	{
-		out = print;
+		this.errPS = errPS;
 		this.dataMapping = dataMapping;
 		try {
 			this.outCSV = new PrintStream(new FileOutputStream(directory));
-			out.println("writing data into file " + directory);
+			errPS.println("writing data into file " + directory);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -59,12 +59,12 @@ public class SaveCSV extends Pipe{
 	 * @param dataMapping boolean value. if true packets will be translated acording to sensor definitions.
 	 * @param print PrintStream on which we write any errors or something like that.
 	 */
-	public SaveCSV(PrintStream csv, boolean dataMapping, PrintStream print)
+	public SaveCSV(PrintStream csv, boolean dataMapping, PrintStream errPS)
 	{
-		out = print;
+		this.errPS = errPS;
 		this.dataMapping = dataMapping;
 		this.outCSV = csv;
-		out.println("writing data on Console");
+		errPS.println("writing data on Console");
 
 	}
 
@@ -179,7 +179,7 @@ public class SaveCSV extends Pipe{
 				}
 
 			}else{
-				out.println("Measurement data encountered invalid sensor: " + (int) (cb));
+				errPS.println("Measurement data encountered invalid sensor: " + (int) (cb));
 			}
 		}
 		//writing
@@ -211,7 +211,7 @@ public class SaveCSV extends Pipe{
 	private float calculateANDround(int temp, float k, float n) {
 		if(k == 0)
 		{
-			out.println("There is k = 0 in file");
+			errPS.println("There is k = 0 in file");
 			return 0;
 		}
 		float r = k*temp + n;

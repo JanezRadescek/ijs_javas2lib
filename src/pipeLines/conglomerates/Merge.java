@@ -25,9 +25,9 @@ public class Merge extends Pipe{
 	boolean FirstEnd = true;
 
 
-	public Merge(Pipe primaryInput, Pipe secondaryInput, PrintStream print)
+	public Merge(Pipe primaryInput, Pipe secondaryInput, PrintStream errPS)
 	{
-		out = print;
+		this.errPS = errPS;
 
 		primaryInput.addChild(this);
 		secondaryInput.addChild(this);
@@ -48,7 +48,7 @@ public class Merge extends Pipe{
 			}
 			else
 			{
-				out.println("Merging files do not have same versions. Primary version is : "+this.version+" Secondary version is : "+version);
+				errPS.println("Merging files do not have same versions. Primary version is : "+this.version+" Secondary version is : "+version);
 				return false;
 			}
 		}

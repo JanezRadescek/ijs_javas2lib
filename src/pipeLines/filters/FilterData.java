@@ -15,14 +15,14 @@ public class FilterData extends Pipe
 	
 	private int data;
 
-	public FilterData(int data, PrintStream print)
+	public FilterData(int data, PrintStream errPS)
 	{
-		out = print;
+		this.errPS = errPS;
 		this.data = data;
 		if((data & MD) == 0)
 		{
 			data |=MD;
-			out.println("Filtering Data. This version of S2 needs meta data. Parameter data set to " + data);
+			this.errPS.println("Filtering Data. This version of S2 needs meta data. Parameter data set to " + data);
 		}
 	}
 	

@@ -20,13 +20,13 @@ public class SmartMerge extends Sync{
 	 * @param secondaryS2 File of secondary S2
 	 * @param syncMetaTime if true it will change date/time in meta (and consequently change timestamps so absolute times doesnt change) so both files have same date/time
 	 * @param makeNewHandles If true it will create new handles for secondary file where would otherwise overlap.
-	 * @param print Prinstream on which errors etc will be written
+	 * @param errPS Prinstream on which errors etc will be written
 	 */
-	public SmartMerge(LoadStatus lsS, Pipe firstPipeS, Pipe primaryInPut, Pipe secondaryInPut, File primaryS2, File secondaryS2, boolean syncMetaTime, boolean makeNewHandles, PrintStream print)
+	public SmartMerge(LoadStatus lsS, Pipe firstPipeS, Pipe primaryInPut, Pipe secondaryInPut, File primaryS2, File secondaryS2, boolean syncMetaTime, boolean makeNewHandles, PrintStream errPS)
 	{
 		super(primaryInPut, secondaryInPut);
 
-		out = print;
+		this.errPS = errPS;
 		
 		//get data needed to merge
 		S2 temS21 = new S2();
@@ -47,13 +47,13 @@ public class SmartMerge extends Sync{
 		
 		if(!gsl1.getVersion().equals(gsl2.getVersion()))
 		{
-			out.println("Versions are not the same. Primary file has version " + gsl1.getVersion() + ". Seconary file has version " +gsl2.getVersion());
+			this.errPS.println("Versions are not the same. Primary file has version " + gsl1.getVersion() + ". Seconary file has version " +gsl2.getVersion());
 		}
 		
 		Sync syncT;
 		if(syncMetaTime)
 		{
-			syncT = new SyncTime(primaryInPut, secondaryInPut, gsl1.getMeta(), gsl2.getMeta(), print);
+			syncT = new SyncTime(primaryInPut, secondaryInPut, gsl1.getMeta(), gsl2.getMeta(), errPS);
 		}else
 		{
 			//2 pipes basicly
@@ -65,7 +65,7 @@ public class SmartMerge extends Sync{
 		Sync syncH;
 		if(makeNewHandles)
 		{
-			syncH = new SyncHandles(syncT.primaryOutPut, syncT.secondaryOutPut, gsl1.getUsedHandles(), gsl2.getUsedHandles());
+			syncH = new SyncHandles(syncT.primaryOutPut, syncT.secondaryOutPut, gsl1.getUsedHandles(), gsl2.getUsedHandles(), errPS);
 			
 		}
 		else
@@ -77,7 +77,7 @@ public class SmartMerge extends Sync{
 		Sprevodnik sp = new Sprevodnik(lsS, firstPipeS, syncH.secondaryOutPut);
 		syncH.primaryOutPut.addChild(sp);
 		
-		Merge m = new Merge(sp, sp.getSecondaryOutPut(), this.out);
+		Merge m = new Merge(sp, sp.getSecondaryOutPut(), this.errPS);
 		
 		primaryOutPut = m;
 		secondaryOutPut = m;

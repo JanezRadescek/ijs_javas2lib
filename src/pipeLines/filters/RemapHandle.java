@@ -1,5 +1,6 @@
 package pipeLines.filters;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -21,16 +22,20 @@ public class RemapHandle extends Pipe {
 	private Set<Byte> reservedHandles = new HashSet<Byte>();
 	
 	private Map<Byte,StructDefinition> oldDefinitions = new HashMap<Byte,StructDefinition>();
+	
+	
 	/**
 	 * @param remap keys are old handles, values are new handles
 	 */
-	public RemapHandle(Map<Byte, Byte> remap) {
+	public RemapHandle(Map<Byte, Byte> remap, PrintStream errPS) {
+		this.errPS = errPS;
 		this.remap = remap;
 		reservedHandles.addAll(remap.values());
 			
 	}
 	
-	public RemapHandle(byte handleOld, byte handleNew) {
+	public RemapHandle(byte handleOld, byte handleNew, PrintStream errPS) {
+		this.errPS = errPS;
 		this.remap = new HashMap<Byte,Byte>();
 		remap.put(handleOld, handleNew);
 		reservedHandles.add(handleNew);
@@ -126,7 +131,7 @@ public class RemapHandle extends Pipe {
 				return;
 			}
 		}
-		out.println("We are out of handles. Handle "+handle+" will get default handle 0");
+		errPS.println("We are out of handles. Handle "+handle+" will get default handle 0");
 		remap.put(handle, (byte) 0);
 		
 	}
@@ -141,7 +146,7 @@ public class RemapHandle extends Pipe {
 				return;
 			}
 		}
-		out.println("We are out of handles. Handle "+handle+" will get default handle 32");
+		errPS.println("We are out of handles. Handle "+handle+" will get default handle 32");
 		remap.put(handle, (byte) 32);
 
 		

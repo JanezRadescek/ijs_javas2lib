@@ -18,7 +18,7 @@ public class Pipe implements ReadLineCallbackInterface
 {
 	
 	ArrayList<Pipe> children = new ArrayList<Pipe>();
-	protected PrintStream out;
+	protected PrintStream errPS;
 	
 	public Pipe addChild(Pipe f)
 	{
@@ -26,9 +26,9 @@ public class Pipe implements ReadLineCallbackInterface
 		return f;
 	}
 	
-	public void setPrintStream(PrintStream print)
+	public void setErrPS(PrintStream errPS)
 	{
-		out = print;
+		this.errPS = errPS;
 	}
 	
 //    OVERRIDES	

@@ -349,6 +349,10 @@ public class Runner {
 
 
 
+	/**
+	 * Za izračun kako "dobro" smo sprocesirali
+	 * @return
+	 */
 	private double metrics()
 	{
 		double secondBonus = 4e6; 

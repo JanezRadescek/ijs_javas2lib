@@ -30,15 +30,15 @@ public class ChangeDateTime2 extends Pipe {
 
 
 
-	public ChangeDateTime2(long corection, PrintStream print)
+	public ChangeDateTime2(long corection, PrintStream errPS)
 	{
-		out = print;
+		this.errPS = errPS;
 		this.posibleCorection = corection;
 		preMeta = false;
 	}
 
-	public ChangeDateTime2(String date2, String time2, String zone2, PrintStream print) {
-		out = print;
+	public ChangeDateTime2(String date2, String time2, String zone2, PrintStream errPS) {
+		this.errPS = errPS;
 		
 		dateM2 = date2;
 		timeM2 = time2;
@@ -54,8 +54,8 @@ public class ChangeDateTime2 extends Pipe {
 	 * @param time2 time on which we want to set this S2
 	 * @param zone2 zone on which we want to set this S2
 	 */
-	public ChangeDateTime2(String date1, String time1, String zone1, String date2, String time2, String zone2, PrintStream print) {
-		this(date2,time2,zone2, print);
+	public ChangeDateTime2(String date1, String time1, String zone1, String date2, String time2, String zone2, PrintStream errPS) {
+		this(date2,time2,zone2, errPS);
 		
 		dateM1 = date1;
 		timeM1 = time1;
@@ -67,7 +67,7 @@ public class ChangeDateTime2 extends Pipe {
 		}
 		catch(Exception e)
 		{
-			out.println(e.getMessage());
+			errPS.println(e.getMessage());
 		}
 
 		preMeta = true;
@@ -107,7 +107,7 @@ public class ChangeDateTime2 extends Pipe {
 				}
 				catch(Exception e)
 				{
-					out.println(e.getMessage());
+					errPS.println(e.getMessage());
 					return false;
 				}
 

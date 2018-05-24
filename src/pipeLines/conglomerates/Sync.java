@@ -18,11 +18,11 @@ public class Sync{
 	Pipe primaryOutPut;
 	Pipe secondaryOutPut;
 
-	protected PrintStream out;
+	protected PrintStream errPS;
 	
-	public void setPrintStream(PrintStream print)
+	public void setPrintStream(PrintStream errPS)
 	{
-		out = print;
+		this.errPS = errPS;
 	}
 	
 	public Sync(Pipe primaryInput, Pipe secondaryInput)

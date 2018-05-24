@@ -5,6 +5,10 @@ import java.io.File;
 import si.ijs.e6.S2;
 import si.ijs.e6.S2.Nanoseconds;
 
+/**
+ * @author janez
+ *For generating special S2 for testing purposes
+ */
 public class Generator {
 
 	public static void main(String[] args) {

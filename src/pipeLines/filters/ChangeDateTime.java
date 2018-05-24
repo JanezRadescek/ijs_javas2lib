@@ -30,15 +30,15 @@ public class ChangeDateTime extends Pipe {
 
 
 
-	public ChangeDateTime(long corection, PrintStream print)
+	public ChangeDateTime(long corection, PrintStream errPS)
 	{
-		out = print;
+		this.errPS = errPS;
 		this.posibleCorection = corection;
 		preMeta = false;
 	}
 
-	public ChangeDateTime(String date2, String time2, String zone2, PrintStream print) {
-		out = print;
+	public ChangeDateTime(String date2, String time2, String zone2, PrintStream errPS) {
+		this.errPS = errPS;
 		
 		dateM2 = date2;
 		timeM2 = time2;
@@ -54,8 +54,8 @@ public class ChangeDateTime extends Pipe {
 	 * @param time2 time on which we want to set this S2
 	 * @param zone2 zone on which we want to set this S2
 	 */
-	public ChangeDateTime(String date1, String time1, String zone1, String date2, String time2, String zone2, PrintStream print) {
-		this(date2,time2,zone2, print);
+	public ChangeDateTime(String date1, String time1, String zone1, String date2, String time2, String zone2, PrintStream errPS) {
+		this(date2,time2,zone2, errPS);
 		
 		dateM1 = date1;
 		timeM1 = time1;
@@ -67,14 +67,19 @@ public class ChangeDateTime extends Pipe {
 		}
 		catch(Exception e)
 		{
-			out.println(e.getMessage());
+			errPS.println(e.getMessage());
 		}
 
 		preMeta = true;
 	}
 
-	public ChangeDateTime(Map<String,String> meta1, Map<String, String> meta2, PrintStream print) {
-		this(meta1.get("date"), meta1.get("time"), meta1.get("timezone"), meta2.get("date"), meta2.get("time"), meta2.get("timezone"), print);
+	/**
+	 * @param meta1 time meta data of this S2 file
+	 * @param meta2 time meta data of some other S2 file
+	 * @param errPS printstrem for errors
+	 */
+	public ChangeDateTime(Map<String,String> meta1, Map<String, String> meta2, PrintStream errPS) {
+		this(meta1.get("date"), meta1.get("time"), meta1.get("timezone"), meta2.get("date"), meta2.get("time"), meta2.get("timezone"), errPS);
 	}
 
 
@@ -107,7 +112,7 @@ public class ChangeDateTime extends Pipe {
 				}
 				catch(Exception e)
 				{
-					out.println(e.getMessage());
+					errPS.println(e.getMessage());
 					return false;
 				}
 

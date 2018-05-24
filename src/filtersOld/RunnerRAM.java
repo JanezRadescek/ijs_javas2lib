@@ -7,6 +7,10 @@ import pipeLines.filters.FilterTime;
 import si.ijs.e6.S2;
 import si.ijs.e6.S2.LoadStatus;
 
+/**
+ * @author janez
+ *For testing purposes only
+ */
 public class RunnerRAM {
 
 	private final double startTime = 0*60;

@@ -1,6 +1,7 @@
 package pipeLines.conglomerates;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,9 +27,11 @@ public class SyncHandles extends Sync {
 	 * @param primaryS2 File of primary S2 file
 	 * @param secondaryS2 File of secondary S2 file
 	 */
-	public SyncHandles(Pipe primaryInput, Pipe secondaryInput, File primaryS2, File secondaryS2)
+	public SyncHandles(Pipe primaryInput, Pipe secondaryInput, File primaryS2, File secondaryS2, PrintStream errPS)
 	{	
 		super(primaryInput,secondaryInput);
+		this.errPS = errPS;
+		
 		S2 temS21 = new S2();
 		S2 temS22 = new S2();
 		LoadStatus ls1 = temS21.load(primaryS2.getParentFile(), primaryS2.getName());
@@ -54,9 +57,10 @@ public class SyncHandles extends Sync {
 	 * @param handles1 handles used in primary S2
 	 * @param handles2 handles used in secondary S2
 	 */
-	public SyncHandles(Pipe primaryInput, Pipe secondaryInput, Set<Byte> handles1, Set<Byte> handles2)
+	public SyncHandles(Pipe primaryInput, Pipe secondaryInput, Set<Byte> handles1, Set<Byte> handles2, PrintStream errPS)
 	{
 		super(primaryInput, secondaryInput);
+		this.errPS = errPS;
 		buildSyncHandles(handles1, handles2);
 	}
 	
@@ -85,7 +89,7 @@ public class SyncHandles extends Sync {
 				}
 				if(t == i)
 				{
-					out.println("Out of new handles. Handle " + i+ " stayed the same eventhoug it shoudnt.");
+					errPS.println("Out of new handles. Handle " + i+ " stayed the same eventhoug it shoudnt.");
 				}
 				remapForSecondary.put(i, t);
 				
@@ -98,7 +102,7 @@ public class SyncHandles extends Sync {
 
 		primaryOutPut = primaryInPut;
 		
-		rhS = new RemapHandle(remapForSecondary);
+		rhS = new RemapHandle(remapForSecondary, errPS);
 		secondaryInPut.addChild(rhS);
 		secondaryOutPut = rhS;
 	}
