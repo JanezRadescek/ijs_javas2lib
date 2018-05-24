@@ -30,10 +30,11 @@ public class SaveS2 extends Pipe {
 
 	/**
 	 * @param directory directory AND name of new S2 file in which we will save
+	 * @param errPS printstrem for errors
 	 */
-	public SaveS2(String directory, PrintStream print)
+	public SaveS2(String directory, PrintStream errPS)
 	{
-		errPS = print;
+		this.errPS = errPS;
 		s2 = new S2();
 		//TODO zakaj ne moremo S2.store/load dati directoryAndName ??
 		File f = new File(directory);

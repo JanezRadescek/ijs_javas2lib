@@ -7,8 +7,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import filtersOld.Runner;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,6 +38,7 @@ public class CliTest {
 	static String inFile = "generated.s2";
 	static String inCSV = "generated.csv";
 	static String inTXT = "generated.txt";
+	static String inDelayed = "generatedDelayed.csv";
 	static String inDirName = inDir +File.separator+ inFile;
 
 	static String inDirNameSignal1 = "." + File.separator + "S2files" + File.separator+ "andrej1.s2";
@@ -76,6 +75,22 @@ public class CliTest {
 		assertTrue(directory.exists());
 	}
 
+	
+	//***********************             TEST PIPELINES                            *******************************
+	
+	
+	
+	@Test
+	public void testChangeDateTime()
+	{
+		
+	}
+	
+	
+	
+	//***********************            TEST CLI FUNCTIONALITIS                    *******************************
+	
+	
 	@Test
 	public void StatisticsTest()
 	{
@@ -95,7 +110,6 @@ public class CliTest {
 
 
 	}
-
 
 
 	@Test
@@ -234,6 +248,8 @@ public class CliTest {
 
 	}
 
+	
+	/*
 	@Test
 	public void buildTest()
 	{
@@ -254,7 +270,7 @@ public class CliTest {
 		//nesmiselno za pravo datoteko(ne da se mi rezat prave datoteke :D)
 		//cutMiddle(6L,17L);
 
-	}
+	}*/
 
 	private void cutMiddle(long head, long tail) {
 		Cli.start(new String[]{"-c", "-i", inDirName, "-t", "0", Double.toString(head*1E-9), "true",
@@ -310,6 +326,28 @@ public class CliTest {
 		try {
 			boolean isTwoEqual = FileUtils.contentEquals(correct, testing);
 			assertTrue("Cutting at time " + cutTime + " ", isTwoEqual);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	@Test
+	public void testChangeTimeStamps()
+	{
+		String tem = "zamaknjeniTimestamps";
+		Cli.start(new String[]{"-"+Cli.CHANGE_TIME, "10", "-i", inDirName, "-o", outDir +File.separator+ tem+".s2"});
+		
+		Cli.start(new String[]{"-r", "-i", outDir +File.separator+ tem+".s2",
+				"-o", outDir +File.separator+ tem+".csv"});
+		
+		File correct = new File(inDir + File.separator + inDelayed);
+		File testing = new File(outDir +File.separator+ tem+".csv");
+		
+		
+		try {
+			boolean isTwoEqual = FileUtils.contentEquals(correct, testing);
+			assertTrue("Delaying for 10 ns " , isTwoEqual);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

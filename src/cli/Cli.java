@@ -18,6 +18,7 @@ import callBacks.SecondReader;
 import filtersOld.FilterProcessSignal;
 import pipeLines.Pipe;
 import pipeLines.conglomerates.SmartMerge;
+import pipeLines.filters.ChangeTimeStamps;
 import pipeLines.filters.FilterData;
 import pipeLines.filters.FilterHandles;
 import pipeLines.filters.GetInfo;
@@ -39,6 +40,23 @@ public class Cli {
 	private static final int unknown = 1;
 	private static final int fileError = 2;
 	private static final int badInputArgs = 3;
+
+
+	public static final String STATISTIKA = "s";
+	public static final String CUT = "c";
+	public static final String READ = "r";
+	public static final String MEARGE = "m";
+	public static final String HELP = "help";
+	public static final String CHANGE_TIME = "ct";
+	public static final String PROCESS_SIGNAL = "p";
+
+
+	public static final String TIME = "t";
+	public static final String INPUT = "i";
+	public static final String OUTPUT = "o";
+	public static final String HANDLES = "h";
+	public static final String DATA = "d";
+
 
 
 	public static void main(String[] args)
@@ -70,8 +88,8 @@ public class Cli {
 		}
 		start(args, ps, ps);
 		String sOut = new String(baos.toByteArray(), StandardCharsets.UTF_8);
-		
-		
+
+
 		ps.close();
 
 		return sOut;
@@ -81,30 +99,17 @@ public class Cli {
 	{
 		return Cli.start(args, System.out, System.err);
 	}
-	
+
 	public static int start(String[] args, PrintStream outPS)
 	{
 		return Cli.start(args, outPS, outPS);
 	}
-	
-	
+
+
 
 	public static int start(String[] args, PrintStream outPS, PrintStream errPS)
 	{
-		final String STATISTIKA = "s";
-		final String CUT = "c";
-		final String READ = "r";
-		final String MEARGE = "m";
-		final String HELP = "help";
-		final String PROCESS_SIGNAL = "p";
 
-		final String EKRAN = "e";
-
-		final String TIME = "t";
-		final String INPUT = "i";
-		final String OUTPUT = "o";
-		final String HANDLES = "h";
-		final String DATA = "d";
 
 		//parsanje vhodnih podatkov
 		Options options = new Options();
@@ -116,11 +121,9 @@ public class Cli {
 				+ " If true streams with same hendels will be merged,"
 				+ " else strems from second file will get new one where needed");
 		options.addOption(HELP, false, "Help");
+		options.addOption(CHANGE_TIME, true, "add time in argument to timestamps");
 		options.addOption(PROCESS_SIGNAL,false, "Proces signal. If argument is true it will process"
 				+ " as if the frequency of sensor is constant. Simple processsing. Otherwise it will split into intervals");
-
-		//TODO parse this somewhere and use it
-		options.addOption(EKRAN,false, "If this flag occur instead of saving thing to file it will return them");
 
 		Option time = new Option(TIME, "time. zacetni in koncni cas izseka, ki nas zanima. 3 argument if we aproximate "
 				+ "datas without own time with last previous time"
@@ -159,7 +162,7 @@ public class Cli {
 		CommandLine cmd = null;
 		HelpFormatter formatter = new HelpFormatter();
 		String header = "Do something with S2 file";
-		String footer = "footer";
+		String footer = "END of help";
 		try {
 			cmd = parser.parse(options, args);
 		} catch (UnrecognizedOptionException e) {
@@ -178,7 +181,7 @@ public class Cli {
 
 			return unknown;
 		}
-		if(cmd.hasOption("help"))
+		if(cmd.hasOption(HELP))
 		{
 			formatter.printHelp("Cli",header,options,footer);
 			return good;
@@ -309,7 +312,7 @@ public class Cli {
 					Pipe pipeP = new Pipe();
 					Pipe pipeS = new Pipe();
 					SmartMerge sm = new SmartMerge(loadS2, pipeS, pipeP, pipeS, inDirectory1, inDirectory2, false, false, errPS);
-					
+
 					sm.getPrimaryOutPut().addChild(new SaveS2(outDir, errPS));
 					loadS1.readLines(pipeP, false);
 				}
@@ -384,6 +387,14 @@ public class Cli {
 				}
 			}
 
+			if(cmd.hasOption(CHANGE_TIME))
+			{
+				long delay = Long.parseLong(cmd.getOptionValue(CHANGE_TIME));
+				ChangeTimeStamps cts = new ChangeTimeStamps(delay, errPS);
+				cts.addChild(new SaveS2(outDir, errPS));
+				
+				loadS1.readLines(cts, true);
+			}
 
 
 			if(cmd.hasOption(PROCESS_SIGNAL))

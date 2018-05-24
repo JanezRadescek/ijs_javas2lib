@@ -48,8 +48,9 @@ public class FilterTime extends Pipe {
 	}
 
 	/**
-	 * @param start in seconds
-	 * @param end in seconds
+	 * [start, end) in nanoseconds
+	 * @param start 
+	 * @param end
 	 * @param filterTimeLessData
 	 */
 	public FilterTime(long start, long end, boolean filterTimeLessData)
@@ -59,8 +60,9 @@ public class FilterTime extends Pipe {
 	}
 
 	/**
-	 * @param start in seconds
-	 * @param end in seconds
+	 * [start, end) in nanoseconds
+	 * @param start
+	 * @param end
 	 * @param filterTimeLessData
 	 * @param type use one of static constants FILTER,PAUSE,BUSTER
 	 */

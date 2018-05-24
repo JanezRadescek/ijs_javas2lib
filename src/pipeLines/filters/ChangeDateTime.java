@@ -194,6 +194,7 @@ public class ChangeDateTime extends Pipe {
 
 		if(posibleCorection>0)
 		{
+			errPS.println("Date and Time can NOT be changed into future since we may get negative timestamps. Corection set to 0.");
 			corection = 0;
 		}else
 		{

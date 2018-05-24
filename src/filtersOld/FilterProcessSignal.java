@@ -24,7 +24,7 @@ import suportingClasses.TimeStamp;
  */
 public class FilterProcessSignal extends Pipe {
 
-	private final long defaultLength = ((long)1E9) * 60L * 4L;  //2 min
+	private final long defaultLength = ((long)1E9) * 60L * 4L;  //4 min
 	private final double defaultWeight = 0.1;
 	//expected number of packets in block
 	private final double vseh = 125 * defaultLength/(1E9);
@@ -76,6 +76,9 @@ public class FilterProcessSignal extends Pipe {
 	private int numOverFlovs = 0;
 	private int lastC = -1;
 
+	/**
+	 * makes linear regresion on 4min intervals and change timestamps acordingly.
+	 */
 	public FilterProcessSignal() 
 	{
 		this.intervalLength = defaultLength;
