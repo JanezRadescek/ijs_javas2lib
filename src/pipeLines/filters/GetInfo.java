@@ -92,8 +92,14 @@ public class GetInfo extends Pipe {
 		//metadata
 		errPS.println("metaData : ");
 		//TODO print all meta not just this one
+		/*
 		String[] potrebni = {"time", "date", "timezone"};
 		for(String key:potrebni)
+		{
+			errPS.println("	" + key + " : " + metaData.get(key));
+		}*/
+		
+		for(String key:metaData.keySet())
 		{
 			errPS.println("	" + key + " : " + metaData.get(key));
 		}

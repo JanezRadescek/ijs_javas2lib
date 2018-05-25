@@ -11,7 +11,7 @@ public class Kljukica extends JCheckBox implements Komponenta {
 	private static final long serialVersionUID = -957891834912441245L;
 
 	private ArrayList<String> info = new ArrayList<String>();
-	
+
 	public Kljukica(String string) {
 		super(string);
 	}
@@ -26,7 +26,10 @@ public class Kljukica extends JCheckBox implements Komponenta {
 	public ArrayList<String> getInfo() {
 		if(isSelected())
 		{
-			info.add("-e");
+			if(!info.contains("-e"))
+			{
+				info.add("-e");
+			}
 			return info;
 		}
 		else

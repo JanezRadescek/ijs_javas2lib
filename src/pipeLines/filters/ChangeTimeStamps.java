@@ -10,6 +10,11 @@ public class ChangeTimeStamps extends Pipe {
 	long delayChange = 0;
 	boolean first = true;
 	
+	/**
+	 * adds delay to all timestamps
+	 * @param delay delay in ns
+	 * @param errPS PrintStream for errors
+	 */
 	public ChangeTimeStamps(long delay, PrintStream errPS)
 	{
 		this.errPS = errPS;

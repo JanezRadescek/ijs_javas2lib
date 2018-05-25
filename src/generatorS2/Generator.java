@@ -36,21 +36,18 @@ public class Generator {
 		
 		S2.SensorDefinition sd1 = new S2.SensorDefinition("Testni sensor 1");
 		sd1.setUnit("testne sekunde", 1, 0);
-		//sd1.setVector(12, S2.ValueType.vt_integer, S2.AbsoluteId.abs_absolute, 8, 3, 2);
 		sd1.setScalar(8, S2.ValueType.vt_integer, S2.AbsoluteId.abs_absolute, 0);
 		sd1.setSamplingFrequency(1/32);
 		storeS.addDefinition((byte) 'e', sd1);
 		
 		S2.SensorDefinition sd2 = new S2.SensorDefinition("Testni sensor 2");
 		sd2.setUnit("testne sekunde", (float)2/3, 5);
-		//sd2.setVector(16, S2.ValueType.vt_integer, S2.AbsoluteId.abs_absolute, 0, 2, 0);
 		sd2.setScalar(16, S2.ValueType.vt_integer, S2.AbsoluteId.abs_absolute, 0);
 		sd2.setSamplingFrequency(0);
 		storeS.addDefinition((byte) 32, sd2);//" "
 		
 		S2.SensorDefinition sd3 = new S2.SensorDefinition("Testni sensor 3");
 		sd3.setUnit("testne sekunde", (float)1/255, 255);
-		//sd3.setVector(127, S2.ValueType.vt_integer, S2.AbsoluteId.abs_absolute, 0, 1, 0);
 		sd3.setScalar(64, S2.ValueType.vt_integer, S2.AbsoluteId.abs_absolute, 0);
 		sd3.setSamplingFrequency(255);
 		storeS.addDefinition((byte) 126, sd3); //"~"
