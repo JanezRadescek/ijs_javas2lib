@@ -23,6 +23,7 @@ public class Merge extends Pipe{
 	ArrayList<Byte> writtenStruct = new ArrayList<Byte>();
 	ArrayList<Byte> writtenTime = new ArrayList<Byte>();
 	boolean FirstEnd = true;
+	boolean endWritten = false;
 
 
 	public Merge(Pipe primaryInput, Pipe secondaryInput, PrintStream errPS)
@@ -77,7 +78,15 @@ public class Merge extends Pipe{
 		}
 		else
 		{
-			return super.onEndOfFile();
+			if(!endWritten)
+			{
+				endWritten = true;
+				return super.onEndOfFile();
+			}else
+			{
+				errPS.println("We got too many file end in merge");
+				return false;
+			}
 		}
 	}
 
@@ -90,7 +99,15 @@ public class Merge extends Pipe{
 		}
 		else
 		{
-			return super.onUnmarkedEndOfFile();
+			if(!endWritten)
+			{
+				endWritten = true;
+				return super.onUnmarkedEndOfFile();
+			}else
+			{
+				errPS.println("We got too many file end in merge");
+				return false;
+			}
 		}
 	}
 
@@ -130,19 +147,19 @@ public class Merge extends Pipe{
 			return super.onDefinition(handle, definition);
 		}
 	}
-	
-	
+
+
 	//FOR debuging purposes only
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
-		
+
 		return super.onTimestamp(nanoSecondTimestamp);
 	}
-	
+
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
-		
+
 		return super.onStreamPacket(handle, timestamp, len, data);
 	}
-	
+
 }

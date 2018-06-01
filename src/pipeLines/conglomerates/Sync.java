@@ -29,6 +29,8 @@ public class Sync{
 	{
 		this.primaryInPut = primaryInput;
 		this.secondaryInPut = secondaryInput;
+		this.primaryOutPut = primaryInput;
+		this.secondaryOutPut = secondaryInput;
 	}
 
 	/**

@@ -3,9 +3,9 @@ Start Time at : 0.0s
 End time at : 0.0s
 Total time : 0.0s
 metaData : 
-	time : 10:30:10.555
 	date : 2018-01-01
 	timezone : +01:00
+	time : 10:30:10.555
 Special messeges : 
 Timestamps : 2
 Definitions : 9

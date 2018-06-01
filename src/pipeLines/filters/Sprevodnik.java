@@ -14,6 +14,7 @@ public class Sprevodnik extends Pipe {
 	Pipe firstPipeS;
 	private Pipe secondayOutPut;
 	private FilterTime ft;
+	private LimitEnds le;
 	
 	
 	/**
@@ -27,9 +28,11 @@ public class Sprevodnik extends Pipe {
 		this.firstPipeS = firstPipeS;
 		
 		ft = new FilterTime(0, 0, false, FilterTime.PAUSE);
+		le = new LimitEnds();
 		
 		secondaryInPut.addChild(ft);
-		secondayOutPut = ft;
+		ft.addChild(le);
+		secondayOutPut = le;
 			
 	}
 	

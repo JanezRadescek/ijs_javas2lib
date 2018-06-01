@@ -249,7 +249,7 @@ public class CliTest {
 	}
 
 	
-	/*
+	
 	@Test
 	public void buildTest()
 	{
@@ -270,7 +270,7 @@ public class CliTest {
 		//nesmiselno za pravo datoteko(ne da se mi rezat prave datoteke :D)
 		//cutMiddle(6L,17L);
 
-	}*/
+	}
 
 	private void cutMiddle(long head, long tail) {
 		Cli.start(new String[]{"-c", "-i", inDirName, "-t", "0", Double.toString(head*1E-9), "true",
@@ -310,22 +310,35 @@ public class CliTest {
 
 		Cli.start(new String[]{"-c", "-i", inDirName, "-t", Double.toString(cutTime*1E-9), Double.toString(1E5), "true",
 				"-o", outDir +File.separator+ "izrezek2_"+cutTime+".s2"});
-
+		
+		//forward                  1,2
+		
 		Cli.start(new String[]{"-m", "true", "-i", outDir +File.separator+ "izrezek1_"+cutTime+".s2",
 				outDir +File.separator+ "izrezek2_"+cutTime+".s2",
-				"-o", outDir +File.separator+ "Sestavljena"+cutTime+".s2"});
-
-		Cli.start(new String[]{"-r", "-i", outDir +File.separator+ "Sestavljena"+cutTime+".s2",
-				"-o", outDir +File.separator+ "IzpisSestavljene"+cutTime+".csv"});
+				"-o", outDir +File.separator+ "SestavljenaF"+cutTime+".s2"});
+		
+		Cli.start(new String[]{"-r", "-i", outDir +File.separator+ "SestavljenaF"+cutTime+".s2",
+				"-o", outDir +File.separator+ "IzpisSestavljeneF"+cutTime+".csv"});
+		
+		//reverse order            2,1
+		
+		Cli.start(new String[]{"-m", "true", "-i", outDir +File.separator+ "izrezek2_"+cutTime+".s2",
+				outDir +File.separator+ "izrezek1_"+cutTime+".s2",
+				"-o", outDir +File.separator+ "SestavljenaR"+cutTime+".s2"});
+		
+		Cli.start(new String[]{"-r", "-i", outDir +File.separator+ "SestavljenaR"+cutTime+".s2",
+				"-o", outDir +File.separator+ "IzpisSestavljeneR"+cutTime+".csv"});
 
 
 		File correct = new File(inDir + File.separator + inCSV);
-		File testing = new File(outDir + File.separator + "IzpisSestavljene"+cutTime+".csv");
+		File testingF = new File(outDir + File.separator + "IzpisSestavljeneF"+cutTime+".csv");
+		File testingR = new File(outDir + File.separator + "IzpisSestavljeneR"+cutTime+".csv");
 
 
 		try {
-			boolean isTwoEqual = FileUtils.contentEquals(correct, testing);
-			assertTrue("Cutting at time " + cutTime + " ", isTwoEqual);
+			boolean isTwoEqualF = FileUtils.contentEquals(correct, testingF);
+			boolean isTwoEqualR = FileUtils.contentEquals(correct, testingR);
+			assertTrue("Cutting at time " + cutTime + " ", isTwoEqualF & isTwoEqualR);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

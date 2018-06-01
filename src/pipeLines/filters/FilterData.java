@@ -7,50 +7,72 @@ import pipeLines.Pipe;
 public class FilterData extends Pipe 
 {
 	public final int S2_version = 1;
-	
+
 	final int C = 0b1;
 	final int SM = 0b10;
-	
 	final int MD = 0b100;
-	
-	private int data;
+	final int SP = 0b1000;
 
-	public FilterData(int data, PrintStream errPS)
+	private int dataTypes;
+
+	/**
+	 * @param dataTypes which lines should stayed 
+	 * @param errPS
+	 */
+	public FilterData(int dataTypes, PrintStream errPS)
 	{
 		this.errPS = errPS;
-		this.data = data;
-		if((data & MD) == 0)
-		{
-			data |=MD;
-			this.errPS.println("Filtering Data. This version of S2 needs meta data. Parameter data set to " + data);
-		}
+		this.dataTypes = dataTypes;
+
 	}
-	
+
+	@Override
+	public boolean onVersion(int versionInt, String version) {
+		if((dataTypes & MD) == 0 && version.equals("PCARD"))
+		{
+			dataTypes |=MD;
+			this.errPS.println("Filtering Data. PCARD version of S2 needs meta data. Parameter data set to " + dataTypes);
+		}
+		return super.onVersion(versionInt, version);
+	}
+
 	@Override
 	public boolean onComment(String comment) {
-		if((data & C) != 0)
+		if((dataTypes & C) != 0)
 		{
 			return pushComment(comment);
 		}
 		return true;
 	}
-	
+
 	@Override
 	public boolean onSpecialMessage(char who, char what, String message) {
-		if((data & SM) != 0)
+		if((dataTypes & SM) != 0)
 		{
 			return pushSpecilaMessage(who, what, message);
 		}
 		return true;
 	}
-	
+
 	@Override
 	public boolean onMetadata(String key, String value) {
-		if((data & MD) != 0)
+		if((dataTypes & MD) != 0)
 		{
 			return pushMetadata(key, value);
 		}
 		return true;
 	}
-	
+
+	@Override
+	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
+		if((dataTypes & SP) != 0)
+		{
+			return super.onStreamPacket(handle, timestamp, len, data);
+		}
+		else
+		{
+			return true;
+		}
+	}
+
 }
