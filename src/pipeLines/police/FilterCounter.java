@@ -99,7 +99,7 @@ public class FilterCounter extends Pipe {
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
 		counter++;
 		
-		return counter<=maxLines & pushStremPacket(handle, timestamp, len, data);
+		return counter<=maxLines & pushStreamPacket(handle, timestamp, len, data);
 	}
 
 	@Override

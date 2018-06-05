@@ -7,10 +7,12 @@ import si.ijs.e6.S2.StructDefinition;
 import si.ijs.e6.S2.TimestampDefinition;
 
 /**
- * Data bounded to handles is send further only if its handle is in Array of handles from constructor
+ * Data bounded to handles is send further only if its handle is in Array of handles from constructor.
+ * Deprecated. Use {@link LockHandles} with {@link Shredder}. 
  * @author janez
  *
  */
+@Deprecated
 public class FilterHandles extends Pipe {
 
 	private ArrayList<Byte> handles = new ArrayList<Byte>();
@@ -57,7 +59,7 @@ public class FilterHandles extends Pipe {
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
 		if(handles.contains(handle))
 		{
-			return pushStremPacket(handle, timestamp, len, data);
+			return pushStreamPacket(handle, timestamp, len, data);
 		}
 		return true;
 	}

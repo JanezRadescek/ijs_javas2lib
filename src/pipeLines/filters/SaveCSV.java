@@ -197,7 +197,7 @@ public class SaveCSV extends Pipe{
 
 		//push
 
-		return pushStremPacket(handle, timestamp, len, data);
+		return pushStreamPacket(handle, timestamp, len, data);
 	}
 
 

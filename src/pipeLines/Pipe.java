@@ -179,9 +179,9 @@ public class Pipe implements ReadLineCallbackInterface
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
 		
-		return pushStremPacket(handle, timestamp, len, data);
+		return pushStreamPacket(handle, timestamp, len, data);
 	}
-	protected boolean pushStremPacket(byte handle, long timestamp, int len, byte[] data) {
+	protected boolean pushStreamPacket(byte handle, long timestamp, int len, byte[] data) {
 		boolean r = true;
 		for(Pipe c:children)
 		{

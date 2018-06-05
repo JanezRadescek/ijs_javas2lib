@@ -160,7 +160,7 @@ public class GetLines extends Pipe {
 		packetQ.add(new StreamPacket(handle,timestamp,len,data));
 
 		
-		return pushStremPacket(handle, timestamp, len, data);
+		return pushStreamPacket(handle, timestamp, len, data);
 	}
 	
 }

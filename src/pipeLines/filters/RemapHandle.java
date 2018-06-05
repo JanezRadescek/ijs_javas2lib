@@ -105,7 +105,7 @@ public class RemapHandle extends Pipe {
 		{
 			findNewRemap32(handle);
 		}
-		return pushStremPacket(remap.get(handle), timestamp, len, data);
+		return pushStreamPacket(remap.get(handle), timestamp, len, data);
 	}
 	
 	

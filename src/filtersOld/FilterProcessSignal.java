@@ -396,7 +396,7 @@ public class FilterProcessSignal extends Pipe {
 			{
 				pushTimestamp(previosBlockT.pollFirst());
 			}
-			pushStremPacket(tempP.handle, timestampNew, tempP.len, tempP.data);
+			pushStreamPacket(tempP.handle, timestampNew, tempP.len, tempP.data);
 			
 			pozicija++;
 		}

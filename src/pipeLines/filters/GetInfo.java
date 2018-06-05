@@ -257,7 +257,7 @@ public class GetInfo extends Pipe {
 			sensorCounter.merge(element, 1, Integer::sum);
 		}
 
-		return pushStremPacket(handle, timestamp, len, data);
+		return pushStreamPacket(handle, timestamp, len, data);
 	}
 
 	@Override

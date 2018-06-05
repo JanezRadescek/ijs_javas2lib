@@ -176,7 +176,7 @@ public class FilterTime extends Pipe {
 
 		if(start<=lastRecordedTime && lastRecordedTime<end)
 		{
-			return pushStremPacket(handle, timestamp, len, data);
+			return pushStreamPacket(handle, timestamp, len, data);
 		}
 		else
 		{

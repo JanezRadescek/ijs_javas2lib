@@ -158,7 +158,7 @@ public class SaveS2 extends Pipe {
 		lastTime.replace(handle, timestamp);
 
 		
-		return pushStremPacket(handle, timestamp, len, data);
+		return pushStreamPacket(handle, timestamp, len, data);
 	}
 
 
