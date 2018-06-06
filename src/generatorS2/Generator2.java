@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import java.util.Random;
 
 import pipeLines.filters.SaveS2;
+import si.ijs.e6.MultiBitBuffer;
 import si.ijs.e6.S2;
 
 public class Generator2 {
@@ -13,10 +14,13 @@ public class Generator2 {
 	float frequencyChange;
 	int change = 0;
 	float percentigeMissing;
-	float delayFactor;
+	long normalDelay;
+	float bigDelayChance;
+	float bigDelayFactor;
 	float curentF;
 	long curentTonMashine;
 	long curentTonAndroid;
+	long previousTonAndroid = 0;
 	int curentC;
 	byte[] curentD;
 	boolean pause;
@@ -25,53 +29,69 @@ public class Generator2 {
 
 
 	/**
-	 * @param directory directory of new file S2 file
-	 * @param errPS	PrintStream for errors
-	 * @param seed seed for random generator
-	 * @param length length of measurement in ns
-	 * @param frequency frequency of EKG device
-	 * @param frequencyChange percentige of how much can frequency change
-	 * @param percentigeMissing Aproximate percentige of missing packets
-	 * @param delayFactor Aproximate everage of delay
+	 * device is simulated randomly inside provided borders. Providing seed for random allow us repetions with the same result.
+	 * @param directory directory of new file S2 file.
+	 * @param errPS	PrintStream for errors.
+	 * @param seed seed for random generator.
+	 * @param start start in ns. [normal use 10^10 = 10s]
+	 * @param end end of measurement in ns. [normal use 60*60*10^9 = 1hour].
+	 * @param frequency frequency of EKG device in Hz. [PCARD has around 128].
+	 * @param frequencyChange factor of how much can frequency change. [?normal? use 0.1].
+	 * @param percentigeMissing Aproximate factor of missing packets. [for ?good? S2 use 0.01 for ?bad? use 0.1].
+	 * @param normalDelay aproximate usual delay of packets in ns [?reasonable? value is around (1/ @param frequency /10) * 10^9].
+	 * @param bigDelaychance chance for big delay [?reasonable? value is 0.01].
+	 * @param bigDelayFactor big delay will be up to @param bigDelayFactor*normal ns [?reasonable? value is 10].
 	 */
-	public Generator2(String directory, PrintStream errPS, long seed, long length, float frequency, float frequencyChange, float percentigeMissing, float delayFactor) 
+	public Generator2(String directory, PrintStream errPS, long start, long end, long seed, float frequency, float frequencyChange, float percentigeMissing, long normalDelay, float bigDelayChance, float bigDelayFactor) 
 	{
 		this.frequency = frequency;
 		this.curentF = frequency;
 		this.frequencyChange = frequencyChange;
 		this.percentigeMissing = percentigeMissing;
-		this.delayFactor = delayFactor;
-
+		this.normalDelay = normalDelay;
+		this.bigDelayChance = bigDelayChance;
+		this.bigDelayFactor = bigDelayFactor;
 
 		//*************************************                  VERSION,META,DEFINITIONS
 
-		SaveS2 ss2 = new SaveS2(directory, errPS);
-
-		ss2.onVersion(1, "PCARD");
-
-		ss2.onMetadata("date", "2018-01-01");
-		ss2.onMetadata("time", "10:30:10.555");
-		ss2.onMetadata("timezone", "+01:00");
-
+		File f = new File(directory);
+		//******************        Simulating saving on machine
+		SaveS2 ss2M = new SaveS2(f.getParent() +File.separator+ "Machine" + f.getName(), errPS);
+		//******************        Simulating saving on Android
+		SaveS2 ss2A = new SaveS2(f.getParent() +File.separator+ "Android" + f.getName(), errPS);
+		
+		
+		ss2A.onVersion(1, "PCARD");
+		ss2A.onMetadata("date", "2018-01-01");
+		ss2A.onMetadata("time", "10:30:10.555");
+		ss2A.onMetadata("timezone", "+01:00");
 
 		S2.SensorDefinition sd1 = new S2.SensorDefinition("EKG test");
 		sd1.setUnit("mV", 6.2E-3f, -3.19f);
 		sd1.setScalar(10, S2.ValueType.vt_integer, S2.AbsoluteId.abs_absolute, 0);
 		sd1.setSamplingFrequency(frequency);
-		ss2.onDefinition((byte) 'e', sd1);
-
 		S2.SensorDefinition sd2 = new S2.SensorDefinition("counter");
 		sd2.setUnit("enota", 1f, 0f);
 		sd2.setScalar(10, S2.ValueType.vt_integer, S2.AbsoluteId.abs_absolute, 0);
 		sd2.setSamplingFrequency(0);
-		ss2.onDefinition((byte) 'c', sd2);//" "
+		
+		ss2A.onDefinition((byte) 'e', sd1);
+		ss2A.onDefinition((byte) 'c', sd2);//" "
+		ss2A.onDefinition((byte)0, new S2.StructDefinition("EKG stream", "eeeeeeeeeeeeeec"));
+		ss2A.onDefinition((byte)0, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)3, 1E-6));
+		ss2A.onComment("1. comment. Original location after definitions");
 
-
-		ss2.onDefinition((byte)0, new S2.StructDefinition("EKG stream", "eeeeeeeeeeeeeec"));
-		ss2.onDefinition((byte)0, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)3, 1E-6));
-
-
-
+		
+		ss2M.onVersion(1, "PCARD");
+		ss2M.onMetadata("date", "2018-01-01");
+		ss2M.onMetadata("time", "10:30:10.555");
+		ss2M.onMetadata("timezone", "+01:00");
+		ss2M.onDefinition((byte) 'e', sd1);
+		ss2M.onDefinition((byte) 'c', sd2);
+		ss2M.onDefinition((byte)0, new S2.StructDefinition("EKG stream", "eeeeeeeeeeeeeec"));
+		ss2M.onDefinition((byte)0, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)3, 1E-6));
+		ss2M.onComment("1. comment. Original location after definitions");
+		
 		//*************************************                 RANDOM
 
 		r = new Random();
@@ -80,36 +100,43 @@ public class Generator2 {
 
 		//************************************                  STARTING POINT
 
-		long temL = r.nextLong();
-		curentTonMashine = modul(temL,(long) 1E10);
-
+		curentTonMashine = start;
+		curentC = 0;
 
 		//************************************                 FILING STREAMLINES
 
-		while(curentTonMashine < length)
+		while(curentTonMashine < end)
 		{
-			float wifi = r.nextFloat();
-
 			calculateFrequency();
-			curentTonMashine += curentF;
+			curentTonMashine += 1E9/curentF;
 			curentC += 14;
 			curentD = makeData();
 
+			//*******************           SAVING ON MACHINE
+			ss2M.onStreamPacket((byte) 0, curentTonMashine, curentD.length, curentD);
+			
+			//*******************           SAVING ON ANDROID
 			checkPause();
-
+			float wifi = r.nextFloat();
 			if(!pause)
 			{
 				if(wifi >= percentigeMissing)
 				{
-					ss2.onStreamPacket((byte) 0, toWriteReady(curentTonMashine), curentD.length, curentD);
+					calculateTonAndroid();
+					ss2A.onStreamPacket((byte) 0, curentTonAndroid, curentD.length, curentD);
+					previousTonAndroid = curentTonAndroid;
 				}
 			}else
 			{
-				//zaenkrat nič
 			}
 
 		}
 
+		ss2M.onComment("2. comment. Original location after packets before end");
+		ss2M.onEndOfFile();
+		
+		ss2A.onComment("2. comment. Original location after packets before end");
+		ss2A.onEndOfFile();
 	}
 
 
@@ -143,13 +170,17 @@ public class Generator2 {
 		}
 	}
 
+	/**
+	 * when device isnt changing its frequeny there is 1% it will start changing its frequency in next cycle. when its changing its frequeny its just make sure its stays with boundaries.
+	 */
 	private void calculateFrequency()
 	{
 		if(change != 0)
 		{
-			if(Math.abs(curentF + (change/change) * frequencyChange /10 - frequency) < frequencyChange)
+			if(Math.abs(curentF/frequency + (change/change) * frequencyChange /10 - 1) < frequencyChange)
 			{
-				curentF += (change/change) * frequencyChange /10;
+				curentF += (change/change) * frequencyChange * frequency /10;
+				change -= change/change;
 			}
 			else
 			{
@@ -158,8 +189,9 @@ public class Generator2 {
 		}
 		else
 		{
-			float mac = r.nextFloat();
-			if(mac<1/100)
+			
+			float temperature = r.nextFloat();
+			if(temperature<1/100)
 			{
 				change = r.nextInt(20)-10;
 			}
@@ -168,19 +200,24 @@ public class Generator2 {
 	
 	private void calculateTonAndroid()
 	{
-		//TODO todo
-	}
-
-	private long toWriteReady(long a)
-	{
-		return 0;
+		curentTonAndroid = curentTonMashine + modul(r.nextLong(), normalDelay);
+		if(r.nextFloat() < bigDelayChance)
+		{
+			curentTonAndroid += modul(r.nextLong(), (long) (bigDelayFactor*normalDelay));
+		}
+		if(curentTonAndroid<=previousTonAndroid)
+		{
+			curentTonAndroid = previousTonAndroid + normalDelay/100 + 1;
+		}
 	}
 
 	private byte[] makeData()
 	{
-		//TODO todo
-		return null;
-
+		byte R[] = new byte[19];
+		MultiBitBuffer mbb = new MultiBitBuffer(R);
+		mbb.setInts(10, 0, 10, 14);
+		mbb.setInts(curentC, 140, 10, 1);
+		return R;
 	}
 
 }

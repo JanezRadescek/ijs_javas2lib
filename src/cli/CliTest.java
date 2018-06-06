@@ -366,6 +366,17 @@ public class CliTest {
 		}
 	}
 
+	@Test
+	public void testGenerator2()
+	{
+		//1-10 s
+		Cli.start(new String[] {"-g", "10", "125", "0.1", "0.1", "1000000", "0.05", "10", "-t", "1", "10",
+				"-o", outDir +File.separator+ "generatedRan.s2"});
+		
+		assertTrue("generating S2 PCARD", new File(outDir +File.separator+ "AndroidgeneratedRan.s2").exists());
+		assertTrue("generating S2 PCARD", new File(outDir +File.separator+ "MachinegeneratedRan.s2").exists());
+	
+	}
 
 
 	/*
