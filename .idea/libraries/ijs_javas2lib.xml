@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="ijs_javas2lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/jgoodies-forms-1.8.0-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/commons-io-2.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jgoodies-forms-1.8.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/miglayout15-swing.jar!/" />
+      <root url="jar://$PROJECT_DIR$/commons-cli-1.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

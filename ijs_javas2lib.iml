@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/Generated" />
+      <excludeFolder url="file://$MODULE_DIR$/S2_rw" />
+      <excludeFolder url="file://$MODULE_DIR$/submodules" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="commons-io-2.6" level="project" />
+    <orderEntry type="library" name="commons-cli-1.4" level="project" />
+    <orderEntry type="module" module-name="s2-java-lib" />
+    <orderEntry type="module" module-name="pcardtimesync" />
+    <orderEntry type="library" name="com.miglayout:miglayout-core:4.2" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/lib" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="file://$MODULE_DIR$/lib/commons-cli-1.4/apidocs" />
+          <root url="file://$MODULE_DIR$/lib/commons-io-2.6/docs" />
+        </JAVADOC>
+        <SOURCES />
+        <jarDirectory url="file://$MODULE_DIR$/lib" recursive="false" />
+      </library>
+    </orderEntry>
+  </component>
+</module>
