@@ -136,8 +136,9 @@ public class Cli {
 				+ "percentigeMissing \n"
 				+ "normalDelay \n"
 				+ "bigDelayChance \n"
-				+ "bigDelayFactor \n");
-		generate.setArgs(7);
+				+ "bigDelayFactor \n"
+				+ "#pauses");
+		generate.setArgs(8);
 		options.addOption(generate);
 
 		Option time = new Option(TIME, "time. zacetni in koncni cas izseka, ki nas zanima. 3 argument if we aproximate "
@@ -445,9 +446,10 @@ public class Cli {
 				long normalDelay = Long.parseLong(tem[4]);
 				float bigDelayChance = Float.parseFloat(tem[5]);
 				float bigDelayFactor = Float.parseFloat(tem[6]);
+				int numPauses = Integer.parseInt(tem[7]);
 				
 				@SuppressWarnings("unused")
-				Generator2 g = new Generator2(outDir, errPS, ab[0], ab[1], seed, frequency, frequencyChange, percentigeMissing, normalDelay, bigDelayChance, bigDelayFactor);
+				Generator2 g = new Generator2(outDir, errPS, ab[0], ab[1], seed, frequency, frequencyChange, percentigeMissing, normalDelay, bigDelayChance, bigDelayFactor, numPauses);
 			}else
 			{
 				if(cmd.hasOption(GENERATE))
