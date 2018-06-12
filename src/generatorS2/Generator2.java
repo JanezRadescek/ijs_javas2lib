@@ -102,7 +102,7 @@ public class Generator2 {
 		r = new Random();
 		r.setSeed(seed);
 
-		
+
 
 		//************************************                  STARTING POINT
 
@@ -120,10 +120,10 @@ public class Generator2 {
 		{
 			calculateFrequency();
 			curentTonMashine += 1E9/curentF;
-			
+
 
 			checkDisconect();
-			
+
 			if(disconect)
 			{
 				// we are inside disconect we just restart counters, all data
@@ -132,7 +132,7 @@ public class Generator2 {
 			{
 				curentC += 14;
 				curentD = makeData();
-				
+
 				//*******************           SAVING ON MACHINE
 				ss2M.onStreamPacket((byte) 0, curentTonMashine, curentD.length, curentD);
 
@@ -174,7 +174,7 @@ public class Generator2 {
 			}
 		}
 		disconect = false;
-		
+
 	}
 
 	private void checkPause()
@@ -234,14 +234,20 @@ public class Generator2 {
 	 */
 	private void calculateTonAndroid()
 	{
-		curentTonAndroid = curentTonMashine + (r.nextLong() % normalDelay);
-		if(r.nextFloat() < bigDelayChance)
+		if(normalDelay > 0)
 		{
-			curentTonAndroid += r.nextLong() % (long) (bigDelayFactor*normalDelay);
-		}
-		if(curentTonAndroid<=previousTonAndroid)
+			curentTonAndroid = curentTonMashine + (r.nextLong() % normalDelay);
+			if(r.nextFloat() < bigDelayChance)
+			{
+				curentTonAndroid += r.nextLong() % (long) (bigDelayFactor*normalDelay);
+			}
+			if(curentTonAndroid<=previousTonAndroid)
+			{
+				curentTonAndroid = previousTonAndroid + normalDelay/100 + 1;
+			}
+		}else
 		{
-			curentTonAndroid = previousTonAndroid + normalDelay/100 + 1;
+			curentTonAndroid = curentTonMashine;
 		}
 	}
 
