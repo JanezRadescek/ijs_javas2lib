@@ -11,6 +11,7 @@ import callBacks.MultiBitBuffer;
 import pipeLines.Pipe;
 import si.ijs.e6.S2.SensorDefinition;
 import si.ijs.e6.S2.StructDefinition;
+import suportingClasses.S2utilities;
 
 /**
  * Filter which saves as CSV. Since CSV is very restrictive only timestamps, handles and actual datas will be saved.
@@ -156,32 +157,8 @@ public class SaveCSV extends Pipe{
 			printLine();
 		}
 
-		ArrayList<Float> sensorData = new ArrayList<>();
-		//hardcoded conversion
-		MultiBitBuffer mbb = new MultiBitBuffer(data);
-		int mbbOffset = 0;
-		for (char element : structDefinitions.get(handle).elementsInOrder.toCharArray())
-		{
-			byte cb = (byte) element;
-			if (sensorDefinitions.get(cb) != null){
-				SensorDefinition tempSensor = sensorDefinitions.get(cb);
-				int entitySize = tempSensor.getResolution();
-				//OLD CODE int entitySize = s2.getEntityHandles(cb).sensorDefinition.resolution;
-				int temp = mbb.getInt(mbbOffset, entitySize);
-				mbbOffset += entitySize;
-				if(dataMapping){
-					float k = tempSensor.k;
-					float n = tempSensor.n;
-					float t = calculateANDround(temp,k,n);
-					sensorData.add(t);
-				}else{
-					sensorData.add((float) temp);
-				}
-
-			}else{
-				errPS.println("Measurement data encountered invalid sensor: " + (int) (cb));
-			}
-		}
+		ArrayList<Float> sensorData = S2utilities.decodeData(structDefinitions.get(handle), sensorDefinitions, data, errPS);
+		
 		//writing
 		CSVline = new String[2 + maxColumns];
 		CSVline[0] = timestamp+"";
@@ -199,36 +176,4 @@ public class SaveCSV extends Pipe{
 
 		return pushStreamPacket(handle, timestamp, len, data);
 	}
-
-
-	/**
-	 * affine transformation of data and round 
-	 * @param temp - raw data
-	 * @param k  - multipliyer
-	 * @param n - ad
-	 * @return k*temp+n rounded based on k
-	 */
-	private float calculateANDround(int temp, float k, float n) {
-		if(k == 0)
-		{
-			errPS.println("There is k = 0 in file");
-			return 0;
-		}
-		float r = k*temp + n;
-		int dec = 0;
-		while(k<1)
-		{
-			k *= 10;
-			dec++;
-		}
-		int zaokr = (int) Math.pow(10, dec);
-		r = (float)Math.round(r * zaokr)/zaokr;
-
-		return r;
-	}
-
-
-
-
-
 }
