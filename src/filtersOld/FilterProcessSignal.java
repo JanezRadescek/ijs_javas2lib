@@ -289,7 +289,7 @@ public class FilterProcessSignal extends Pipe {
 		for (int i = 0; i < mapStruct.get(handle).elementsInOrder.length(); ++i) 
 		{
 			byte cb = (byte) mapStruct.get(handle).elementsInOrder.charAt(i);
-			int entitySize = mapSensor.get(cb).getResolution();
+			int entitySize = mapSensor.get(cb).resolution;
 			int temp = mbb.getInt(mbbOffset, entitySize);
 			mbbOffset += entitySize;
 

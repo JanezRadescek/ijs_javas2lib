@@ -92,7 +92,7 @@ public class Runner {
 		FilterTime f0 = new FilterTime(startTime,endTime);
 		FilterProcessSignal f1 = new FilterProcessSignal();
 		//FilterSaveS2 f2 = new FilterSaveS2(out);
-		SaveCSV f2 = new SaveCSV("C:\\Users\\janez\\workspace\\S2_rw\\UnitTests\\andrej11.csv", true, System.out);
+		SaveCSV f2 = new SaveCSV("C:\\Users\\janez\\workspace\\S2_rw\\UnitTests\\andrej11.csv", System.out);
 		f0.addChild(f1);
 		f1.addChild(f2);
 
@@ -177,7 +177,7 @@ public class Runner {
 					cb = 'c';
 
 				SensorDefinition tempSensor = tsensors.get(cb);
-				int entitySize = tempSensor.getResolution();
+				int entitySize = tempSensor.resolution;
 				int temp = mbb.getInt(mbbOffset, entitySize);
 				mbbOffset += entitySize;
 

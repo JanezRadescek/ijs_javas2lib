@@ -32,19 +32,14 @@ public class SaveCSV extends Pipe{
 	private Map<Byte,StructDefinition> structDefinitions = new HashMap<Byte,StructDefinition>();
 
 
-	private boolean dataMapping;
-
-
 	/**
 	 * Filter which saves as CSV. Since CSV is very restrictive only timestamps, handles and actual datas will be saved.
 	 * @param directory string representing file directory AND name
-	 * @param dataMapping boolean value. if true packets will be translated acording to sensor definitions.
 	 * @param errPS PrintStream on which we write any errors or something like that.
 	 */
-	public SaveCSV(String directory, boolean dataMapping, PrintStream errPS)
+	public SaveCSV(String directory, PrintStream errPS)
 	{
 		this.errPS = errPS;
-		this.dataMapping = dataMapping;
 		try {
 			this.outCSV = new PrintStream(new FileOutputStream(directory));
 			errPS.println("writing data into file " + directory);
@@ -57,13 +52,11 @@ public class SaveCSV extends Pipe{
 	/**
 	 * Filter which saves as CSV. Since CSV is very restrictive only timestamps, handles and actual datas will be saved.
 	 * @param csv PrintStream on which we write CSV
-	 * @param dataMapping boolean value. if true packets will be translated acording to sensor definitions.
 	 * @param print PrintStream on which we write any errors or something like that.
 	 */
-	public SaveCSV(PrintStream csv, boolean dataMapping, PrintStream errPS)
+	public SaveCSV(PrintStream csv, PrintStream errPS)
 	{
 		this.errPS = errPS;
-		this.dataMapping = dataMapping;
 		this.outCSV = csv;
 		errPS.println("writing data on Console");
 

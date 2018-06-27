@@ -21,7 +21,7 @@ public class S2utilities {
 			byte cb = (byte) element;
 			if (m.get(cb) != null){
 				SensorDefinition tempSensor = m.get(cb);
-				int entitySize = tempSensor.getResolution();
+				int entitySize = tempSensor.resolution;
 				//OLD CODE int entitySize = s2.getEntityHandles(cb).sensorDefinition.resolution;
 				int temp = mbb.getInt(mbbOffset, entitySize);
 				mbbOffset += entitySize;

@@ -3,8 +3,6 @@ package cli;
 import java.lang.Exception;
 import java.nio.charset.StandardCharsets;
 
-import javax.naming.OperationNotSupportedException;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,6 +23,7 @@ import pipeLines.filters.FilterHandles;
 import pipeLines.filters.GetInfo;
 import pipeLines.filters.SaveCSV;
 import pipeLines.filters.SaveS2;
+import pipeLines.filters.SaveTXT;
 import pipeLines.filters.FilterTime;
 import si.ijs.e6.S2;
 
@@ -45,7 +44,7 @@ public class Cli {
 
 	public static final String STATISTIKA = "s";
 	public static final String CUT = "c";
-	public static final String READ = "r";
+	//public static final String READ = "r";
 	public static final String MEARGE = "m";
 	public static final String HELP = "help";
 	public static final String CHANGE_TIME = "ct";
@@ -120,7 +119,7 @@ public class Cli {
 
 		options.addOption(STATISTIKA, false, "statistics. Output statistics. ");
 		options.addOption(CUT, false, "cut. cut/filter S2");
-		options.addOption(READ, false, "read. izrezi del in izpisi na izhod v CSV in human readable form");
+		//options.addOption(READ, false, "read. izrezi del in izpisi na izhod v CSV in human readable form");
 		options.addOption(MEARGE, true, "mearge. Combines two S2 files in one S2 file. Has mendatory argument."
 				+ " If true streams with same hendels will be merged,"
 				+ " else strems from second file will get new one where needed");
@@ -155,7 +154,7 @@ public class Cli {
 
 		options.addOption(input1);
 
-		Option output = new Option(OUTPUT, true, "output. Directory and name of output file");
+		Option output = new Option(OUTPUT, true, "output. Argument is Directory and name of output file. Type of outputwill be based on extension of the name. Possible extensions are 'csv', 's2' and 'txt' ");
 		options.addOption(output);
 
 		Option handle = new Option(HANDLES,true ,"handles. Handles, we want to use.Deafault all. " +
@@ -170,6 +169,8 @@ public class Cli {
 		options.addOption(dataTypes);
 
 
+
+		//************************************         APACHE CLI                      *******************************
 
 
 
@@ -206,8 +207,9 @@ public class Cli {
 
 
 		//********************************               PARSANJE   ARGUMENTOV             ********************************
-		
-		
+
+
+
 		S2 file1;
 		S2.LoadStatus loadS1;
 		S2 file2 = null;
@@ -218,15 +220,15 @@ public class Cli {
 		//String inFname1;
 		File inDirectory2 = null;
 		//String inFname2 = null;
-		
+
 
 		//default values			
 		long[] ab = new long[]{0,Long.MAX_VALUE};
 		boolean nonEss = true;
 		String outDir = null;
+		String extension = null;
 		long handles = Long.MAX_VALUE;
 		byte dataT = Byte.MAX_VALUE;
-		boolean dataMapping = true;
 
 		//second input S2 file directory and name
 		if(cmd.hasOption(MEARGE))
@@ -248,7 +250,7 @@ public class Cli {
 			try{
 				double aa = Double.parseDouble(cmd.getOptionValues(TIME)[0])* 1E9;
 				double bb = Double.parseDouble(cmd.getOptionValues(TIME)[1])* 1E9;
-				if(cmd.hasOption(CUT))
+				if(cmd.getOptionValues("t").length == 3)
 					nonEss = Boolean.parseBoolean(cmd.getOptionValues("t")[2]);
 				ab[0] = (long)aa;
 				ab[1] = (long)bb;
@@ -268,9 +270,28 @@ public class Cli {
 			try{
 				outDir = cmd.getOptionValue(OUTPUT);
 				//izhodName = cmd.getOptionValues("o")[1];
+				File tepF = new File(outDir);
+				String name = tepF.getName();
+				String parent = tepF.getParent();
+
+				String[] parts = name.split("\\.");
+
+				if(parts[0].equals("display") && parent == null)
+				{
+					outDir = "display";
+				}
+
+				if(parent == null || parts.length == 1)
+				{
+					errPS.println("Option "+OUTPUT+" needs file directory and name with extension. Example './File/name.txt'. TERMINATE");
+					return badInputArgs;
+				}
+
+
+				extension = parts[parts.length - 1];
 			} catch(Exception e)
 			{
-				errPS.println("Option "+OUTPUT+" needs file directory and name. TERMINATE");
+				errPS.println("Option "+OUTPUT+" needs file directory and name with extension. Example './File/name.txt'. TERMINATE");
 				return badInputArgs;
 			}
 		}
@@ -296,6 +317,10 @@ public class Cli {
 		}
 
 
+
+		//***************************************          EXECUTING TASK             **************************
+
+
 		//brez vhodne ne moremo delati nekaterih
 		if(cmd.hasOption(INPUT))
 		{
@@ -308,10 +333,10 @@ public class Cli {
 				errPS.println("Option i need directory and name of input S2 file. TERMINATE");
 				return badInputArgs;
 			}
-			
+
 			file1 = new S2();
 			loadS1 = file1.load(inDirectory1.getParentFile(), inDirectory1.getName());
-			
+
 
 			if(cmd.hasOption(MEARGE) && inDirectory2!=null && outDir!=null)
 			{
@@ -366,44 +391,51 @@ public class Cli {
 				loadS1.readLines(filter, false);
 			}
 
-			if(cmd.hasOption(CUT))
+			if(cmd.hasOption(CUT) && outDir != null)
 			{
-				if(outDir != null)
+
+
+				//new way
+				FilterTime filterT = new FilterTime(ab[0], ab[1], nonEss);
+				FilterData filterD = new FilterData(dataT,errPS);
+				FilterHandles filterH = new FilterHandles(handles);
+
+
+				Pipe filterSave;
+
+				if(outDir.equals("display"))
 				{
-
-					//new way
-					FilterTime filterT = new FilterTime(ab[0], ab[1], nonEss);
-					FilterData filterD = new FilterData(dataT,errPS);
-					FilterHandles filterH = new FilterHandles(handles);
-					SaveS2 filterS = new SaveS2(outDir, errPS);
-
-					loadS1.addReadLineCallback(filterT);
-					filterT.addChild(filterD);
-					filterD.addChild(filterH);
-					filterH.addChild(filterS);
-					loadS1.readLines(filterT, false);
-
+					switch(extension)
+					{
+					case "txt": filterSave = new SaveTXT(outPS, errPS);break;
+					case "csv": filterSave = new SaveCSV(outPS, errPS);break;
+					case "s2":  errPS.println("s2 extension doesnt work with display");return badInputArgs;
+					default: errPS.println("Wrong extension of output file name");return badInputArgs;
+					}
+					
 				}else
 				{
-					errPS.println("Option "+CUT+"-cut need option o-out(directory and name of output file). TERMINATE");
-					return badInputArgs;
+					switch(extension)
+					{
+					case "txt": try {
+						filterSave = new SaveTXT(new PrintStream(new File(outDir)), errPS);
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+						return badInputArgs;
+					}break;
+					case "csv": filterSave = new SaveCSV(outDir, errPS);break;
+					case "s2":  filterSave = new SaveS2(outDir, errPS);break;
+					default: errPS.println("Wrong extension of output file name");return badInputArgs;
+					}
 				}
-			}
 
-			if(cmd.hasOption(READ))
-			{
-				if(outDir != null)
-				{
-					//new way with filters
+				loadS1.addReadLineCallback(filterT);
+				filterT.addChild(filterD);
+				filterD.addChild(filterH);
+				filterH.addChild(filterSave);
+				loadS1.readLines(filterT, false);
 
-					SaveCSV filter = new SaveCSV(outDir, dataMapping, errPS);
-					loadS1.readLines(filter, false);
 
-				}else
-				{
-					SaveCSV filter = new SaveCSV(outPS, dataMapping, errPS);
-					loadS1.readLines(filter, false);
-				}
 			}
 
 			if(cmd.hasOption(CHANGE_TIME))
@@ -431,7 +463,7 @@ public class Cli {
 				errPS.print(file1.getNotes());
 			}
 
-			
+
 
 		}
 		else
@@ -447,7 +479,7 @@ public class Cli {
 				float bigDelayChance = Float.parseFloat(tem[5]);
 				float bigDelayFactor = Float.parseFloat(tem[6]);
 				int numPauses = Integer.parseInt(tem[7]);
-				
+
 				@SuppressWarnings("unused")
 				Generator2 g = new Generator2(outDir, errPS, ab[0], ab[1], seed, frequency, frequencyChange, percentigeMissing, normalDelay, bigDelayChance, bigDelayFactor, numPauses);
 			}else
@@ -458,7 +490,7 @@ public class Cli {
 					return badInputArgs;
 				}
 			}
-	
+
 		}
 		errPS.println("CLI finished");
 		return good;
