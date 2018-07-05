@@ -435,7 +435,6 @@ public class Cli {
 				filterH.addChild(filterSave);
 				loadS1.readLines(filterT, false);
 
-
 			}
 
 			if(cmd.hasOption(CHANGE_TIME))
@@ -462,8 +461,6 @@ public class Cli {
 			{
 				errPS.print(file1.getNotes());
 			}
-
-
 
 		}
 		else

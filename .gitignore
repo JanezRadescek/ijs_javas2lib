@@ -17,12 +17,15 @@ Matlab/*
 *.aux
 *.gz
 
-#specifi files
+#specific files
 src/cli/CliDonkey.java
 
 #INCLUDE
 !Generated/generated.s2
 !Generated/generated.csv
-!Generated/generated.txt
+!Generated/generatedDelayed.csv
+!Generated/generatedINFO.txt
+!Generated/generatedTXT.txt
 !Generated/cutedMiddle.csv
+!Generated/cutted.txt
 !Matlab/analyzeOne.m

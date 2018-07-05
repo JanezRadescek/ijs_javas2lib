@@ -37,7 +37,8 @@ public class CliTest {
 	static String inDir  = "." + File.separator + "Generated";
 	static String inFile = "generated.s2";
 	static String inCSV = "generated.csv";
-	static String inTXT = "generated.txt";
+	static String inINFO = "generatedINFO.txt";
+	static String inTXT = "generatedTXT.txt";
 	static String inDelayed = "generatedDelayed.csv";
 	static String inDirName = inDir +File.separator+ inFile;
 
@@ -97,7 +98,7 @@ public class CliTest {
 
 		Cli.start(new String[]{"-s" ,"-i", inDirName, "-o", outDir+File.separator+ "StatistikaOriginala.txt"});
 
-		File correct = new File(inDir + File.separator + inTXT);
+		File correct = new File(inDir + File.separator + inINFO);
 		File testing = new File(outDir + File.separator + "StatistikaOriginala.txt");
 
 		try {
@@ -117,13 +118,21 @@ public class CliTest {
 	{
 		//TODO
 		Cli.start(new String[]{"-c", "-i", inDirName, "-o", outDir + File.separator + "IzpisOriginala.txt"});
-		assertTrue("testiranje NEKG txt", true);
+		
+		File correct = new File(inDir + File.separator + inTXT);
+		File testing = new File(outDir + File.separator + "IzpisOriginala.txt");
+
+		try {
+			boolean isTwoEqual = FileUtils.contentEquals(correct, testing);
+			assertTrue("testiranje izpisa TXT",isTwoEqual);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Test
 	public void OutCSVTest()
 	{
-		
 		{
 			//copy
 			Cli.start(new String[]{"-c", "-i", inDirName, "-o", outDir + File.separator + "IzpisOriginala.csv"});
