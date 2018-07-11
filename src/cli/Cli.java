@@ -2,7 +2,7 @@ package cli;
 
 import java.lang.Exception;
 import java.nio.charset.StandardCharsets;
-
+import java.util.ArrayList;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,6 +15,7 @@ import callBacks.FirtstReader;
 import callBacks.SecondReader;
 import filtersOld.FilterProcessSignal;
 import generatorS2.Generator2;
+import pipeLines.Connector;
 import pipeLines.Pipe;
 import pipeLines.conglomerates.SmartMerge;
 import pipeLines.filters.ChangeTimeStamps;
@@ -43,7 +44,6 @@ public class Cli {
 
 
 	public static final String STATISTIKA = "s";
-	public static final String CUT = "c";
 	//public static final String READ = "r";
 	public static final String MEARGE = "m";
 	public static final String HELP = "help";
@@ -117,13 +117,13 @@ public class Cli {
 
 		Options options = new Options();
 
-		
-		Option statistika = new Option(STATISTIKA, "Output statistics of input S2 file. Has optional argument directory and name of file for outputing statistics. "
-				+ "If argument equals 'display' it will print statistics to outPS (default is System.out). DO NOT confuse this argument with flag -o output.");
-		statistika.hasOptionalArg();
+
+		Option statistika = new Option(STATISTIKA,true, "Output statistics of input S2 file. Has optional argument directory and name of file for outputing statistics. "
+				+ "If argument is mising it will print statistics to outPS (default is System.out). DO NOT confuse this argument with flag -o output.");
+		statistika.setArgs(1);
+		statistika.setOptionalArg(true);;
 		options.addOption(statistika);
-		
-		options.addOption(CUT, false, "cut. cut/filter S2");
+
 		//options.addOption(READ, false, "read. izrezi del in izpisi na izhod v CSV in human readable form");
 		options.addOption(MEARGE, true, "mearge. Needs two inputs, and optional output. Combining with other filters has undefined behavior! Combines two S2 files in one S2 file. Has mendatory argument."
 				+ " If true streams with same hendels will be merged,"
@@ -162,7 +162,7 @@ public class Cli {
 		options.addOption(input1);
 
 		Option output = new Option(OUTPUT, true, "General output for result of other flags. If Argument is valid Directory and name with extension it will output into specifed file."
-				+ " If argument equals 'display.xyz' where xyz is file extension it will print result to the outPUT stream (Default is System.out)."
+				+ " If argument equals 'xyz' where 'xyz' is file extension it will print result to the outPUT stream (Default is System.out)."
 				+ "Type of output will be based on extension of the name. Possible extensions are 'csv', 's2' and 'txt' ");
 		options.addOption(output);
 
@@ -215,124 +215,17 @@ public class Cli {
 
 
 
-		//********************************               PARSANJE   ARGUMENTOV             ********************************
-
-
-
-		S2 file1;
-		S2.LoadStatus loadS1;
-		S2 file2 = null;
-		S2.LoadStatus loadS2 = null;
-
-
-		File inDirectory1;
-		//String inFname1;
-		File inDirectory2 = null;
-		//String inFname2 = null;
-
-
-		//default values			
-		long[] ab = new long[]{0,Long.MAX_VALUE};
-		boolean nonEss = true;
-		String outDir = null;
-		String extension = null;
-		long handles = Long.MAX_VALUE;
-		byte dataT = Byte.MAX_VALUE;
-
-		//second input S2 file directory and name
-		if(cmd.hasOption(MEARGE))
-		{
-			try
-			{
-				inDirectory2 = new File(cmd.getOptionValues(INPUT)[1]);
-				//inFname2 = cmd.getOptionValues("v")[1];
-			}
-			catch(Exception r)
-			{
-				errPS.println("Option i needs directory and name of second input file. TERMINATE");
-				return badInputArgs;
-			}
-		}
-		// time interval
-		if(cmd.hasOption(TIME))
-		{
-			try{
-				double aa = Double.parseDouble(cmd.getOptionValues(TIME)[0])* 1E9;
-				double bb = Double.parseDouble(cmd.getOptionValues(TIME)[1])* 1E9;
-				if(cmd.getOptionValues("t").length == 3)
-					nonEss = Boolean.parseBoolean(cmd.getOptionValues("t")[2]);
-				ab[0] = (long)aa;
-				ab[1] = (long)bb;
-			}catch(NumberFormatException e){
-				errPS.println("Arguments at" +TIME+ "must be float float boolean");
-				return badInputArgs;
-			}
-			if (ab[0]>ab[1])
-			{
-				errPS.println("Starting time must be lower than ending. TERMINATE");
-				return badInputArgs;
-			}
-		}
-		//output direcotry and name 
-		if(cmd.hasOption(OUTPUT))
-		{
-			try{
-				outDir = cmd.getOptionValue(OUTPUT);
-				//izhodName = cmd.getOptionValues("o")[1];
-				File tepF = new File(outDir);
-				String name = tepF.getName();
-				String parent = tepF.getParent();
-
-				String[] parts = name.split("\\.");
-
-				if(parts[0].equals("display") && parent == null)
-				{
-					outDir = "display";
-				}
-
-				if(parent == null || parts.length == 1)
-				{
-					errPS.println("Option "+OUTPUT+" needs file directory and name with extension. Example './File/name.txt'. TERMINATE");
-					return badInputArgs;
-				}
-
-
-				extension = parts[parts.length - 1];
-			} catch(Exception e)
-			{
-				errPS.println("Option "+OUTPUT+" needs file directory and name with extension. Example './File/name.txt'. TERMINATE");
-				return badInputArgs;
-			}
-		}
-		//handle
-		if(cmd.hasOption(HANDLES))
-		{
-			try{
-				handles = Long.parseLong(cmd.getOptionValue(HANDLES),2);
-			}catch(NumberFormatException e){
-				errPS.println("argument of "+HANDLES+" must be a number in binary format. TERMINATE");
-				return badInputArgs;
-			}
-		}
-		//"data types"
-		if(cmd.hasOption(DATA))
-		{
-			try{
-				dataT = Byte.parseByte(cmd.getOptionValue(DATA),2);
-			}catch(NumberFormatException e){
-				errPS.println("argument of "+DATA+" must be a number in binary format. TERMINATE");
-				return badInputArgs;
-			}
-		}
-
-
-
-		//***************************************          EXECUTING TASK             **************************
+		//********************************           PARSANJE   ARGUMENTOV                 ********************************
 
 
 		//brez vhodne ne moremo delati nekaterih
 		if(cmd.hasOption(INPUT))
 		{
+			S2 file1;
+			S2.LoadStatus loadS1;
+			S2 file2 = null;
+			S2.LoadStatus loadS2 = null;
+			File inDirectory1;
 			try
 			{
 				inDirectory1 = new File(cmd.getOptionValues(INPUT)[0]);
@@ -342,50 +235,112 @@ public class Cli {
 				errPS.println("Option i need directory and name of input S2 file. TERMINATE");
 				return badInputArgs;
 			}
-
 			file1 = new S2();
 			loadS1 = file1.load(inDirectory1.getParentFile(), inDirectory1.getName());
 
 
-			if(cmd.hasOption(MEARGE) && inDirectory2!=null && outDir!=null)
+			//******************************************************************
+			//******************************************************************
+			ArrayList<Pipe> pipeLine = new ArrayList<Pipe>();
+			//******************************************************************
+			//******************************************************************
+
+
+
+			if(cmd.hasOption(MEARGE))
 			{
-				if(false)
+				try
 				{
-					//history. its still there because new merge isnt fully tested
+					File inDirectory2 = new File(cmd.getOptionValues(INPUT)[1]);
 					file2 = new S2();
 					loadS2 = file2.load(inDirectory2.getParentFile(), inDirectory2.getName());
-					boolean mergeHandles = Boolean.parseBoolean(cmd.getOptionValue(MEARGE));
-
-					SecondReader bob = new SecondReader(file2, outDir, mergeHandles);
-					FirtstReader gre = new FirtstReader(file1, bob);
-
-					loadS1.readLines(gre, false);
-					loadS2.readLines(bob, false);
-				}else
-				{
-					file2 = new S2();
-					loadS2 = file2.load(inDirectory2.getParentFile(), inDirectory2.getName());
-					Pipe pipeP = new Pipe();
+					Pipe pipeP = new Pipe(); 
 					Pipe pipeS = new Pipe();
 					SmartMerge sm = new SmartMerge(loadS2, pipeS, pipeP, pipeS, inDirectory1, inDirectory2, false, false, errPS);
 
-					sm.getPrimaryOutPut().addChild(new SaveS2(outDir, errPS));
-					loadS1.readLines(pipeP, false);
+					Connector con = new Connector();
+					con.addStart(pipeP);
+					sm.getPrimaryOutPut().addChild(con.getEnd());
+					
+					pipeLine.add(con);
 				}
-			}else if (cmd.hasOption(MEARGE))
+				catch(Exception r)
+				{
+					errPS.println("Option i needs directory and name of second input file. TERMINATE");
+					return badInputArgs;
+				}
+			}
+
+
+
+			if(cmd.hasOption(DATA))
 			{
-				errPS.println("If we want to use -m(concat 2 S2 files)"+
-						"we need option -i with second argument (second S2 file) and -o(output S2 file). TERMINATE");
-				return badInputArgs;
+				try
+				{
+					pipeLine.add(new FilterData(Byte.parseByte(cmd.getOptionValue(DATA),2),errPS));
+				}catch(NumberFormatException e){
+					errPS.println("argument of "+DATA+" must be a number in binary format. TERMINATE");
+					return badInputArgs;
+				}
+			}
+
+
+			if(cmd.hasOption(HANDLES))
+			{
+				try{
+					pipeLine.add(new FilterHandles(Long.parseLong(cmd.getOptionValue(HANDLES),2)));
+				}catch(NumberFormatException e){
+					errPS.println("argument of "+HANDLES+" must be a number in binary format. TERMINATE");
+					return badInputArgs;
+				}
+			}
+
+			//FILTER TIME !!!
+			if(cmd.hasOption(TIME))
+			{
+				boolean nonEss = true;
+				try{
+					long a = (long)(Double.parseDouble(cmd.getOptionValues(TIME)[0])* 1E9);
+					long b = (long)(Double.parseDouble(cmd.getOptionValues(TIME)[1])* 1E9);
+					if(cmd.getOptionValues(TIME).length == 3)
+					{
+						nonEss = Boolean.parseBoolean(cmd.getOptionValues(TIME)[2]);
+					}
+					if (a>b)
+					{
+						errPS.println("Starting time must be lower than ending. TERMINATE");
+						return badInputArgs;
+					}
+					pipeLine.add(new FilterTime(a, b, nonEss));
+				}catch(NumberFormatException e){
+					errPS.println("Arguments at" +TIME+ "must be float float boolean");
+					return badInputArgs;
+				}
+
+			}
+
+			if(cmd.hasOption(CHANGE_TIME))
+			{
+				long delay = Long.parseLong(cmd.getOptionValue(CHANGE_TIME));
+				ChangeTimeStamps cts = new ChangeTimeStamps(delay, errPS);
+
+				pipeLine.add(cts);
+			}
+
+			if(cmd.hasOption(PROCESS_SIGNAL))
+			{
+				FilterProcessSignal filterP = new FilterProcessSignal();
+				pipeLine.add(filterP);
 			}
 
 			if(cmd.hasOption(STATISTIKA))
 			{
 				GetInfo filter;
-				if(outDir !=null)
+				String outStat = cmd.getOptionValue(STATISTIKA);
+				if(outStat !=null)
 				{
 					try {
-						filter = new GetInfo(new PrintStream(new File(outDir)));
+						filter = new GetInfo(new PrintStream(new File(outStat)));
 					} catch (FileNotFoundException e) {
 						e.printStackTrace();
 						outPS.println("File couldnt be made");
@@ -396,31 +351,45 @@ public class Cli {
 				{
 					filter = new GetInfo(outPS);
 				}
-				//loadS1.addReadLineCallback(filter);
-				loadS1.readLines(filter, false);
+				pipeLine.add(filter);
 			}
 
-			if(cmd.hasOption(CUT) && outDir != null)
+			if(cmd.hasOption(OUTPUT))
 			{
-				//new way
-				FilterTime filterT = new FilterTime(ab[0], ab[1], nonEss);
-				FilterData filterD = new FilterData(dataT,errPS);
-				FilterHandles filterH = new FilterHandles(handles);
-
 				Pipe filterSave;
+				String outDir;
+				
+				try
+				{
+					outDir = cmd.getOptionValue(OUTPUT);
+				} catch(Exception e)
+				{
+					errPS.println("Option "+OUTPUT+" needs file directory and name with extension. Example './File/name.txt'. TERMINATE");
+					return badInputArgs;
+				}
+				
+				File tepF = new File(outDir);
+				String name = tepF.getName();
+				String[] parts = name.split("\\.");
+				String extension = parts[parts.length - 1];
 
-				if(outDir.equals("display"))
+				if(parts.length == 1)
 				{
 					switch(extension)
 					{
 					case "txt": filterSave = new SaveTXT(outPS, errPS);break;
 					case "csv": filterSave = new SaveCSV(outPS, errPS);break;
-					case "s2":  errPS.println("s2 extension doesnt work with display");return badInputArgs;
+					case "s2":  errPS.println("s2 cant be printed to PrintStream");return badInputArgs;
 					default: errPS.println("Wrong extension of output file name");return badInputArgs;
 					}
-					
 				}else
 				{
+					if(!tepF.getParentFile().exists())
+					{
+						errPS.println("Given directory " +tepF.getParent() +" does not exist. Creating one");
+						tepF.getParentFile().mkdirs();
+					}
+					
 					switch(extension)
 					{
 					case "txt": try {
@@ -434,31 +403,24 @@ public class Cli {
 					default: errPS.println("Wrong extension of output file name");return badInputArgs;
 					}
 				}
-
-				loadS1.addReadLineCallback(filterT);
-				filterT.addChild(filterD);
-				filterD.addChild(filterH);
-				filterH.addChild(filterSave);
-				loadS1.readLines(filterT, false);
+				
+				pipeLine.add(filterSave);
 			}
 
-			if(cmd.hasOption(CHANGE_TIME))
+			
+			//***************************************          COMBINING           **************************
+			//***************************************          EXECUTING           **************************
+			if(pipeLine.size() > 0)
 			{
-				long delay = Long.parseLong(cmd.getOptionValue(CHANGE_TIME));
-				ChangeTimeStamps cts = new ChangeTimeStamps(delay, errPS);
-				cts.addChild(new SaveS2(outDir, errPS));
-
-				loadS1.readLines(cts, true);
-			}
-
-			if(cmd.hasOption(PROCESS_SIGNAL))
+				for(int i = 1;i<pipeLine.size();i++)
+				{
+					pipeLine.get(i-1).addChild(pipeLine.get(i));
+				}
+				loadS1.readLines(pipeLine.get(0), false);
+			}else
 			{
-				FilterTime filterT = new FilterTime(ab[0], ab[1]);
-				FilterProcessSignal filterP = new FilterProcessSignal();
-				filterT.addChild(filterP);
-				filterP.addChild(new SaveS2(outDir, errPS));
-
-				loadS1.readLines(filterT, false);
+				errPS.println("No flags were detected");
+				return unknown;
 			}
 
 			if(file1.getNotes().length() > 0)
@@ -471,6 +433,16 @@ public class Cli {
 		{
 			if(cmd.hasOption(GENERATE) & cmd.hasOption(OUTPUT) & cmd.hasOption(TIME))
 			{
+				String outDir = cmd.getOptionValue(OUTPUT);
+				File tepF = new File(outDir);
+				if(!tepF.getParentFile().exists())
+				{
+					errPS.println("Given directory " +tepF.getParent() +" does not exist. Creating one");
+					tepF.getParentFile().mkdirs();
+				}
+				long a = (long)(Double.parseDouble(cmd.getOptionValues(TIME)[0])* 1E9);
+				long b = (long)(Double.parseDouble(cmd.getOptionValues(TIME)[1])* 1E9);
+				
 				String[] tem = cmd.getOptionValues(GENERATE);
 				long seed = Long.parseLong(tem[0]);
 				float frequency = Float.parseFloat(tem[1]);
@@ -482,7 +454,7 @@ public class Cli {
 				int numPauses = Integer.parseInt(tem[7]);
 
 				@SuppressWarnings("unused")
-				Generator2 g = new Generator2(outDir, errPS, ab[0], ab[1], seed, frequency, frequencyChange, percentigeMissing, normalDelay, bigDelayChance, bigDelayFactor, numPauses);
+				Generator2 g = new Generator2(outDir, errPS, a, b, seed, frequency, frequencyChange, percentigeMissing, normalDelay, bigDelayChance, bigDelayFactor, numPauses);
 			}else
 			{
 				if(cmd.hasOption(GENERATE))

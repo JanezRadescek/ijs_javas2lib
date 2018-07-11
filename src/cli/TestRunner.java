@@ -19,20 +19,6 @@ public class TestRunner {
 		}
 
 		System.out.println("result was " + (result.wasSuccessful() ? "successful" : "not successful"));
-		
-		//TODO it cant delete .s2 files
-		/*
-		if(result.wasSuccessful())
-		{
-			String outDir = "." + File.separator + "UnitTests";
-			try {
-				FileUtils.deleteDirectory(new File(outDir));
-			} catch (IOException e) {
-				System.err.println("we canot delete " + outDir);
-				e.printStackTrace();
-			}
-		}*/
-	
 	}
 
 }
