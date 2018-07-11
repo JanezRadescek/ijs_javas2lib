@@ -105,7 +105,7 @@ public class FilterProcessSignal extends Pipe {
 	@Override
 	public boolean onVersion(int versionInt, String version) {
 		if(!version.equals("PCARD"))
-			System.err.print("We are processing S2 file which is not PCARD");
+			System.err.print("We are processing S2 file which is not PCARD, resulting in Undefined behavior.");
 		
 		return pushVersion(versionInt, version);
 	}

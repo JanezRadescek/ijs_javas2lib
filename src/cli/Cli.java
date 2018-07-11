@@ -117,14 +117,21 @@ public class Cli {
 
 		Options options = new Options();
 
-		options.addOption(STATISTIKA, false, "statistics. Output statistics. ");
+		
+		Option statistika = new Option(STATISTIKA, "Output statistics of input S2 file. Has optional argument directory and name of file for outputing statistics. "
+				+ "If argument equals 'display' it will print statistics to outPS (default is System.out). DO NOT confuse this argument with flag -o output.");
+		statistika.hasOptionalArg();
+		options.addOption(statistika);
+		
 		options.addOption(CUT, false, "cut. cut/filter S2");
 		//options.addOption(READ, false, "read. izrezi del in izpisi na izhod v CSV in human readable form");
-		options.addOption(MEARGE, true, "mearge. Combines two S2 files in one S2 file. Has mendatory argument."
+		options.addOption(MEARGE, true, "mearge. Needs two inputs, and optional output. Combining with other filters has undefined behavior! Combines two S2 files in one S2 file. Has mendatory argument."
 				+ " If true streams with same hendels will be merged,"
 				+ " else strems from second file will get new one where needed");
-		options.addOption(HELP, false, "Help");
-		options.addOption(CHANGE_TIME, true, "add time in argument to timestamps");
+		options.addOption(HELP, false, "Prints Help. Other flags will be ignored.");
+		options.addOption(CHANGE_TIME, true, "add time in argument to all timestamps. "
+				+ "If added time is negative and its absolute value bigger than value of firtst time stamp, "
+				+ "added time will be set to -first time, resulting in new first time being 0.");
 		options.addOption(PROCESS_SIGNAL,false, "Proces signal. If argument is true it will process"
 				+ " as if the frequency of sensor is constant. Simple processsing. Otherwise it will split into intervals");
 
@@ -154,16 +161,18 @@ public class Cli {
 
 		options.addOption(input1);
 
-		Option output = new Option(OUTPUT, true, "output. Argument is Directory and name of output file. Type of outputwill be based on extension of the name. Possible extensions are 'csv', 's2' and 'txt' ");
+		Option output = new Option(OUTPUT, true, "General output for result of other flags. If Argument is valid Directory and name with extension it will output into specifed file."
+				+ " If argument equals 'display.xyz' where xyz is file extension it will print result to the outPUT stream (Default is System.out)."
+				+ "Type of output will be based on extension of the name. Possible extensions are 'csv', 's2' and 'txt' ");
 		options.addOption(output);
 
-		Option handle = new Option(HANDLES,true ,"handles. Handles, we want to use.Deafault all. " +
+		Option handle = new Option(HANDLES,true ,"handles. Handles, we want to use." +
 				"Argument represent wanted handles. " +
-				"If we want handle with num. i there has to be 1 on i+1 position from right to left in argument,0 atherwise" +
+				"If we want handle with num. i there has to be 1 on i+1 position from right to left in argument. If we dont want it there have to be 0." +
 				"If we want to keep only handles with 0 and 4 we pass '10001'" );
 		options.addOption(handle);
 
-		Option dataTypes = new Option(DATA,true, "datatype. data types we want to keep. Deafault all" +
+		Option dataTypes = new Option(DATA,true, "datatype. data types we want to keep. " +
 				"Argument must be a number in binary form"+
 				".*1=keeps comments, .*1.=keeps Special, .*1..=keeps meta");
 		options.addOption(dataTypes);
@@ -342,6 +351,7 @@ public class Cli {
 			{
 				if(false)
 				{
+					//history. its still there because new merge isnt fully tested
 					file2 = new S2();
 					loadS2 = file2.load(inDirectory2.getParentFile(), inDirectory2.getName());
 					boolean mergeHandles = Boolean.parseBoolean(cmd.getOptionValue(MEARGE));
@@ -362,7 +372,6 @@ public class Cli {
 					sm.getPrimaryOutPut().addChild(new SaveS2(outDir, errPS));
 					loadS1.readLines(pipeP, false);
 				}
-
 			}else if (cmd.hasOption(MEARGE))
 			{
 				errPS.println("If we want to use -m(concat 2 S2 files)"+
@@ -393,13 +402,10 @@ public class Cli {
 
 			if(cmd.hasOption(CUT) && outDir != null)
 			{
-
-
 				//new way
 				FilterTime filterT = new FilterTime(ab[0], ab[1], nonEss);
 				FilterData filterD = new FilterData(dataT,errPS);
 				FilterHandles filterH = new FilterHandles(handles);
-
 
 				Pipe filterSave;
 
@@ -434,7 +440,6 @@ public class Cli {
 				filterD.addChild(filterH);
 				filterH.addChild(filterSave);
 				loadS1.readLines(filterT, false);
-
 			}
 
 			if(cmd.hasOption(CHANGE_TIME))
@@ -445,7 +450,6 @@ public class Cli {
 
 				loadS1.readLines(cts, true);
 			}
-
 
 			if(cmd.hasOption(PROCESS_SIGNAL))
 			{
