@@ -2,6 +2,7 @@ package cli;
 
 import java.lang.Exception;
 import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -18,6 +19,7 @@ import generatorS2.Generator2;
 import pipeLines.Connector;
 import pipeLines.Pipe;
 import pipeLines.conglomerates.SmartMerge;
+import pipeLines.filters.ChangeDateTime;
 import pipeLines.filters.ChangeTimeStamps;
 import pipeLines.filters.FilterData;
 import pipeLines.filters.FilterHandles;
@@ -48,6 +50,7 @@ public class Cli {
 	public static final String MEARGE = "m";
 	public static final String HELP = "help";
 	public static final String CHANGE_TIME = "ct";
+	public static final String CHANGE_DATE_TIME = "cdt";
 	public static final String PROCESS_SIGNAL = "p";
 	public static final String GENERATE = "g";
 
@@ -135,25 +138,29 @@ public class Cli {
 		options.addOption(PROCESS_SIGNAL,false, "Proces signal. If argument is true it will process"
 				+ " as if the frequency of sensor is constant. Simple processsing. Otherwise it will split into intervals");
 
-		Option generate = new Option(GENERATE, "Generates S2 PCARD based on arguments. Needs option time and output. Arguments: \n" 
-				+ "seed \n"
-				+ "frequency \n"
-				+ "frequencyChange \n"
-				+ "percentigeMissing \n"
-				+ "normalDelay \n"
-				+ "bigDelayChance \n"
-				+ "bigDelayFactor \n"
-				+ "#pauses");
+		Option generate = new Option(GENERATE, "Generates S2 PCARD based on arguments. Needs option/flag time and output.\nArguments in order: \n" 
+				+ "-seed \n"
+				+ "-frequency \n"
+				+ "-frequencyChange \n"
+				+ "-percentigeMissing \n"
+				+ "-normalDelay \n"
+				+ "-bigDelayChance \n"
+				+ "-bigDelayFactor \n"
+				+ "-#pauses");
 		generate.setArgs(8);
 		options.addOption(generate);
 
-		Option time = new Option(TIME, "time. zacetni in koncni cas izseka, ki nas zanima. 3 argument if we aproximate "
-				+ "datas without own time with last previous time"
-				+ "-t start end nonEssential. Defaul -t 0 Long.MAX_VALUE true");
+		Option time = new Option(TIME, "time. zacetni in koncni cas izseka, ki nas zanima. third argument if we aproximate "
+				+ "datas without own time with last previous time and therefore delete them if outside interval."
+				+ "start end nonEssential.");
 		time.setArgs(3);
 		time.setOptionalArg(true);
 		options.addOption(time);
 
+		options.addOption(CHANGE_DATE_TIME, true, "Change date in meta. Timestamps which are relative to date in meta"
+				+ "  are changed so the absolute timestamps of data doesnt change.\nArguments:\n"
+				+ "-date with time and zone in ISO format. Example: \"2018-01-01T10:30:10.554+0100\" ");
+		
 		Option input1 = new Option(INPUT, "input. Directory of input file. "
 				+ "Optional has also directory of second directory.");
 		input1.setArgs(2);
@@ -325,6 +332,13 @@ public class Cli {
 				ChangeTimeStamps cts = new ChangeTimeStamps(delay, errPS);
 
 				pipeLine.add(cts);
+			}
+			
+			if(cmd.hasOption(CHANGE_DATE_TIME))
+			{
+				String iso = cmd.getOptionValue(CHANGE_DATE_TIME);
+				ChangeDateTime cdt = new ChangeDateTime(iso.split("T")[0],iso.split("T")[1].split("\\+")[0],"+" + iso.split("T")[1].split("\\+")[1],errPS );
+				pipeLine.add(cdt);
 			}
 
 			if(cmd.hasOption(PROCESS_SIGNAL))

@@ -12,11 +12,11 @@ Struct definition :  handle=1, name=Testni struct 2, elementsInOrder=" ~"
 Timestamp definition :  handle=1, absoluteId=114, byteSize=3, multiplier=1.0E-9
 Struct definition :  handle=2, name=Testni struct 3, elementsInOrder="e ~"
 Timestamp definition :  handle=2, absoluteId=114, byteSize=3, multiplier=1.0E-9
-Timestam num. 0 :  time=5
+Timestamp num. 0 :  time=5
 Stream Packet num. 0 :  handle=0, timestamp=5, data=[1, 2]
 Stream Packet num. 0 :  handle=1, timestamp=5, data=[6, 3, 6, 3, 6, 3, 6, 3, 6, 3]
 Stream Packet num. 0 :  handle=2, timestamp=5, data=[9, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1]
-Timestam num. 1 :  time=15
+Timestamp num. 1 :  time=15
 Stream Packet num. 0 :  handle=0, timestamp=16, data=[1, 2]
 Stream Packet num. 0 :  handle=1, timestamp=16, data=[6, 3, 6, 3, 6, 3, 6, 3, 6, 3]
 Stream Packet num. 0 :  handle=2, timestamp=16, data=[9, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1]

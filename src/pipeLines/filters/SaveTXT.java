@@ -86,7 +86,7 @@ public class SaveTXT extends Pipe {
 	
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
-		txt.println("Timestam num. "+ counterT+" :  time=" + nanoSecondTimestamp);
+		txt.println("Timestamp num. "+ counterT+" :  time=" + nanoSecondTimestamp);
 		counterT++;
 		return super.onTimestamp(nanoSecondTimestamp);
 	}

@@ -24,7 +24,7 @@ public class ChangeDateTime extends Pipe {
 	long posibleCorection = 0;
 	private long corection = 0;
 	/**
-	 * If true we already have metadata for this S2
+	 * If true we already have new metadata and old for this S2
 	 */
 	boolean preMeta;
 
@@ -39,7 +39,7 @@ public class ChangeDateTime extends Pipe {
 
 	public ChangeDateTime(String date2, String time2, String zone2, PrintStream errPS) {
 		this.errPS = errPS;
-		
+
 		dateM2 = date2;
 		timeM2 = time2;
 		zoneM2 = zone2;
@@ -47,6 +47,7 @@ public class ChangeDateTime extends Pipe {
 	}
 
 	/**
+	 * this is used if we somehow got meta in some previous run.
 	 * @param date1 date of this S2 file
 	 * @param time1 time of this S2 file
 	 * @param zone1 zone of this S2 file
@@ -56,7 +57,7 @@ public class ChangeDateTime extends Pipe {
 	 */
 	public ChangeDateTime(String date1, String time1, String zone1, String date2, String time2, String zone2, PrintStream errPS) {
 		this(date2,time2,zone2, errPS);
-		
+
 		dateM1 = date1;
 		timeM1 = time1;
 		zoneM1 = zone1;
@@ -83,6 +84,14 @@ public class ChangeDateTime extends Pipe {
 	}
 
 
+	@Override
+	public boolean onVersion(int versionInt, String version) {
+		if(!version.equals("PCARD"))
+		{
+			errPS.println("Pipe ChangeDateTime has undefined behavior on S2 files that are not PCARD. \nVersion of this S2 file is " +version);
+		}
+		return super.onVersion(versionInt, version);
+	}
 
 
 	@Override
@@ -104,7 +113,7 @@ public class ChangeDateTime extends Pipe {
 				return pushMetadata(key, value);
 			}
 
-			if(dateM1 != null && timeM1 == null && zoneM1 !=null)
+			if(dateM1 != null && timeM1 != null && zoneM1 !=null)
 			{
 				try
 				{
@@ -135,14 +144,23 @@ public class ChangeDateTime extends Pipe {
 					corection = posibleCorection;
 				}
 				return R;
-
-
 			}
 			return true;
 		}
 		else
 		{
-			return pushMetadata(key, value);
+			//we have new meta and corection. just do it
+			switch(key)
+			{
+			case "date" :
+				return pushMetadata(key, dateM2);
+			case "time" :
+				return pushMetadata(key, timeM2);
+			case "timezone" :
+				return pushMetadata(key, zoneM2);
+			default:
+				return pushMetadata(key, value);
+			}
 		}
 	}
 

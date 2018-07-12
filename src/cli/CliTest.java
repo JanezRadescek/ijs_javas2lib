@@ -77,18 +77,6 @@ public class CliTest {
 	}
 
 
-	//***********************             TEST PIPELINES                            *******************************
-
-
-
-	@Test
-	public void testChangeDateTime()
-	{
-
-	}
-
-
-
 	//***********************            TEST CLI FUNCTIONALITIS                    *******************************
 
 
@@ -378,6 +366,27 @@ public class CliTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@Test
+	public void testChangeDateTime()
+	{
+		String ime = "changedDateTime.txt";
+		Cli.start(new String[] {"-"+Cli.INPUT, inDirName, "-"+Cli.CHANGE_DATE_TIME, "2018-01-01T10:30:10.554+0100", "-"+Cli.OUTPUT, outDir +File.separator+ ime});
+		
+		BufferedReader bf;
+		try {
+			bf = new BufferedReader(new FileReader(outDir + File.separator + ime));
+			while(!bf.readLine().contains("Timestamp num. 0"))
+			{
+
+			}
+			assertTrue("Testing changing dateTime",bf.readLine().contains("Stream Packet num. 0 :  handle=0, timestamp=1000005, data=[1, 2]"));
+			bf.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	@Test
