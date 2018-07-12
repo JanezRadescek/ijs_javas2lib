@@ -11,7 +11,7 @@ public class FilterTime extends Pipe {
 	//CENCEPTUAL THINGIS
 	private long start;
 	private long end;
-	private boolean filterTimeLessData;
+	private boolean approximate;
 	// 
 	private byte type;
 
@@ -43,7 +43,7 @@ public class FilterTime extends Pipe {
 	{
 		this.start = start;
 		this.end = end;
-		this.filterTimeLessData = false;
+		this.approximate = false;
 		this.type = FILTER;
 	}
 
@@ -51,25 +51,25 @@ public class FilterTime extends Pipe {
 	 * [start, end) in nanoseconds
 	 * @param start 
 	 * @param end
-	 * @param filterTimeLessData
+	 * @param approximate
 	 */
-	public FilterTime(long start, long end, boolean filterTimeLessData)
+	public FilterTime(long start, long end, boolean approximate)
 	{
 		this(start,end);
-		this.filterTimeLessData = filterTimeLessData;
+		this.approximate = approximate;
 	}
 
 	/**
 	 * [start, end) in nanoseconds
 	 * @param start
 	 * @param end
-	 * @param filterTimeLessData
+	 * @param approximate
 	 * @param type use one of static constants FILTER,PAUSE,BUSTER
 	 */
-	public FilterTime(long start, long end, boolean filterTimeLessData, byte type)
+	public FilterTime(long start, long end, boolean approximate, byte type)
 	{
 		this(start,end);
-		this.filterTimeLessData = filterTimeLessData;
+		this.approximate = approximate;
 		this.type = type;
 	}
 
@@ -82,31 +82,31 @@ public class FilterTime extends Pipe {
 	{
 		this.start = (long) (start*1E9);
 		this.end = (long)(end*1E9);
-		this.filterTimeLessData = false;
+		this.approximate = false;
 		this.type = FILTER;
 	}
 
 	/**
 	 * @param start in seconds
 	 * @param end in seconds
-	 * @param filterTimeLessData
+	 * @param approximate
 	 */
-	public FilterTime(double start, double end, boolean filterTimeLessData)
+	public FilterTime(double start, double end, boolean approximate)
 	{
 		this(start,end);
-		this.filterTimeLessData = filterTimeLessData;
+		this.approximate = approximate;
 	}
 
 	/**
 	 * @param start in seconds
 	 * @param end in seconds
-	 * @param filterTimeLessData
+	 * @param approximate
 	 * @param type use one of static constants FILTER,PAUSE,BUSTER
 	 */
-	public FilterTime(double start, double end, boolean filterTimeLessData, byte type)
+	public FilterTime(double start, double end, boolean approximate, byte type)
 	{
 		this(start,end);
-		this.filterTimeLessData = filterTimeLessData;
+		this.approximate = approximate;
 		this.type = type;
 	}
 
@@ -133,7 +133,7 @@ public class FilterTime extends Pipe {
 
 	@Override
 	public boolean onComment(String comment) {
-		if(!filterTimeLessData || (filterTimeLessData && (start<=lastRecordedTime && lastRecordedTime<end)))
+		if(!approximate || (approximate && (start<=lastRecordedTime && lastRecordedTime<end)))
 		{
 			return pushComment(comment);
 		}
@@ -144,7 +144,7 @@ public class FilterTime extends Pipe {
 
 	@Override
 	public boolean onSpecialMessage(char who, char what, String message) {
-		if(!filterTimeLessData || (filterTimeLessData && (start<=lastRecordedTime && lastRecordedTime<end)))
+		if(!approximate || (approximate && (start<=lastRecordedTime && lastRecordedTime<end)))
 		{
 			return pushSpecilaMessage(who, what, message);
 		}

@@ -5,7 +5,6 @@ import java.io.PrintStream;
 import java.util.Map;
 import pipeLines.Pipe;
 import pipeLines.filters.ChangeDateTime;
-import pipeLines.filters.ChangeDateTime2;
 import pipeLines.filters.GetSuportingLines;
 import si.ijs.e6.S2;
 import si.ijs.e6.S2.LoadStatus;
@@ -20,7 +19,7 @@ public class SyncTime extends Sync {
 	//IMPLEMENTATIONS STUFF
 
 	//filters for regulating secondary S2
-	ChangeDateTime2 cdtS;
+	ChangeDateTime cdtS;
 	//PRIMARY PIPELINES
 	ChangeDateTime cdtP;
 
@@ -77,7 +76,7 @@ public class SyncTime extends Sync {
 		primaryOutPut = cdtP;
 
 		//SECONDARY PIPES
-		cdtS = new ChangeDateTime2(meta2, meta1, this.errPS);
+		cdtS = new ChangeDateTime(meta2, meta1, this.errPS);
 		secondaryInPut.addChild(cdtS);
 		secondaryOutPut = cdtS;
 	}

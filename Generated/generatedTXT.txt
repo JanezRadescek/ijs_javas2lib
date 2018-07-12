@@ -1,25 +1,25 @@
-Version :  1-PCARD
-Metadata num. 0 :  key=date, value=2018-01-01
-Metadata num. 1 :  key=time, value=10:30:10.555
-Metadata num. 2 :  key=timezone, value=+01:00
-Comment num. 0 :  Test message
-Sensor definition :  handle=101, name=Testni sensor 1, unit=testne sekunde, resolution=8, scalarBitPadding=0, valueType=105, absoluteId=97, vectorSize=1, vectorBitPadding=0, samplingFrequency=0.0, k=1.0, n=0.0
-Sensor definition :  handle=32, name=Testni sensor 2, unit=testne sekunde, resolution=16, scalarBitPadding=0, valueType=105, absoluteId=97, vectorSize=1, vectorBitPadding=0, samplingFrequency=0.0, k=0.6666667, n=5.0
-Sensor definition :  handle=126, name=Testni sensor 3, unit=testne sekunde, resolution=64, scalarBitPadding=0, valueType=105, absoluteId=97, vectorSize=1, vectorBitPadding=0, samplingFrequency=255.0, k=0.003921569, n=255.0
-Struct definition :  handle=0, name=Testni struct 1, elementsInOrder="ee"
-Timestamp definition :  handle=0, absoluteId=114, byteSize=3, multiplier=1.0E-9
-Struct definition :  handle=1, name=Testni struct 2, elementsInOrder=" ~"
-Timestamp definition :  handle=1, absoluteId=114, byteSize=3, multiplier=1.0E-9
-Struct definition :  handle=2, name=Testni struct 3, elementsInOrder="e ~"
-Timestamp definition :  handle=2, absoluteId=114, byteSize=3, multiplier=1.0E-9
-Timestamp num. 0 :  time=5
-Stream Packet num. 0 :  handle=0, timestamp=5, data=[1, 2]
-Stream Packet num. 0 :  handle=1, timestamp=5, data=[6, 3, 6, 3, 6, 3, 6, 3, 6, 3]
-Stream Packet num. 0 :  handle=2, timestamp=5, data=[9, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1]
-Timestamp num. 1 :  time=15
-Stream Packet num. 0 :  handle=0, timestamp=16, data=[1, 2]
-Stream Packet num. 0 :  handle=1, timestamp=16, data=[6, 3, 6, 3, 6, 3, 6, 3, 6, 3]
-Stream Packet num. 0 :  handle=2, timestamp=16, data=[9, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1]
-Stream Packet num. 0 :  handle=0, timestamp=17, data=[1, 2]
-Stream Packet num. 0 :  handle=2, timestamp=19, data=[9, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1]
+0.00s              Version : 1-PCARD
+0.00s             Metadata : key=date, value=2018-01-01
+0.00s             Metadata : key=time, value=10:30:10.555
+0.00s             Metadata : key=timezone, value=+01:00
+0.00s              Comment : Test message
+0.00s    Sensor definition : handle=101, name=Testni sensor 1, unit=testne sekunde, resolution=8, scalarBitPadding=0, valueType=105, absoluteId=97, vectorSize=1, vectorBitPadding=0, samplingFrequency=0.0, k=1.0, n=0.0
+0.00s    Sensor definition : handle=32, name=Testni sensor 2, unit=testne sekunde, resolution=16, scalarBitPadding=0, valueType=105, absoluteId=97, vectorSize=1, vectorBitPadding=0, samplingFrequency=0.0, k=0.6666667, n=5.0
+0.00s    Sensor definition : handle=126, name=Testni sensor 3, unit=testne sekunde, resolution=64, scalarBitPadding=0, valueType=105, absoluteId=97, vectorSize=1, vectorBitPadding=0, samplingFrequency=255.0, k=0.003921569, n=255.0
+0.00s    Struct definition : handle=0, name=Testni struct 1, elementsInOrder="ee"
+0.00s Timestamp definition : handle=0, absoluteId=114, byteSize=3, multiplier=1.0E-9
+0.00s    Struct definition : handle=1, name=Testni struct 2, elementsInOrder=" ~"
+0.00s Timestamp definition : handle=1, absoluteId=114, byteSize=3, multiplier=1.0E-9
+0.00s    Struct definition : handle=2, name=Testni struct 3, elementsInOrder="e ~"
+0.00s Timestamp definition : handle=2, absoluteId=114, byteSize=3, multiplier=1.0E-9
+0.00s            Timestamp : time=5
+0.00s        Stream Packet : handle=0, timestamp=5, bytes=[1, 2]
+0.00s        Stream Packet : handle=1, timestamp=5, bytes=[6, 3, 6, 3, 6, 3, 6, 3, 6, 3]
+0.00s        Stream Packet : handle=2, timestamp=5, bytes=[9, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1]
+0.00s            Timestamp : time=15
+0.00s        Stream Packet : handle=0, timestamp=16, bytes=[1, 2]
+0.00s        Stream Packet : handle=1, timestamp=16, bytes=[6, 3, 6, 3, 6, 3, 6, 3, 6, 3]
+0.00s        Stream Packet : handle=2, timestamp=16, bytes=[9, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1]
+0.00s        Stream Packet : handle=0, timestamp=17, bytes=[1, 2]
+0.00s        Stream Packet : handle=2, timestamp=19, bytes=[9, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1]
 EndOfFile

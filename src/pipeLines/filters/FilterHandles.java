@@ -12,7 +12,7 @@ import si.ijs.e6.S2.TimestampDefinition;
  * @author janez
  *
  */
-@Deprecated
+
 public class FilterHandles extends Pipe {
 
 	private ArrayList<Byte> handles = new ArrayList<Byte>();

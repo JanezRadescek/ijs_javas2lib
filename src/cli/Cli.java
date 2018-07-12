@@ -2,7 +2,6 @@ package cli;
 
 import java.lang.Exception;
 import java.nio.charset.StandardCharsets;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -12,8 +11,6 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import org.apache.commons.cli.*;
 
-import callBacks.FirtstReader;
-import callBacks.SecondReader;
 import filtersOld.FilterProcessSignal;
 import generatorS2.Generator2;
 import pipeLines.Connector;
@@ -21,6 +18,7 @@ import pipeLines.Pipe;
 import pipeLines.conglomerates.SmartMerge;
 import pipeLines.filters.ChangeDateTime;
 import pipeLines.filters.ChangeTimeStamps;
+import pipeLines.filters.FilterComments;
 import pipeLines.filters.FilterData;
 import pipeLines.filters.FilterHandles;
 import pipeLines.filters.GetInfo;
@@ -44,22 +42,24 @@ public class Cli {
 	private static final int fileError = 2;
 	private static final int badInputArgs = 3;
 
-
-	public static final String STATISTIKA = "s";
-	//public static final String READ = "r";
-	public static final String MEARGE = "m";
+	//special it doesnt need input file
+	public static final String GENERATE = "g";
 	public static final String HELP = "help";
+	
+	//need input
+	public static final String MEARGE = "m";
+	public static final String STATISTIKA = "s";
+
 	public static final String CHANGE_TIME = "ct";
 	public static final String CHANGE_DATE_TIME = "cdt";
 	public static final String PROCESS_SIGNAL = "p";
-	public static final String GENERATE = "g";
-
-
-	public static final String TIME = "t";
+	public static final String FILTER_TIME = "ft";
 	public static final String INPUT = "i";
 	public static final String OUTPUT = "o";
-	public static final String HANDLES = "h";
-	public static final String DATA = "d";
+	public static final String FILTER_HANDLES = "fh";
+	public static final String FILTER_DATA = "fd";
+	public static final String FILTER_COMMENTS = "fc";
+	public static final String FILTER_SPECIAL = "fs";
 
 
 
@@ -122,68 +122,87 @@ public class Cli {
 
 
 		Option statistika = new Option(STATISTIKA,true, "Output statistics of input S2 file. Has optional argument directory and name of file for outputing statistics. "
-				+ "If argument is mising it will print statistics to outPS (default is System.out). DO NOT confuse this argument with flag -o output.");
+				+ "If argument is mising it will print statistics to outPS (default is System.out). DO NOT confuse this argument with flag -o output.\nArgumets:\n"
+				+ "-String directoryAndName");
 		statistika.setArgs(1);
 		statistika.setOptionalArg(true);;
 		options.addOption(statistika);
 
 		//options.addOption(READ, false, "read. izrezi del in izpisi na izhod v CSV in human readable form");
-		options.addOption(MEARGE, true, "mearge. Needs two inputs, and optional output. Combining with other filters has undefined behavior! Combines two S2 files in one S2 file. Has mendatory argument."
+		options.addOption(MEARGE, true, "Combines two S2 files in one S2 file. Needs flag '-i' with two inputs. Combining with other filters has undefined behavior!  Has mendatory argument."
 				+ " If true streams with same hendels will be merged,"
-				+ " else strems from second file will get new one where needed");
+				+ " else strems from second file will get new one where needed.\nArguments:\n"
+				+ "-Boolean mergingHandles");
 		options.addOption(HELP, false, "Prints Help. Other flags will be ignored.");
-		options.addOption(CHANGE_TIME, true, "add time in argument to all timestamps. "
+		options.addOption(CHANGE_TIME, true, "Add time in argument to all timestamps. "
 				+ "If added time is negative and its absolute value bigger than value of firtst time stamp, "
-				+ "added time will be set to -first time, resulting in new first time being 0.");
-		options.addOption(PROCESS_SIGNAL,false, "Proces signal. If argument is true it will process"
-				+ " as if the frequency of sensor is constant. Simple processsing. Otherwise it will split into intervals");
+				+ "added time will be set to -first time, resulting in new first time being 0.\nArguments:\n"
+				+ "-Long delay[ns]");
+		options.addOption(PROCESS_SIGNAL,false, "Process signal.");
+		/*
+		If argument is true it will process"
+				+ " as if the frequency of sensor is constant. Simple processsing. Otherwise it will split into intervals");*/
 
-		Option generate = new Option(GENERATE, "Generates S2 PCARD based on arguments. Needs option/flag time and output.\nArguments in order: \n" 
-				+ "-seed \n"
-				+ "-frequency \n"
-				+ "-frequencyChange \n"
-				+ "-percentigeMissing \n"
-				+ "-normalDelay \n"
-				+ "-bigDelayChance \n"
-				+ "-bigDelayFactor \n"
-				+ "-#pauses");
+		Option generate = new Option(GENERATE, "Generates S2 PCARD based on arguments. Needs option/flag time and output.\nArguments:\n" 
+				+ "-long seed (for random) \n"
+				+ "-float frequency[Hz] (around 128 for pcard)\n"
+				+ "-float frequencyChange (values from 0 to 1)\n"
+				+ "-float percentigeMissing (values from 0 to 1)\n"
+				+ "-long normalDelay[ns]\n"
+				+ "-float bigDelayChance (values from 0 to 1) \n"
+				+ "-float bigDelayFactor (values from 1 to float.MAX) \n"
+				+ "-int pauses (number of pauses scatered randomly acros whole S2 file)");
 		generate.setArgs(8);
 		options.addOption(generate);
 
-		Option time = new Option(TIME, "time. zacetni in koncni cas izseka, ki nas zanima. third argument if we aproximate "
-				+ "datas without own time with last previous time and therefore delete them if outside interval."
-				+ "start end nonEssential.");
+		Option time = new Option(FILTER_TIME, "Filters time. Data on interval [End, start) will be keep, the rest will be delited. If third optional argument is true we approximate "
+				+ "comments and speciall messages with last previous time and therefore delete them if outside interval."
+				+ "\nArguments:\n"
+				+ "-Double start[s]"
+				+ "-Double end[s]"
+				+ "-Boolean approximate optional");
 		time.setArgs(3);
 		time.setOptionalArg(true);
 		options.addOption(time);
 
-		options.addOption(CHANGE_DATE_TIME, true, "Change date in meta. Timestamps which are relative to date in meta"
-				+ "  are changed so the absolute timestamps of data doesnt change.\nArguments:\n"
-				+ "-date with time and zone in ISO format. Example: \"2018-01-01T10:30:10.554+0100\" ");
+		options.addOption(CHANGE_DATE_TIME, true, "Change date in meta. Timestamps are relative to date in meta"
+				+ " and therefore are changed so the absolute timestamps of data doesnt change."
+				+ "\nArguments:\n"
+				+ "-date with time and zone in ISO format. Example: \"2018-01-01T10:30:10.554+0100\"");
 		
-		Option input1 = new Option(INPUT, "input. Directory of input file. "
-				+ "Optional has also directory of second directory.");
+		Option input1 = new Option(INPUT, "General input. First argument is Directory and name of input file. "
+				+ "Secondary argument is optional and is secondary input used when needed."
+				+ "\nArguments:\n"
+				+ "-String directoryAndName"
+				+ "-String directoryAndName optional");
 		input1.setArgs(2);
 		input1.setOptionalArg(true);
 
 		options.addOption(input1);
 
-		Option output = new Option(OUTPUT, true, "General output for result of other flags. If Argument is valid Directory and name with extension it will output into specifed file."
-				+ " If argument equals 'xyz' where 'xyz' is file extension it will print result to the outPUT stream (Default is System.out)."
-				+ "Type of output will be based on extension of the name. Possible extensions are 'csv', 's2' and 'txt' ");
+		Option output = new Option(OUTPUT, true, "General output for result of other flags. If Argument is valid Directory and name with extension, it will output into specifed file."
+				+ " If argument equals 'xyz' where 'xyz' is file extension only, it will print result to the outPUT stream (Default is System.out)."
+				+ "Type of output will be based on extension of the name. Possible extensions are 'csv', 's2' and 'txt'."
+				+ "\nArguments:\n"
+				+ "String dirNameExt. Example: .\\myFile\\Result.s2 or txt");
 		options.addOption(output);
 
-		Option handle = new Option(HANDLES,true ,"handles. Handles, we want to use." +
-				"Argument represent wanted handles. " +
-				"If we want handle with num. i there has to be 1 on i+1 position from right to left in argument. If we dont want it there have to be 0." +
-				"If we want to keep only handles with 0 and 4 we pass '10001'" );
+		Option handle = new Option(FILTER_HANDLES,true ,"Filters handles. Argument represent wanted handles. " +
+				"If we want handle with num. i there has to be 1 on i+1 position from right to left in argument. If we dont want it there it has to be 0." +
+				"\nArguments:\n"
+				+ "-Byte handles writen in binary form. Example: If we want to keep only handles 0 and 4 we pass '10001'");
 		options.addOption(handle);
 
-		Option dataTypes = new Option(DATA,true, "datatype. data types we want to keep. " +
-				"Argument must be a number in binary form"+
-				".*1=keeps comments, .*1.=keeps Special, .*1..=keeps meta");
+		Option dataTypes = new Option(FILTER_DATA,true, "Filters datatype. Argument must be a number in binary form"+
+				"@@@1=keeps comments, @@1@=keeps Special, @1@@=keeps meta,1@@@=keeps packets ."
+				+ "\nArguments:\n"
+				+ "Byte data");
 		options.addOption(dataTypes);
-
+		
+		options.addOption(Cli.FILTER_COMMENTS,true, "Filters comments based on regex provided in argument. Comments not maching regex will be removed.\nArguments:\n"
+				+ "-String regex");
+		options.addOption(Cli.FILTER_SPECIAL, "Filters special messages based on regex provided in argument. messages not maching regex will be removed.\nArguments:\n"
+				+ "-String regex");
 
 
 		//************************************         APACHE CLI                      *******************************
@@ -236,7 +255,6 @@ public class Cli {
 			try
 			{
 				inDirectory1 = new File(cmd.getOptionValues(INPUT)[0]);
-				//inFname1 = cmd.getOptionValues("i")[1];
 			}catch(Exception e)
 			{
 				errPS.println("Option i need directory and name of input S2 file. TERMINATE");
@@ -278,49 +296,59 @@ public class Cli {
 				}
 			}
 
+			
+			if(cmd.hasOption(Cli.FILTER_COMMENTS))
+			{
+				if(cmd.getOptionValue(Cli.FILTER_COMMENTS) == null)
+				{
+					errPS.println("Option " + Cli.FILTER_COMMENTS + "needs string regex as argument. TERMINATE");
+					return badInputArgs;
+				}
+				pipeLine.add(new FilterComments(cmd.getOptionValue(Cli.FILTER_COMMENTS), true));
+			}
 
 
-			if(cmd.hasOption(DATA))
+			if(cmd.hasOption(FILTER_DATA))
 			{
 				try
 				{
-					pipeLine.add(new FilterData(Byte.parseByte(cmd.getOptionValue(DATA),2),errPS));
+					pipeLine.add(new FilterData(Byte.parseByte(cmd.getOptionValue(FILTER_DATA),2),errPS));
 				}catch(NumberFormatException e){
-					errPS.println("argument of "+DATA+" must be a number in binary format. TERMINATE");
+					errPS.println("argument of "+FILTER_DATA+" must be a number in binary format. TERMINATE");
 					return badInputArgs;
 				}
 			}
 
 
-			if(cmd.hasOption(HANDLES))
+			if(cmd.hasOption(FILTER_HANDLES))
 			{
 				try{
-					pipeLine.add(new FilterHandles(Long.parseLong(cmd.getOptionValue(HANDLES),2)));
+					pipeLine.add(new FilterHandles(Long.parseLong(cmd.getOptionValue(FILTER_HANDLES),2)));
 				}catch(NumberFormatException e){
-					errPS.println("argument of "+HANDLES+" must be a number in binary format. TERMINATE");
+					errPS.println("argument of "+FILTER_HANDLES+" must be a number in binary format. TERMINATE");
 					return badInputArgs;
 				}
 			}
 
 			//FILTER TIME !!!
-			if(cmd.hasOption(TIME))
+			if(cmd.hasOption(FILTER_TIME))
 			{
-				boolean nonEss = true;
+				boolean approximate = true;
 				try{
-					long a = (long)(Double.parseDouble(cmd.getOptionValues(TIME)[0])* 1E9);
-					long b = (long)(Double.parseDouble(cmd.getOptionValues(TIME)[1])* 1E9);
-					if(cmd.getOptionValues(TIME).length == 3)
+					long a = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[0])* 1E9);
+					long b = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[1])* 1E9);
+					if(cmd.getOptionValues(FILTER_TIME).length == 3)
 					{
-						nonEss = Boolean.parseBoolean(cmd.getOptionValues(TIME)[2]);
+						approximate = Boolean.parseBoolean(cmd.getOptionValues(FILTER_TIME)[2]);
 					}
 					if (a>b)
 					{
 						errPS.println("Starting time must be lower than ending. TERMINATE");
 						return badInputArgs;
 					}
-					pipeLine.add(new FilterTime(a, b, nonEss));
+					pipeLine.add(new FilterTime(a, b, approximate));
 				}catch(NumberFormatException e){
-					errPS.println("Arguments at" +TIME+ "must be float float boolean");
+					errPS.println("Arguments at" +FILTER_TIME+ "must be float float boolean");
 					return badInputArgs;
 				}
 
@@ -445,17 +473,22 @@ public class Cli {
 		}
 		else
 		{
-			if(cmd.hasOption(GENERATE) & cmd.hasOption(OUTPUT) & cmd.hasOption(TIME))
+			if(cmd.hasOption(GENERATE) & cmd.hasOption(OUTPUT) & cmd.hasOption(FILTER_TIME))
 			{
 				String outDir = cmd.getOptionValue(OUTPUT);
 				File tepF = new File(outDir);
+				if(tepF.getParentFile() == null)
+				{
+					errPS.println("Output needs directory");
+					return badInputArgs;
+				}
 				if(!tepF.getParentFile().exists())
 				{
 					errPS.println("Given directory " +tepF.getParent() +" does not exist. Creating one");
 					tepF.getParentFile().mkdirs();
 				}
-				long a = (long)(Double.parseDouble(cmd.getOptionValues(TIME)[0])* 1E9);
-				long b = (long)(Double.parseDouble(cmd.getOptionValues(TIME)[1])* 1E9);
+				long a = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[0])* 1E9);
+				long b = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[1])* 1E9);
 				
 				String[] tem = cmd.getOptionValues(GENERATE);
 				long seed = Long.parseLong(tem[0]);
