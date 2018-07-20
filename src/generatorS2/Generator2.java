@@ -13,7 +13,7 @@ public class Generator2 {
 	float frequency;
 	float frequencyChange;
 	int change = 0;
-	float percentigeMissing;
+	float percentageMissing;
 	long normalDelay;
 	float bigDelayChance;
 	float bigDelayFactor;
@@ -24,7 +24,7 @@ public class Generator2 {
 	int curentC;
 	byte[] curentD;
 	boolean pause;
-	boolean disconect = false;
+	boolean disconnect = false;
 	long[] disconectIntervals;
 	long pauseTill = 0;
 	Random r;
@@ -39,19 +39,19 @@ public class Generator2 {
 	 * @param end end of measurement in ns. [normal use 60*60*10^9 = 1hour].
 	 * @param frequency frequency of EKG device in Hz. [PCARD has around 128].
 	 * @param frequencyChange factor of how much can frequency change. [?normal? use 0.1].
-	 * @param percentigeMissing Aproximate factor of missing packets. This number is used to calculate number of pauses(machine still save the data but not android).[for ?good? S2 use 0.01 for ?bad? use 0.1].
+	 * @param percentageMissing Aproximate factor of missing packets. This number is used to calculate number of pauses(machine still save the data but not android).[for ?good? S2 use 0.01 for ?bad? use 0.1].
 	 * @param normalDelay aproximate usual delay of packets in ns [?reasonable? value is around (1/ @param frequency /10) * 10^9].
 	 * @param bigDelaychance chance for big delay [?reasonable? value is 0.01].
 	 * @param bigDelayFactor big delay will be up to @param bigDelayFactor*normal ns [?reasonable? value is 10].
 	 * @param numPauses number of pauses that will ocure in file 
 	 */
-	public Generator2(String directory, PrintStream errPS, long start, long end, long seed, float frequency, float frequencyChange, float percentigeMissing, 
+	public Generator2(String directory, PrintStream errPS, long start, long end, long seed, float frequency, float frequencyChange, float percentageMissing,
 			long normalDelay, float bigDelayChance, float bigDelayFactor, int numPauses) 
 	{
 		this.frequency = frequency;
 		this.curentF = frequency;
 		this.frequencyChange = frequencyChange;
-		this.percentigeMissing = percentigeMissing;
+		this.percentageMissing = percentageMissing;
 		this.normalDelay = normalDelay;
 		this.bigDelayChance = bigDelayChance;
 		this.bigDelayFactor = bigDelayFactor;
@@ -119,14 +119,14 @@ public class Generator2 {
 		while(curentTonMashine < end)
 		{
 			calculateFrequency();
-			curentTonMashine += 1E9/curentF;
+			curentTonMashine += 1E9/curentF * 14;
 
 
-			checkDisconect();
+			checkDisconnect();
 
-			if(disconect)
+			if(disconnect)
 			{
-				// we are inside disconect we just restart counters, all data
+				// we are inside disconnect we just restart counters, all data
 				curentC = 0;
 			}else
 			{
@@ -145,7 +145,7 @@ public class Generator2 {
 				}else
 				{
 					float wifi = r.nextFloat();
-					if(wifi >= this.percentigeMissing)
+					if(wifi >= this.percentageMissing)
 					{
 						calculateTonAndroid();
 						ss2A.onStreamPacket((byte) 0, curentTonAndroid, curentD.length, curentD);
@@ -163,17 +163,17 @@ public class Generator2 {
 		ss2A.onEndOfFile();
 	}
 
-	private void checkDisconect() {
+	private void checkDisconnect() {
 		int n = disconectIntervals.length/2;
 		for(int i = 0;i<n;i++)
 		{
 			if(disconectIntervals[2*i]<= curentTonMashine & curentTonMashine < disconectIntervals[2*i+1])
 			{
-				disconect = true;
+				disconnect = true;
 				return;
 			}
 		}
-		disconect = false;
+		disconnect = false;
 
 	}
 
@@ -189,9 +189,9 @@ public class Generator2 {
 
 			float modifier = 20 + 30*r.nextFloat();
 
-			if(wifi < percentigeMissing/modifier)
+			if(wifi < percentageMissing /modifier)
 			{
-				pauseTill = curentTonMashine + (long)(modifier*percentigeMissing / frequency * 1E6); 
+				pauseTill = curentTonMashine + (long)(modifier* percentageMissing / frequency * 1E6);
 				pause = true;
 			}
 			else

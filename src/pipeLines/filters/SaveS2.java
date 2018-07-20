@@ -29,16 +29,16 @@ public class SaveS2 extends Pipe {
 	private Map<Byte,Long> lastTime = new HashMap<Byte,Long>();
 
 	/**
-	 * @param directory directory AND name of new S2 file in which we will save
+	 * @param filePath directory AND name of new S2 file in which we will save
 	 * @param errPS printstrem for errors
 	 */
-	public SaveS2(String directory, PrintStream errPS)
+	public SaveS2(String filePath, PrintStream errPS)
 	{
 		this.errPS = errPS;
 		s2 = new S2();
-		//TODO zakaj ne moremo S2.store/load dati directoryAndName ??
-		File f = new File(directory);
-		storeS = s2.store(f.getParentFile(), f.getName());
+		File f = new File(filePath);
+		storeS = s2.store(f);
+		storeS.enableDebugOutput(true);
 	}
 
 

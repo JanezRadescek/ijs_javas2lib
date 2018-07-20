@@ -121,21 +121,21 @@ public class Cli {
 		Options options = new Options();
 
 
-		Option statistika = new Option(STATISTIKA,true, "Output statistics of input S2 file. Has optional argument directory and name of file for outputing statistics. "
-				+ "If argument is mising it will print statistics to outPS (default is System.out). DO NOT confuse this argument with flag -o output.\nArgumets:\n"
+		Option statistika = new Option(STATISTIKA,true, "Output statistics of input S2 file. Has optional argument directory and name of file for outputting statistics. "
+				+ "If argument is missing it will print statistics to outPS (default is System.out). DO NOT confuse this argument with flag -o output.\nArguments:\n"
 				+ "-String directoryAndName");
 		statistika.setArgs(1);
 		statistika.setOptionalArg(true);;
 		options.addOption(statistika);
 
 		//options.addOption(READ, false, "read. izrezi del in izpisi na izhod v CSV in human readable form");
-		options.addOption(MEARGE, true, "Combines two S2 files in one S2 file. Needs flag '-i' with two inputs. Combining with other filters has undefined behavior!  Has mendatory argument."
-				+ " If true streams with same hendels will be merged,"
-				+ " else strems from second file will get new one where needed.\nArguments:\n"
+		options.addOption(MEARGE, true, "Combines two S2 files in one S2 file. Needs flag '-i' with two inputs. Combining with other filters has undefined behavior!  Has mandatory argument."
+				+ " If true streams with same handles will be merged,"
+				+ " else streams from second file will get new one where needed.\nArguments:\n"
 				+ "-Boolean mergingHandles");
 		options.addOption(HELP, false, "Prints Help. Other flags will be ignored.");
 		options.addOption(CHANGE_TIME, true, "Add time in argument to all timestamps. "
-				+ "If added time is negative and its absolute value bigger than value of firtst time stamp, "
+				+ "If added time is negative and its absolute value bigger than value of first time stamp, "
 				+ "added time will be set to -first time, resulting in new first time being 0.\nArguments:\n"
 				+ "-Long delay[ns]");
 		options.addOption(PROCESS_SIGNAL,false, "Process signal.");
@@ -144,37 +144,37 @@ public class Cli {
 				+ " as if the frequency of sensor is constant. Simple processsing. Otherwise it will split into intervals");*/
 
 		Option generate = new Option(GENERATE, "Generates S2 PCARD based on arguments. Needs option/flag time and output.\nArguments:\n" 
-				+ "-long seed (for random) \n"
-				+ "-float frequency[Hz] (around 128 for pcard)\n"
-				+ "-float frequencyChange (values from 0 to 1)\n"
-				+ "-float percentigeMissing (values from 0 to 1)\n"
-				+ "-long normalDelay[ns]\n"
-				+ "-float bigDelayChance (values from 0 to 1) \n"
-				+ "-float bigDelayFactor (values from 1 to float.MAX) \n"
-				+ "-int pauses (number of pauses scatered randomly acros whole S2 file)");
+				+ "-random seed [long] \n"
+				+ "-frequency in Hz [float] (around 128 for PCARD)\n"
+				+ "-frequency change [0..1]\n"
+				+ "-percentage missing [0..1]\n"
+				+ "-normal delay in ns [long]\n"
+				+ "-pause chance [0..1] \n"		// big delay = pause in transmission (packets are not only delayed, they are missing)
+				+ "-pause factor [1..float.MAX] \n"
+				+ "-number of pauses (number of pauses scattered randomly across whole S2 file)");
 		generate.setArgs(8);
 		options.addOption(generate);
 
-		Option time = new Option(FILTER_TIME, "Filters time. Data on interval [End, start) will be keep, the rest will be delited. If third optional argument is true we approximate "
+		Option time = new Option(FILTER_TIME, "Filters time. Data on interval [End, start) will be keep, the rest will be deleted. If third optional argument is true we approximate "
 				+ "comments and speciall messages with last previous time and therefore delete them if outside interval."
 				+ "\nArguments:\n"
-				+ "-Double start[s]"
-				+ "-Double end[s]"
-				+ "-Boolean approximate optional");
+				+ "-start in s [double]"
+				+ "-end in s [double]"
+				+ "-[approximate [bool]]");
 		time.setArgs(3);
 		time.setOptionalArg(true);
 		options.addOption(time);
 
 		options.addOption(CHANGE_DATE_TIME, true, "Change date in meta. Timestamps are relative to date in meta"
-				+ " and therefore are changed so the absolute timestamps of data doesnt change."
+				+ " and therefore are changed so the absolute timestamps of data does not change."
 				+ "\nArguments:\n"
 				+ "-date with time and zone in ISO format. Example: \"2018-01-01T10:30:10.554+0100\"");
 		
 		Option input1 = new Option(INPUT, "General input. First argument is Directory and name of input file. "
 				+ "Secondary argument is optional and is secondary input used when needed."
 				+ "\nArguments:\n"
-				+ "-String directoryAndName"
-				+ "-String directoryAndName optional");
+				+ "-file path"
+				+ "-[file path]");
 		input1.setArgs(2);
 		input1.setOptionalArg(true);
 
@@ -188,20 +188,20 @@ public class Cli {
 		options.addOption(output);
 
 		Option handle = new Option(FILTER_HANDLES,true ,"Filters handles. Argument represent wanted handles. " +
-				"If we want handle with num. i there has to be 1 on i+1 position from right to left in argument. If we dont want it there it has to be 0." +
+				"To include handle #i, put 1 in position i+1 (from right to left) in the argument, to exclude it, put 0." +
 				"\nArguments:\n"
-				+ "-Byte handles writen in binary form. Example: If we want to keep only handles 0 and 4 we pass '10001'");
+				+ "-Byte handles written in binary form. Example: If we want to keep only handles 0 and 4 we pass '10001'");
 		options.addOption(handle);
 
 		Option dataTypes = new Option(FILTER_DATA,true, "Filters datatype. Argument must be a number in binary form"+
-				"@@@1=keeps comments, @@1@=keeps Special, @1@@=keeps meta,1@@@=keeps packets ."
+				"@@@1=keeps comments, @@1@=keeps Special, @1@@=keeps meta, 1@@@=keeps data streams."
 				+ "\nArguments:\n"
 				+ "Byte data");
 		options.addOption(dataTypes);
 		
-		options.addOption(Cli.FILTER_COMMENTS,true, "Filters comments based on regex provided in argument. Comments not maching regex will be removed.\nArguments:\n"
+		options.addOption(Cli.FILTER_COMMENTS,true, "Filters comments based on regex provided in argument. Comments not matching regex will be removed.\nArguments:\n"
 				+ "-String regex");
-		options.addOption(Cli.FILTER_SPECIAL, "Filters special messages based on regex provided in argument. messages not maching regex will be removed.\nArguments:\n"
+		options.addOption(Cli.FILTER_SPECIAL, "Filters special messages based on regex provided in argument. messages not matching regex will be removed.\nArguments:\n"
 				+ "-String regex");
 
 
@@ -494,14 +494,14 @@ public class Cli {
 				long seed = Long.parseLong(tem[0]);
 				float frequency = Float.parseFloat(tem[1]);
 				float frequencyChange = Float.parseFloat(tem[2]);
-				float percentigeMissing = Float.parseFloat(tem[3]);
+				float percentageMissing = Float.parseFloat(tem[3]);
 				long normalDelay = Long.parseLong(tem[4]);
 				float bigDelayChance = Float.parseFloat(tem[5]);
 				float bigDelayFactor = Float.parseFloat(tem[6]);
 				int numPauses = Integer.parseInt(tem[7]);
 
 				@SuppressWarnings("unused")
-				Generator2 g = new Generator2(outDir, errPS, a, b, seed, frequency, frequencyChange, percentigeMissing, normalDelay, bigDelayChance, bigDelayFactor, numPauses);
+				Generator2 g = new Generator2(outDir, errPS, a, b, seed, frequency, frequencyChange, percentageMissing, normalDelay, bigDelayChance, bigDelayFactor, numPauses);
 			}else
 			{
 				if(cmd.hasOption(GENERATE))

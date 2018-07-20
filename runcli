@@ -1,0 +1,4 @@
+#!/bin/bash
+
+EXEC_DIR="/home/matjaz/Todo/Students/JanezRadešček/ijs_javas2lib/"
+java -cp ${EXEC_DIR}out/production/ijs_javas2lib/:${EXEC_DIR}out/production/s2-java-lib/:${EXEC_DIR}out/production/pcardtimesync/:${EXEC_DIR}lib/commons-cli-1.4/commons-cli-1.4.jar cli.Cli $@
