@@ -20,7 +20,8 @@ public class FilterComments extends Pipe {
 		if(!(keep ^ m.matches()))
 		{
 			return pushComment(comment);	
-		}else
+		}
+		else
 		{
 			return true;
 		}

@@ -21,6 +21,7 @@ import pipeLines.filters.ChangeTimeStamps;
 import pipeLines.filters.FilterComments;
 import pipeLines.filters.FilterData;
 import pipeLines.filters.FilterHandles;
+import pipeLines.filters.FilterSpecial;
 import pipeLines.filters.GetInfo;
 import pipeLines.filters.SaveCSV;
 import pipeLines.filters.SaveS2;
@@ -74,7 +75,7 @@ public class Cli {
 		{
 			System.out.println(e.toString());
 			code = unknown;
-		}
+		}	
 		System.exit(code);
 	}
 
@@ -128,7 +129,6 @@ public class Cli {
 		statistika.setOptionalArg(true);;
 		options.addOption(statistika);
 
-		//options.addOption(READ, false, "read. izrezi del in izpisi na izhod v CSV in human readable form");
 		options.addOption(MEARGE, true, "Combines two S2 files in one S2 file. Needs flag '-i' with two inputs. Combining with other filters has undefined behavior!  Has mandatory argument."
 				+ " If true streams with same handles will be merged,"
 				+ " else streams from second file will get new one where needed.\nArguments:\n"
@@ -143,15 +143,16 @@ public class Cli {
 		If argument is true it will process"
 				+ " as if the frequency of sensor is constant. Simple processsing. Otherwise it will split into intervals");*/
 
-		Option generate = new Option(GENERATE, "Generates S2 PCARD based on arguments. Needs option/flag time and output.\nArguments:\n" 
+		Option generate = new Option(GENERATE, "Generates S2 PCARD based on arguments. Needs option/flag filter time -ft and output -o.\nArguments:\n" 
 				+ "-random seed [long] \n"
 				+ "-frequency in Hz [float] (around 128 for PCARD)\n"
 				+ "-frequency change [0..1]\n"
 				+ "-percentage missing [0..1]\n"
-				+ "-normal delay in ns [long]\n"
-				+ "-pause chance [0..1] \n"		// big delay = pause in transmission (packets are not only delayed, they are missing)
-				+ "-pause factor [1..float.MAX] \n"
-				+ "-number of pauses (number of pauses scattered randomly across whole S2 file)");
+				+ "-normal delay in s [double]\n"
+				+ "-delay chance [0..1] \n"		// when pause occurs machine will be saving packets normaly but android will get in transmission (packets are not only delayed, they are missing)
+				+ "-delay in s [double] \n"
+				+ "-number of disconects (disconects are scattered randomly across whole S2 file). "
+				+ 		"When disconect ocurs machine stops recoding and resets counters. Consequently android doesnt get any packets");
 		generate.setArgs(8);
 		options.addOption(generate);
 
@@ -184,25 +185,31 @@ public class Cli {
 				+ " If argument equals 'xyz' where 'xyz' is file extension only, it will print result to the outPUT stream (Default is System.out)."
 				+ "Type of output will be based on extension of the name. Possible extensions are 'csv', 's2' and 'txt'."
 				+ "\nArguments:\n"
-				+ "String dirNameExt. Example: .\\myFile\\Result.s2 or txt");
+				+ "dirNameExt [String]. Example: .\\myFile\\Result.s2 or txt");
 		options.addOption(output);
 
 		Option handle = new Option(FILTER_HANDLES,true ,"Filters handles. Argument represent wanted handles. " +
 				"To include handle #i, put 1 in position i+1 (from right to left) in the argument, to exclude it, put 0." +
 				"\nArguments:\n"
-				+ "-Byte handles written in binary form. Example: If we want to keep only handles 0 and 4 we pass '10001'");
+				+ "-handles written in binary notation [Long]. Example: If we want to keep only handles 0 and 4 we pass '10001'");
 		options.addOption(handle);
 
 		Option dataTypes = new Option(FILTER_DATA,true, "Filters datatype. Argument must be a number in binary form"+
 				"@@@1=keeps comments, @@1@=keeps Special, @1@@=keeps meta, 1@@@=keeps data streams."
 				+ "\nArguments:\n"
-				+ "Byte data");
+				+ "Byte data [Byte]");
 		options.addOption(dataTypes);
 		
-		options.addOption(Cli.FILTER_COMMENTS,true, "Filters comments based on regex provided in argument. Comments not matching regex will be removed.\nArguments:\n"
+		options.addOption(Cli.FILTER_COMMENTS, true, "Filters comments based on regex provided in argument. Comments not matching regex will be removed.\nArguments:\n"
 				+ "-String regex");
-		options.addOption(Cli.FILTER_SPECIAL, "Filters special messages based on regex provided in argument. messages not matching regex will be removed.\nArguments:\n"
-				+ "-String regex");
+		
+		Option special = new Option(Cli.FILTER_SPECIAL, "Filters special messages. Who and What must be equal to their respective values in SP to get throught."
+				+ " Masegge must suit regex provided in argument to get throught.\nArguments:\n"
+				+ "-Who [char]"
+				+ "-What [char]"
+				+ "-regex for message [String]");
+		special.setArgs(3);
+		options.addOption(special);
 
 
 		//************************************         APACHE CLI                      *******************************
@@ -297,14 +304,18 @@ public class Cli {
 			}
 
 			
-			if(cmd.hasOption(Cli.FILTER_COMMENTS))
+			if(cmd.hasOption(FILTER_COMMENTS))
 			{
-				if(cmd.getOptionValue(Cli.FILTER_COMMENTS) == null)
-				{
-					errPS.println("Option " + Cli.FILTER_COMMENTS + "needs string regex as argument. TERMINATE");
-					return badInputArgs;
-				}
 				pipeLine.add(new FilterComments(cmd.getOptionValue(Cli.FILTER_COMMENTS), true));
+			}
+			
+			
+			if(cmd.hasOption(FILTER_SPECIAL))
+			{
+				char who = cmd.getOptionValues(FILTER_SPECIAL)[0].charAt(0);
+				char what = cmd.getOptionValues(FILTER_SPECIAL)[1].charAt(0);
+				String regex = cmd.getOptionValues(FILTER_SPECIAL)[2];
+				pipeLine.add(new FilterSpecial(who, what, regex, true));
 			}
 
 
@@ -479,13 +490,18 @@ public class Cli {
 				File tepF = new File(outDir);
 				if(tepF.getParentFile() == null)
 				{
-					errPS.println("Output needs directory");
+					errPS.println("Output needs directory and name. Not just name.");
 					return badInputArgs;
 				}
 				if(!tepF.getParentFile().exists())
 				{
 					errPS.println("Given directory " +tepF.getParent() +" does not exist. Creating one");
 					tepF.getParentFile().mkdirs();
+				}
+				if(tepF.getName().split("\\.").length != 2)
+				{
+					errPS.println("Name in given directory mush have extension .s2");
+					return badInputArgs;
 				}
 				long a = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[0])* 1E9);
 				long b = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[1])* 1E9);
@@ -495,13 +511,18 @@ public class Cli {
 				float frequency = Float.parseFloat(tem[1]);
 				float frequencyChange = Float.parseFloat(tem[2]);
 				float percentageMissing = Float.parseFloat(tem[3]);
-				long normalDelay = Long.parseLong(tem[4]);
+				long normalDelay = (long) (Double.parseDouble(tem[4])*1E9);
+				if(normalDelay < 0)
+				{
+					errPS.println("Normal delay must be bigger or equal to 0.");
+					return badInputArgs;
+				}
 				float bigDelayChance = Float.parseFloat(tem[5]);
-				float bigDelayFactor = Float.parseFloat(tem[6]);
-				int numPauses = Integer.parseInt(tem[7]);
+				long bigDelay = Long.parseLong(tem[6]);
+				int numDisconects = Integer.parseInt(tem[7]);
 
 				@SuppressWarnings("unused")
-				Generator2 g = new Generator2(outDir, errPS, a, b, seed, frequency, frequencyChange, percentageMissing, normalDelay, bigDelayChance, bigDelayFactor, numPauses);
+				Generator2 g = new Generator2(outDir, errPS, a, b, seed, frequency, frequencyChange, percentageMissing, normalDelay, bigDelayChance, bigDelay, numDisconects);
 			}else
 			{
 				if(cmd.hasOption(GENERATE))

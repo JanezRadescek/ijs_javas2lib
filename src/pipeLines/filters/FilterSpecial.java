@@ -6,9 +6,9 @@ import pipeLines.Pipe;
 
 public class FilterSpecial extends Pipe {
 
-	public static char WHO_TRUE = (char) 5;
-	public static char WHAT_TRUE = (char) 5;
-	public static String MESSEGE_TRUE = "";
+	//public static char WHO_TRUE = (char) 5;
+	//public static char WHAT_TRUE = (char) 5;
+	//public static String MESSEGE_TRUE = "";
 
 	char who;
 	char what;
@@ -35,12 +35,12 @@ public class FilterSpecial extends Pipe {
 	@Override
 	public boolean onSpecialMessage(char who, char what, String message) {
 		boolean one = false;
-		if(who == WHO_TRUE || this.who == who)
+		if(this.who == who)
 		{
 			one = true;
 		}
 		boolean two = false;
-		if(what == WHAT_TRUE || this.what == what)
+		if(this.what == what)
 		{
 			two = true;
 		}
@@ -53,8 +53,8 @@ public class FilterSpecial extends Pipe {
 			three = pat.matcher(message).matches();
 		}
 
-		
-		
+
+
 
 		if(!(keep ^ (one & two & three)))
 		{

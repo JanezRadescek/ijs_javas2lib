@@ -16,7 +16,7 @@ public class Generator2 {
 	float percentageMissing;
 	long normalDelay;
 	float bigDelayChance;
-	float bigDelayFactor;
+	long bigDelay;
 	float curentF;
 	long curentTonMashine;
 	long curentTonAndroid;
@@ -26,7 +26,7 @@ public class Generator2 {
 	boolean pause;
 	boolean disconnect = false;
 	long[] disconectIntervals;
-	long pauseTill = 0;
+	long bigMissingTill = 0;
 	Random r;
 
 
@@ -41,12 +41,13 @@ public class Generator2 {
 	 * @param frequencyChange factor of how much can frequency change. [?normal? use 0.1].
 	 * @param percentageMissing Aproximate factor of missing packets. This number is used to calculate number of pauses(machine still save the data but not android).[for ?good? S2 use 0.01 for ?bad? use 0.1].
 	 * @param normalDelay aproximate usual delay of packets in ns [?reasonable? value is around (1/ @param frequency /10) * 10^9].
-	 * @param bigDelaychance chance for big delay [?reasonable? value is 0.01].
-	 * @param bigDelayFactor big delay will be up to @param bigDelayFactor*normal ns [?reasonable? value is 10].
-	 * @param numPauses number of pauses that will ocure in file 
+	 * @param bigDelayChance chance for big delay, meaning machine works on. Android doesnt get any packets till the end of big delay.
+	 * 				After that it gets them all in burst. They come in same order they would if not delayed [?reasonable? value is 0.01].
+	 * @param bigDelay big delay in ns will be added to delay that would come from @param normalDelay [reasonable value is 10*normalDelay].
+	 * @param numDisconects number of disconects that will ocure in file. Machine stops recording packages for some random time. consequently android also doesnt get them.
 	 */
 	public Generator2(String directory, PrintStream errPS, long start, long end, long seed, float frequency, float frequencyChange, float percentageMissing,
-			long normalDelay, float bigDelayChance, float bigDelayFactor, int numPauses) 
+			long normalDelay, float bigDelayChance, long bigDelay, int numDisconects) 
 	{
 		this.frequency = frequency;
 		this.curentF = frequency;
@@ -54,8 +55,8 @@ public class Generator2 {
 		this.percentageMissing = percentageMissing;
 		this.normalDelay = normalDelay;
 		this.bigDelayChance = bigDelayChance;
-		this.bigDelayFactor = bigDelayFactor;
-		this.disconectIntervals = new long[2*numPauses];
+		this.bigDelay = bigDelay;
+		this.disconectIntervals = new long[2*numDisconects];
 
 		//*************************************                  VERSION,META,DEFINITIONS
 
@@ -108,7 +109,7 @@ public class Generator2 {
 
 		curentTonMashine = start;
 		curentC = 0;
-		for(int i=0;i<numPauses;i++)
+		for(int i=0;i<numDisconects;i++)
 		{
 			disconectIntervals[2*i] = r.nextLong()%end;
 			disconectIntervals[2*i+1] =  (long) (disconectIntervals[2*i] + 1E9 + r.nextLong()%(60E9));
@@ -126,7 +127,7 @@ public class Generator2 {
 
 			if(disconnect)
 			{
-				// we are inside disconnect we just restart counters, all data
+				// we are inside disconnect we just restart counters. No data is sent.
 				curentC = 0;
 			}else
 			{
@@ -137,17 +138,17 @@ public class Generator2 {
 				ss2M.onStreamPacket((byte) 0, curentTonMashine, curentD.length, curentD);
 
 				//*******************           SAVING ON ANDROID
-				checkPause();
+				bigMissing();
 
 				if(pause)
 				{
-
+					//unlike  disconect machine still saves packages but android doesnt. chance for pause is calculated based on chanceForMissing
 				}else
 				{
 					float wifi = r.nextFloat();
-					if(wifi >= this.percentageMissing)
+					if(wifi >= this.percentageMissing) //random losess
 					{
-						calculateTonAndroid();
+						calculateTonAndroid();//calculates normal or posibly big delay
 						ss2A.onStreamPacket((byte) 0, curentTonAndroid, curentD.length, curentD);
 						previousTonAndroid = curentTonAndroid;
 					}
@@ -167,7 +168,7 @@ public class Generator2 {
 		int n = disconectIntervals.length/2;
 		for(int i = 0;i<n;i++)
 		{
-			if(disconectIntervals[2*i]<= curentTonMashine & curentTonMashine < disconectIntervals[2*i+1])
+			if(disconectIntervals[2*i] <= curentTonMashine & curentTonMashine < disconectIntervals[2*i+1])
 			{
 				disconnect = true;
 				return;
@@ -177,9 +178,9 @@ public class Generator2 {
 
 	}
 
-	private void checkPause()
+	private void bigMissing()
 	{
-		if(curentTonMashine < pauseTill)
+		if(curentTonMashine < bigMissingTill)
 		{
 			//PASS
 		}
@@ -191,7 +192,7 @@ public class Generator2 {
 
 			if(wifi < percentageMissing /modifier)
 			{
-				pauseTill = curentTonMashine + (long)(modifier* percentageMissing / frequency * 1E6);
+				bigMissingTill = curentTonMashine + (long)(modifier* percentageMissing / frequency * 1E6);
 				pause = true;
 			}
 			else
@@ -236,16 +237,17 @@ public class Generator2 {
 	{
 		if(normalDelay > 0)
 		{
-			curentTonAndroid = curentTonMashine + (r.nextLong() % normalDelay);
+			curentTonAndroid = curentTonMashine + Math.abs(r.nextLong() % normalDelay);
 			if(r.nextFloat() < bigDelayChance)
 			{
-				curentTonAndroid += r.nextLong() % (long) (bigDelayFactor*normalDelay);
+				curentTonAndroid += Math.abs(r.nextLong() % bigDelay);
 			}
 			if(curentTonAndroid<=previousTonAndroid)
 			{
-				curentTonAndroid = previousTonAndroid + normalDelay/100 + 1;
+				curentTonAndroid = previousTonAndroid + normalDelay/20 + 1;
 			}
-		}else
+		}
+		else
 		{
 			curentTonAndroid = curentTonMashine;
 		}
