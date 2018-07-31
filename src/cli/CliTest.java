@@ -87,164 +87,7 @@ public class CliTest {
 
 	//***********************            TEST CLI FUNCTIONALITIS                    *******************************
 
-
-	@Test
-	public void StatisticsTest()
-	{
-		Cli.start(new String[]{"-"+Cli.STATISTIKA, outDir+File.separator+ "StatistikaOriginala.txt" ,"-"+Cli.INPUT, inDirName});
-
-		File correct = new File(inDir + File.separator + inINFO);
-		File testing = new File(outDir + File.separator + "StatistikaOriginala.txt");
-
-		try {
-			boolean isTwoEqual = FileUtils.contentEquals(correct, testing);
-			assertTrue("testiranje statistike",isTwoEqual);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-
-	@Test
-	public void OutTXTTest()
-	{
-		//TODO formating
-		Cli.start(new String[]{"-"+Cli.INPUT, inDirName, "-"+Cli.OUTPUT, outDir + File.separator + "IzpisOriginala.txt"});
-
-		File correct = new File(inDir + File.separator + inTXT);
-		File testing = new File(outDir + File.separator + "IzpisOriginala.txt");
-
-		try 
-		{
-			boolean isTwoEqual = FileUtils.contentEquals(correct, testing);
-			assertTrue("testiranje izpisa TXT",isTwoEqual);		
-		} catch (IOException e) 
-		{
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void OutCSVTest()
-	{
-		{
-			//copy
-			Cli.start(new String[]{"-"+Cli.INPUT, inDirName, "-"+Cli.OUTPUT, outDir + File.separator + "IzpisOriginala.csv"});
-			File corect = new File(inDir + File.separator + inCSV);
-			File testing = new File(outDir + File.separator + "IzpisOriginala.csv");
-			boolean isTwoEqual = false;
-			try {
-				isTwoEqual = FileUtils.contentEquals(corect, testing);
-				assertTrue("without timeFilter",isTwoEqual);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}	
-		}
-	}
-
-	@Test
-	public void outS2Test()
-	{
-		checkCopy();
-
-		if(inFile.equals("generated.s2"))
-		{
-			//samo za generated
-			assertEquals("Testing singletons time 17",1+1, checkSingleton(17L));
-			assertEquals("Testing singletons time 16",1+3, checkSingleton(16L));
-			assertEquals("Testing singletons time 15",1+0, checkSingleton(15L));
-		}
-		else
-		{
-			//smiselno samo za neko pravo datoteko
-			long time = 8855834815L;
-			assertEquals("Testing singletons time "+time,1+1, checkSingleton(time));
-		}
-
-		deleteUnimportant(false,"111");
-		//deleteUnimportant(true,"100");
-
-
-	}
-
-
-	private void checkCopy() {
-
-		//do copy of original
-		Cli.start(new String[]{"-"+Cli.INPUT, inDirName, "-"+Cli.OUTPUT, outDir +File.separator+ "KopijaOriginala.s2"});
-
-		//read copy
-		Cli.start(new String[]{"-"+Cli.INPUT, outDir +File.separator+ "KopijaOriginala.s2",
-				"-"+Cli.OUTPUT, outDir +File.separator+ "IzpisKopije.csv"});
-
-		//we cant compare S2 files directly
-		//we could also compare txt output but...
-		//compare copy.csv with corect.csv
-		File corect = new File(inDir + File.separator + inCSV);
-		File testing = new File(outDir + File.separator + "IzpisKopije.csv");
-		boolean isTwoEqual = false;
-		try {
-			isTwoEqual = FileUtils.contentEquals(corect, testing);
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		assertTrue("Testing copy ", isTwoEqual);
-	}
-
-
-	/**
-	 * For checking behavior of time interval
-	 * @param cutTime
-	 * @return number of lines in CSV of cutted file
-	 */
-	public int checkSingleton(long cutTime)
-	{
-		
-		String nameCSV = "Singleton" + cutTime +".csv";
-		Cli.start(new String[]{"-"+Cli.INPUT, inDirName, "-"+Cli.OUTPUT, outDir +File.separator+ nameCSV,
-				"-"+Cli.FILTER_TIME, Double.toString(cutTime*1E-9),Double.toString((cutTime+1)*1E-9), "true"});
-
-		int lines = 0;
-		try {
-			BufferedReader bf = new BufferedReader(new FileReader(outDir + File.separator + nameCSV));
-
-			while(bf.readLine() != null)
-			{
-				lines++;
-			}
-			bf.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return lines;
-	}
-
-	private void deleteUnimportant(boolean R,String d) {
-		String name = "deletedUnimp";
-		Cli.start(new String[]{"-"+Cli.INPUT, inDirName, "-"+Cli.OUTPUT, outDir +File.separator+  name+".s2",
-				"-"+Cli.FILTER_DATA, d, "-"+Cli.FILTER_TIME, "0", "1", "true"});
-		Cli.start(new String[]{"-"+Cli.STATISTIKA, outDir + File.separator + name+".txt", "-"+Cli.INPUT, outDir +File.separator+ name+".s2"});
-
-		try {
-			BufferedReader bf = new BufferedReader(new FileReader(outDir + File.separator + name+".txt"));
-			while(!bf.readLine().contains("Special messeges"))
-			{
-
-			}
-			assertEquals("Testing keeping nonessential data ",R,bf.readLine().contains("Comments : 0"));
-			bf.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-
-
+	
 	@Test
 	public void buildTest()
 	{
@@ -322,16 +165,104 @@ public class CliTest {
 			e.printStackTrace();
 		}
 	}
+	
+	@Test
+	public void filterCommentsTest()
+	{
+		Cli.start(new String[] {"-"+Cli.INPUT, inDirName, "-"+Cli.FILTER_COMMENTS, "Te.*", "-"+Cli.STATISTIKA, outDir +File.separator+ "FilteredComments1.txt" });
+		Cli.start(new String[] {"-"+Cli.INPUT, inDirName, "-"+Cli.FILTER_COMMENTS, "TeS.*", "-"+Cli.STATISTIKA, outDir +File.separator+ "FilteredComments2.txt" });
+		
+		File correct = new File(inDir + File.separator + inINFO);
+		File testing1 = new File(outDir + File.separator + "FilteredComments1.txt");
 
-
+		try 
+		{
+			boolean isTwoEqual = FileUtils.contentEquals(correct, testing1);
+			assertTrue("filter comments",isTwoEqual);		
+		} catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+		
+		BufferedReader bf;
+		try {
+			bf = new BufferedReader(new FileReader(outDir + File.separator + "FilteredComments2.txt"));
+			String s;
+			while((s=bf.readLine()) != null)
+			{
+				if(s.contains("Comment"))
+				{
+					assertTrue(false);
+					break;
+				}
+			}
+			bf.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	public void filterSpecialTest()
+	{
+		//TODO this
+	}
+	
+	@Test
+	public void filterDataTest()
+	{
+		Cli.start(new String[] {"-"+Cli.INPUT, inDirName, "-"+Cli.FILTER_DATA, "1111", "-"+Cli.OUTPUT, outDir +File.separator+ "FilteredData.txt" });
+		
+		File corect = new File(inDir + File.separator + inTXT);
+		File testing = new File(outDir + File.separator + "FilteredData.txt");
+		try {
+			boolean isTwoEqual = FileUtils.contentEquals(corect, testing);
+			assertTrue("Testing filtering data ", isTwoEqual);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	@Test
+	public void filterHandlesTest()
+	{
+		Cli.start(new String[] {"-"+Cli.INPUT, inDirName, "-"+Cli.FILTER_HANDLES, "001", "-"+Cli.STATISTIKA, outDir +File.separator+ "Filtered.txt" });
+	
+		BufferedReader bf;
+		try {
+			bf = new BufferedReader(new FileReader(outDir + File.separator + "Filtered.txt"));
+			String s;
+			while((s=bf.readLine()) != null)
+			{
+				if(s.contains("Number of streams"))
+				{
+					String[] sss = s.split("\\s+");
+					boolean isE = sss[4].equals(""+1);
+					assertTrue("we deleted all but one stream",isE);
+					break;
+				}
+			}
+			bf.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	public void filterTimeTest()
+	{
+		//testeed in singleton
+	}
+	
+	
+	
 	@Test
 	public void testChangeTimeStamps()
 	{
 		String tem = "zamaknjeniTimestamps";
 		Cli.start(new String[]{"-"+Cli.CHANGE_TIME, "10", "-"+Cli.INPUT, inDirName, "-"+Cli.OUTPUT, outDir +File.separator+ tem+".csv"});
 
-		//Cli.start(new String[]{"-i", outDir +File.separator+ tem+".s2",
-		//		"-o", outDir +File.separator+ tem+".csv"});
 
 		File correct = new File(inDir + File.separator + inDelayed);
 		File testing = new File(outDir +File.separator+ tem+".csv");
@@ -344,6 +275,7 @@ public class CliTest {
 			e.printStackTrace();
 		}
 	}
+	
 	
 	@Test
 	public void testChangeDateTime()
@@ -365,6 +297,177 @@ public class CliTest {
 		}
 		
 	}
+	
+	
+	//@Test
+	public void SignalTest2()
+	{
+		//TODO 
+		//final double metrikaR = 1.0530298123870087E8;
+		String ime1 = "andrej1-popravljena.s2";
+		//String ime2 = "andrej2-popravljena.s2";
+		String out1 = outDir +File.separator+ ime1;
+		//String out2 = outDir +File.separator+ ime2;
+		Cli.start(new String[]{"-"+Cli.PROCESS_SIGNAL, "-"+Cli.INPUT, inDirName, "-"+Cli.OUTPUT, out1});
+		assertTrue("Testing processing ",new File(out1).exists());
+		
+		int a = 5;
+		
+		//Cli.start(new String[]{"-p", "-i", inDirNameSignal2, "-o", out2, "-t", "0","3600"});
+
+		//assertTrue("je blizu ? : ",R <=1.5*metrikaR);
+		//assertTrue("je boljše ? : ",R <=metrikaR);
+	}
+	
+
+	@Test
+	public void StatisticsTest()
+	{
+		Cli.start(new String[]{"-"+Cli.STATISTIKA, outDir+File.separator+ "StatistikaOriginala.txt" ,"-"+Cli.INPUT, inDirName});
+
+		File correct = new File(inDir + File.separator + inINFO);
+		File testing = new File(outDir + File.separator + "StatistikaOriginala.txt");
+
+		try {
+			boolean isTwoEqual = FileUtils.contentEquals(correct, testing);
+			assertTrue("testiranje statistike",isTwoEqual);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	@Test
+	public void OutTXTTest()
+	{
+		Cli.start(new String[]{"-"+Cli.INPUT, inDirName, "-"+Cli.OUTPUT, outDir + File.separator + "IzpisOriginala.txt"});
+
+		File correct = new File(inDir + File.separator + inTXT);
+		File testing = new File(outDir + File.separator + "IzpisOriginala.txt");
+
+		try 
+		{
+			boolean isTwoEqual = FileUtils.contentEquals(correct, testing);
+			assertTrue("testiranje izpisa TXT",isTwoEqual);		
+		} catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+	}
+
+	
+	@Test
+	public void OutCSVTest()
+	{
+		{
+			//copy
+			Cli.start(new String[]{"-"+Cli.INPUT, inDirName, "-"+Cli.OUTPUT, outDir + File.separator + "IzpisOriginala.csv"});
+			File corect = new File(inDir + File.separator + inCSV);
+			File testing = new File(outDir + File.separator + "IzpisOriginala.csv");
+			boolean isTwoEqual = false;
+			try {
+				isTwoEqual = FileUtils.contentEquals(corect, testing);
+				assertTrue("without timeFilter",isTwoEqual);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}	
+		}
+	}
+
+	
+	@Test
+	public void outS2Test()
+	{
+		checkCopy();
+
+		if(inFile.equals("generated.s2"))
+		{
+			//samo za generated
+			assertEquals("Testing singletons time 17",1+1, checkSingleton(17L));
+			assertEquals("Testing singletons time 16",1+3, checkSingleton(16L));
+			assertEquals("Testing singletons time 15",1+0, checkSingleton(15L));
+		}
+		else
+		{
+			//smiselno samo za neko pravo datoteko
+			long time = 8855834815L;
+			assertEquals("Testing singletons time "+time,1+1, checkSingleton(time));
+		}
+
+		deleteUnimportant(false,"111");
+		//deleteUnimportant(true,"100");
+
+
+	}
+
+	private void checkCopy() {
+
+		//do copy of original
+		Cli.start(new String[]{"-"+Cli.INPUT, inDirName, "-"+Cli.OUTPUT, outDir +File.separator+ "KopijaOriginala.s2"});
+
+		//read copy
+		Cli.start(new String[]{"-"+Cli.INPUT, outDir +File.separator+ "KopijaOriginala.s2",
+				"-"+Cli.OUTPUT, outDir +File.separator+ "IzpisKopije.csv"});
+
+		//we cant compare S2 files directly
+		//we could also compare txt output but...
+		//compare copy.csv with corect.csv
+		File corect = new File(inDir + File.separator + inCSV);
+		File testing = new File(outDir + File.separator + "IzpisKopije.csv");
+		try {
+			boolean isTwoEqual = FileUtils.contentEquals(corect, testing);
+			assertTrue("Testing copy ", isTwoEqual);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+
+	public int checkSingleton(long cutTime)
+	{
+		
+		String nameCSV = "Singleton" + cutTime +".csv";
+		Cli.start(new String[]{"-"+Cli.INPUT, inDirName, "-"+Cli.OUTPUT, outDir +File.separator+ nameCSV,
+				"-"+Cli.FILTER_TIME, Double.toString(cutTime*1E-9),Double.toString((cutTime+1)*1E-9), "true"});
+
+		int lines = 0;
+		try {
+			BufferedReader bf = new BufferedReader(new FileReader(outDir + File.separator + nameCSV));
+
+			while(bf.readLine() != null)
+			{
+				lines++;
+			}
+			bf.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return lines;
+	}
+
+	private void deleteUnimportant(boolean R,String d) {
+		String name = "deletedUnimp";
+		Cli.start(new String[]{"-"+Cli.INPUT, inDirName, "-"+Cli.OUTPUT, outDir +File.separator+  name+".s2",
+				"-"+Cli.FILTER_DATA, d, "-"+Cli.FILTER_TIME, "0", "1", "true"});
+		Cli.start(new String[]{"-"+Cli.STATISTIKA, outDir + File.separator + name+".txt", "-"+Cli.INPUT, outDir +File.separator+ name+".s2"});
+
+		try {
+			BufferedReader bf = new BufferedReader(new FileReader(outDir + File.separator + name+".txt"));
+			while(!bf.readLine().contains("Special messeges"))
+			{
+
+			}
+			assertEquals("Testing keeping nonessential data ",R,bf.readLine().contains("Comments : 0"));
+			bf.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+	
 
 	@Test
 	public void testGenerator2()
@@ -379,35 +482,13 @@ public class CliTest {
 	}
 
 
-	/*
-	@Test
-	public void SignalTest2()
-	{
-		final double metrikaR = 1.0530298123870087E8;
-		String ime1 = "andrej1-popravljena.s2";
-		String ime2 = "andrej2-popravljena.s2";
-		String out1 = outDir +File.separator+ ime1;
-		String out2 = outDir +File.separator+ ime2;
-		Cli.start(new String[]{"-p", "-i", inDirNameSignal1, "-o", out1, "-t", "0","3600"});
-		Cli.start(new String[]{"-p", "-i", inDirNameSignal2, "-o", out2, "-t", "0","3600"});
-
-		Runner r = new Runner();
-		double R = r.unitRun(outDir,ime1, ime2);
-
-
-		//assertTrue("je blizu ? : ",R <=1.5*metrikaR);
-		//assertTrue("je boljše ? : ",R <=metrikaR);
-	}
-	 */
-	
 	@After
 	public void afterTest()
 	{
 		try {
 			delete(new File(outDir));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			assertTrue("we couldnt delete",false);
+			assertTrue("we coudnt delete",false);
 			e.printStackTrace();
 		}
 	}

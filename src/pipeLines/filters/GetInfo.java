@@ -68,6 +68,7 @@ public class GetInfo extends Pipe {
 	{
 		//  WE USE ERRps BECAUSE WE NEVER PRINT ERRORS IN THIS CLASS. IT WOULD BE MORE CORRECT TO MAKE SOME OTHERPRINTSTREAM BUT HEY :)
 		this.errPS = print;
+		this.printAfter = printAfter;
 		
 	}
 

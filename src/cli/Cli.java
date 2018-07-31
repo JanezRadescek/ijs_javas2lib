@@ -262,13 +262,18 @@ public class Cli {
 			try
 			{
 				inDirectory1 = new File(cmd.getOptionValues(INPUT)[0]);
+				if(!inDirectory1.exists())
+				{
+					errPS.println("Input file does not exist.");
+					return badInputArgs;
+				}
 			}catch(Exception e)
 			{
 				errPS.println("Option i need directory and name of input S2 file. TERMINATE");
 				return badInputArgs;
 			}
 			file1 = new S2();
-			loadS1 = file1.load(inDirectory1.getParentFile(), inDirectory1.getName());
+			loadS1 = file1.load(inDirectory1);
 
 
 			//******************************************************************
@@ -284,6 +289,11 @@ public class Cli {
 				try
 				{
 					File inDirectory2 = new File(cmd.getOptionValues(INPUT)[1]);
+					if(!inDirectory2.exists())
+					{
+						errPS.println("Input file does not exist.");
+						return badInputArgs;
+					}
 					file2 = new S2();
 					loadS2 = file2.load(inDirectory2.getParentFile(), inDirectory2.getName());
 					Pipe pipeP = new Pipe(); 
@@ -459,6 +469,10 @@ public class Cli {
 					pipeLine.get(i-1).addChild(pipeLine.get(i));
 				}
 				loadS1.readLines(pipeLine.get(0), false);
+				if(file1.getNotes().length() > 0)
+				{
+					errPS.print(file1.getNotes());
+				}
 				loadS1.closeFile();
 				if(loadS2 != null) loadS2.closeFile();
 			}else
@@ -467,10 +481,7 @@ public class Cli {
 				return unknown;
 			}
 
-			if(file1.getNotes().length() > 0)
-			{
-				errPS.print(file1.getNotes());
-			}
+			
 
 		}
 		else
