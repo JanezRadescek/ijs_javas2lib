@@ -1,5 +1,8 @@
 package pipeLines.filters;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Locale;
@@ -12,6 +15,7 @@ import si.ijs.e6.S2.TimestampDefinition;
 public class SaveTXT extends Pipe {
 
 	PrintStream txt;
+	boolean close = false;//do we close this stream?
 	
 	int counterC = 0;
 	int counterSM = 0;
@@ -25,6 +29,17 @@ public class SaveTXT extends Pipe {
 
 	public SaveTXT(PrintStream txt, PrintStream errPS) {
 		this.txt = txt;
+		this.errPS = errPS;
+	}
+	
+	public SaveTXT(String directory, PrintStream errPS) {
+		try {
+			this.txt = new PrintStream(new FileOutputStream(new File(directory)));
+			close = true;
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		this.errPS = errPS;
 	}
 
@@ -58,12 +73,14 @@ public class SaveTXT extends Pipe {
 	@Override
 	public boolean onEndOfFile() {
 		txt.println("EndOfFile");
+		if(close) txt.close();
 		return super.onEndOfFile();
 	}
 	
 	@Override
 	public boolean onUnmarkedEndOfFile() {
 		txt.println("UnmarkedEndOfFile");
+		if(close) txt.close();
 		return super.onUnmarkedEndOfFile();
 	}
 	

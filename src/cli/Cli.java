@@ -149,8 +149,8 @@ public class Cli {
 				+ "-frequency change [0..1]\n"
 				+ "-percentage missing [0..1]\n"
 				+ "-normal delay in s [double]\n"
-				+ "-delay chance [0..1] \n"		// when pause occurs machine will be saving packets normaly but android will get in transmission (packets are not only delayed, they are missing)
-				+ "-delay in s [double] \n"
+				+ "-big delay chance [0..1] \n"		// when pause occurs machine will be saving packets normaly but android will get in transmission (packets are not only delayed, they are missing)
+				+ "-big delay in s [double] \n"
 				+ "-number of disconects (disconects are scattered randomly across whole S2 file). "
 				+ 		"When disconect ocurs machine stops recoding and resets counters. Consequently android doesnt get any packets");
 		generate.setArgs(8);
@@ -298,7 +298,7 @@ public class Cli {
 				}
 				catch(Exception r)
 				{
-					errPS.println("Option i needs directory and name of second input file. TERMINATE");
+					errPS.println("Option "+Cli.INPUT+" needs directory and name of second input file for "+Cli.MEARGE+". TERMINATE");
 					return badInputArgs;
 				}
 			}
@@ -392,13 +392,7 @@ public class Cli {
 				String outStat = cmd.getOptionValue(STATISTIKA);
 				if(outStat !=null)
 				{
-					try {
-						filter = new GetInfo(new PrintStream(new File(outStat)));
-					} catch (FileNotFoundException e) {
-						e.printStackTrace();
-						outPS.println("File couldnt be made");
-						return fileError;
-					}
+					filter = new GetInfo(outStat);
 				}
 				else
 				{
@@ -445,12 +439,7 @@ public class Cli {
 					
 					switch(extension)
 					{
-					case "txt": try {
-						filterSave = new SaveTXT(new PrintStream(new File(outDir)), errPS);
-					} catch (FileNotFoundException e) {
-						e.printStackTrace();
-						return badInputArgs;
-					}break;
+					case "txt": filterSave = new SaveTXT(outDir, errPS);break;
 					case "csv": filterSave = new SaveCSV(outDir, errPS);break;
 					case "s2":  filterSave = new SaveS2(outDir, errPS);break;
 					default: errPS.println("Wrong extension of output file name");return badInputArgs;
@@ -470,6 +459,7 @@ public class Cli {
 					pipeLine.get(i-1).addChild(pipeLine.get(i));
 				}
 				loadS1.readLines(pipeLine.get(0), false);
+				loadS1.closeFile();
 			}else
 			{
 				errPS.println("No flags were detected");
@@ -518,7 +508,7 @@ public class Cli {
 					return badInputArgs;
 				}
 				float bigDelayChance = Float.parseFloat(tem[5]);
-				long bigDelay = Long.parseLong(tem[6]);
+				Long bigDelay = (long) (Double.parseDouble(tem[6])*1E9);
 				int numDisconects = Integer.parseInt(tem[7]);
 
 				@SuppressWarnings("unused")

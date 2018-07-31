@@ -20,11 +20,12 @@ import suportingClasses.S2utilities;
  */
 public class SaveCSV extends Pipe{
 
-	PrintStream outCSV;
+	PrintStream outCSV;//for csv out
+	boolean close = false;//do we close outCSV ? yes if we made it
 
-
-	String[] CSVline;
+	String[] CSVline; //one line of data
 	boolean body = false;
+	
 
 	private int maxColumns;
 
@@ -42,7 +43,7 @@ public class SaveCSV extends Pipe{
 		this.errPS = errPS;
 		try {
 			this.outCSV = new PrintStream(new FileOutputStream(directory));
-			errPS.println("writing data into file " + directory);
+			close = true;
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -87,7 +88,9 @@ public class SaveCSV extends Pipe{
 			}
 			printLine();
 		}
-
+		
+		if(close) outCSV.close();
+		
 		pushEndofFile();
 		return false;
 	}
@@ -106,6 +109,9 @@ public class SaveCSV extends Pipe{
 			}
 			printLine();
 		}
+		
+		if(close) outCSV.close();
+		
 		pushUnmarkedEndofFile();
 		return false;
 	}

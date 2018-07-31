@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.Random;
 
+import cli.Cli;
 import pipeLines.filters.SaveS2;
 import si.ijs.e6.MultiBitBuffer;
 import si.ijs.e6.S2;
@@ -65,12 +66,7 @@ public class Generator2 {
 		SaveS2 ss2M = new SaveS2(f.getParent() +File.separator+ "Machine" + f.getName(), errPS);
 		//******************        Simulating saving on Android
 		SaveS2 ss2A = new SaveS2(f.getParent() +File.separator+ "Android" + f.getName(), errPS);
-
-
-		ss2A.onVersion(1, "PCARD");
-		ss2A.onMetadata("date", "2018-01-01");
-		ss2A.onMetadata("time", "10:30:10.555");
-		ss2A.onMetadata("timezone", "+01:00");
+		
 
 		S2.SensorDefinition sd1 = new S2.SensorDefinition("EKG test");
 		sd1.setUnit("mV", 6.2E-3f, -3.19f);
@@ -81,12 +77,19 @@ public class Generator2 {
 		sd2.setScalar(10, S2.ValueType.vt_integer, S2.AbsoluteId.abs_absolute, 0);
 		sd2.setSamplingFrequency(0);
 
+		
+		ss2A.onVersion(1, "PCARD");
+		ss2A.onMetadata("date", "2018-01-01");
+		ss2A.onMetadata("time", "10:30:10.555");
+		ss2A.onMetadata("timezone", "+01:00");
 		ss2A.onDefinition((byte) 'e', sd1);
 		ss2A.onDefinition((byte) 'c', sd2);//" "
 		ss2A.onDefinition((byte)0, new S2.StructDefinition("EKG stream", "eeeeeeeeeeeeeec"));
 		ss2A.onDefinition((byte)0, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)3, 1E-6));
 		ss2A.onComment("1. comment. Original location after definitions");
-
+		ss2A.onComment("Command line for generating this file using Cli was '-"+Cli.GENERATE+" "+seed+" "+frequency+" "+frequencyChange+" "
+				+percentageMissing+" "+normalDelay/1E9+" "+bigDelayChance+" "+bigDelay/1E9+" "+numDisconects+" -"+Cli.FILTER_TIME+" "+start/1E9+" "+end/1E9
+				+" -"+Cli.OUTPUT+" "+directory+"'.");
 
 		ss2M.onVersion(1, "PCARD");
 		ss2M.onMetadata("date", "2018-01-01");
@@ -97,7 +100,10 @@ public class Generator2 {
 		ss2M.onDefinition((byte)0, new S2.StructDefinition("EKG stream", "eeeeeeeeeeeeeec"));
 		ss2M.onDefinition((byte)0, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)3, 1E-6));
 		ss2M.onComment("1. comment. Original location after definitions");
-
+		ss2M.onComment("Command line for generating this file using Cli was '-"+Cli.GENERATE+" "+seed+" "+frequency+" "+frequencyChange+" "
+				+percentageMissing+" "+normalDelay/1E9+" "+bigDelayChance+" "+bigDelay/1E9+" "+numDisconects+" -"+Cli.FILTER_TIME+" "+start/1E9+" "+end/1E9
+				+" -"+Cli.OUTPUT+" "+directory+"'.");
+		
 		//*************************************                 RANDOM
 
 		r = new Random();

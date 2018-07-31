@@ -80,6 +80,6 @@ public class Generator {
 		
 		storeS.endFile(true);
 		
-		System.out.println("THE END");
+		System.out.println("generator THE END");
 	}
 }

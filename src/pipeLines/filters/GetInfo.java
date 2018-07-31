@@ -1,5 +1,8 @@
 package pipeLines.filters;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +20,8 @@ import si.ijs.e6.S2.TimestampDefinition;
  */
 public class GetInfo extends Pipe {
 
+	boolean close = false;//if we made printstrem we close it
+	
 	boolean start = false;
 	boolean end = false;
 	boolean printAfter = false;
@@ -46,12 +51,24 @@ public class GetInfo extends Pipe {
 	{
 		this(print, true);
 	}
+	
+	public GetInfo(String directory)
+	{
+		try {
+			this.errPS = new PrintStream(new FileOutputStream(new File(directory)));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		this.printAfter = true;
+		this.close = true;
+	}
 
 	public GetInfo(PrintStream print, boolean printAfter)
 	{
 		//  WE USE ERRps BECAUSE WE NEVER PRINT ERRORS IN THIS CLASS. IT WOULD BE MORE CORRECT TO MAKE SOME OTHERPRINTSTREAM BUT HEY :)
 		this.errPS = print;
-		this.printAfter = printAfter;
+		
 	}
 
 
@@ -143,6 +160,7 @@ public class GetInfo extends Pipe {
 		if(generalCounter.containsKey("Errors"))
 			errPS.println("Errors : "  + generalCounter.get("Errors"));
 
+		if(close) this.errPS.close();
 	}
 
 	@Override

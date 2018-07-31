@@ -9,6 +9,7 @@ import pipeLines.filters.Sprevodnik;
 import si.ijs.e6.S2;
 import si.ijs.e6.S2.LoadStatus;
 
+//TODO needs revision. i suspect not all parameters in constructor are necesary
 public class SmartMerge extends Sync{
 
 	/**
