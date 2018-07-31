@@ -9,7 +9,6 @@ import pipeLines.filters.Sprevodnik;
 import si.ijs.e6.S2;
 import si.ijs.e6.S2.LoadStatus;
 
-//TODO needs revision. i suspect not all parameters in constructor are necesary
 public class SmartMerge extends Sync{
 
 	/**
@@ -40,11 +39,14 @@ public class SmartMerge extends Sync{
 
 		ls1.readLines(gsl1 , true);
 		ls2.readLines(gsl2 , true);
+		ls1.closeFile();
+		ls2.closeFile();
 		
 		temS21 = null;
 		temS22 = null;
 		ls1 = null;
 		ls2 = null;
+		// end get data
 		
 		if(!gsl1.getVersion().equals(gsl2.getVersion()))
 		{

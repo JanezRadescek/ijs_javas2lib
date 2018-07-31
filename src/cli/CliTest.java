@@ -245,7 +245,7 @@ public class CliTest {
 
 
 
-	//@Test
+	@Test
 	public void buildTest()
 	{
 

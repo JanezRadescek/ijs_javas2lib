@@ -460,6 +460,7 @@ public class Cli {
 				}
 				loadS1.readLines(pipeLine.get(0), false);
 				loadS1.closeFile();
+				if(loadS2 != null) loadS2.closeFile();
 			}else
 			{
 				errPS.println("No flags were detected");
