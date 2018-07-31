@@ -22,10 +22,11 @@ src/cli/CliDonkey.java
 
 #INCLUDE
 !Generated/generated.s2
-!Generated/generated.csv
-!Generated/generatedDelayed.csv
-!Generated/generatedINFO.txt
-!Generated/generatedTXT.txt
-!Generated/cutedMiddle.csv
-!Generated/cutted.txt
+!UnitInput/generated.csv
+!UnitInput/generatedDelayed.csv
+!UnitInput/generatedINFO.txt
+!UnitInput/generatedTXT.txt
+!UnitInput/cutedMiddle.csv
+!UnitInput/cutted.txt
+!UnitInput/cutted.s2
 !Matlab/analyzeOne.m
