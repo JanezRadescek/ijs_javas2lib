@@ -8,113 +8,258 @@
 
 \section{Overview}
 
-This article provides some information about Cli alongside with examples on how to use it.
+This article provides some information about \textit{Cli} alongside with examples on how to use it.
 
-\section{Info}
+\section{Introduction}
 
-Cli provide tools to some simple S2 file manipulation. In its current form it can generate basic information about S2 file, generate CSV file from data in S2 file, select desirable part of S2 file and merge two S2 files into one s2 file.
-We control program with flags and their arguments.
+Cli giveus us acces to \textit{pipes} which can manipulate and work with S2 format. Pipes works as followed. They get valid S2 format. They do something with it. Finally they send changed but still valid S2 format to the next Pipe in line. We get desired pipeline by combaning appropriate pipes.
+The main purpose of Cli is to parse input arguments and based on them, it build pipeline from pipes. In its curent version every pipe can be included at most ones and in predetermed unmutable order. In most cases the order of pipes doesnt matter. In thoes that does the corect order can be achieved by reapingly calling Cli, thought for some very special task it may be more efficent to build a program that can directly use pipes.
 
-\subsection{Flags}
-Whenever we run Cli there are two mandatory flags, task flag and input flag, followed by additional flags. Only one task flag can be used at the same time. Flags arguments must follow directly after flag and in correct order.
+In next section we will briefly explain parsing and how Cli build pipes together.
+In the section to follow we will explain flags and functionalities of coresponding pipe along side with bare bone examples focused on how to use them in Cli. The implementation of pipes will not be discused here.
+In the last section there will be some more realistic examples. 
+
+\section{Parsing}
+For every option that we want to include into our pipeline we must include its flag followed by arguments if option needs them. Order of flags doesnt matter. It is inportant thought that if flag has any arguments, this arguments are directly after flag and in corect order. 
+
+If there is problem with the input arguments (flags + arguments) or file acces, Cli will stop with a brif explanation why.
+
+Cli stats by parsing input arguments.
+After Cli parses flags and their argumentsit it starts including pipes coresponding to flags. Eventhoug all the pipes are complitly mutualy compatible, Cli will look only for pipes that needs input when input is given and vice versa. It isnt mandatory to include output callback, thought without it all the work will be in vain. At the end it runs the pipeline, writes any posible errors that ocured during execution of Cli and in the if everything was successful it will print \textbf{CLI finished}.
+Warning: From point of Cli none existing or pointless pipeline is perfectly fine.
 
 
-\subsubsection{statistics}
-\textbf{-s} provides us with some statistics. It is task flag. It has no arguments. By default it will write result to standard output. If we provide \textbf{-o} it will write result to this file instead. We will get  version; total time of measurement; date, time and zone of the beginning; no.\ of special messages, comments,   definitions, time stamps, unknown, errors, streams,packets per stream,samples per stream.
 
-\subsubsection{CSV}
-\textbf{-r} partially convert S2 file into CSV format(it is irreversible, as we keep only data and their respective times). It is task flag. Has no arguments. By default it will 
+\section{Options}
+The structure of following subsections will be:
 \begin{itemize}
-\item  write result to standard output,
-\item use all handles,
-\item start from time 0 and end on Long.MAXVALUE = 9,223,372,036,854,775,807.
-\end{itemize}
-
-If we provide \textbf{-o} it will write result to this file instead.
-If we provide \textbf{-h} it will only use those handles.
-If we provide \textbf{-t} it will only use data from that time interval.
-
-We will get time stamps, data, and handles on the output.
-
-\subsubsection{Cut}
- \textbf{-c} cut original S2 file and save new one. It is task flag. Has no arguments. It is mandatory to accompany this flag with flag \textbf{-o}.
-By default it will copy original meaning:
-\begin{itemize}
-\item use all handles,
-\item start from time 0 and end on Long.MAXVALUE = 9,223,372,036,854,775,807.
-\item keep comments, special messages,...
-\end{itemize}
-
-If we provide \textbf{-h} it will only use those handles.
-If we provide \textbf{-t} it will only use data from that time interval.
-If we provide \textbf{-d} it will only use those additional data types.
-
-\subsubsection{Merge}
- \textbf{-m} merges two original S2 files and save them into new one. It is task flag. It has mandatory argument. If argument is true it check if files correspond and if they do it will merge them on same handles, do nothing otherwise. If argument is false it will give second file new handles. It is mandatory to accompany this flag with flag \textbf{-o}.
-
-\paragraph{Calculating new handles}
-Algorithm for calculating new handle for handle i is as follows. 
-First it will check if this handle was used before. If not it will be given that handle. If it was used before it will try handles i+1, i+2,...,i+31(mod 32 is applied every time). It will use the firt one in sequence not used before. If all of them were used before it will give it handle i(in that last case that means data from handle i from first file and data from handle i from second file will be both on same handle i in merged file).
-
-
-\subsubsection{Input}
-
- \textbf{-i} is input flag. It has 1+1 arguments. First argument is file path of main input S2 file. Second argument is optional. It is file path for secondary input file and is used only in combination with flag \textbf{-m}.
-
-\subsubsection{Output}
-\textbf{-o} is additional flag. It has 1 mandatory argument. Argument is file path of output file. In case file with same file path already exist it will be overwritten.
-When used with
-\begin{itemize}
-\item \textbf{-s} file extension must be \textbf{.txt}
-\item \textbf{-r} file extension must be \textbf{.csv}
-\item \textbf{-c} file extension must be \textbf{.s2}
-\item \textbf{-m} file extension must be \textbf{.s2}
-\end{itemize}
-
-\subsubsection{Handles}
- \textbf{-h} is additional flag.  It is used in combination with \textbf{-r} or \textbf{-c}. It has mandatory argument. Argument is sequence of zeros and ones. If sequence contains 1 on position \textbf{i+1} from right to left it will process handle \textbf{i}. 0 on position \textbf{i+1} from right to left means this handle will not be processed. 0 left to the leftmost 1 can be omitted. Keep in mind current version of S2 supports only handles 0-31. If this flag is omitted  completely it is equivalent to using this flag with argument of sequence of 32 ones.
-
-\subsubsection{Time interval}
-\textbf{-t} is additional flag. It is used in combination with \textbf{-r} or \textbf{-c}. It has 2 mandatory arguments and one optional. First argument must be smaller than second one. The arguments represent time interval on witch data should be processed. If the third arguments is \textbf{true} it will approximate comments and special messages with last explicit time and process them accordingly. Otherwise comments and special messages will be processed as they are all on time interval. 
-
-\subsubsection{Data types}
-\textbf{-d} is additional flag. It is used in combination with \textbf{-c}.  It has mandatory argument. Argument is sequence of zeros and ones. 1 on position $i$ from right to left means it will keep:
+\item functionalities of the option
+\item{
+Flag and argument in the following structure:
  \begin{itemize}
-\item i=1 comments
-\item i=2 special messages
-\item i=3 metadata
+ \item[$\bullet$] -Flag
+ \item[$\circ$] mandatory argument 1
+ \item[$\circ$] mandatory argument 2
+ 
+ ...
+  \item[$\circ$] mandatory argument n
+  \item[\textasteriskcentered] optional argument
+ \end{itemize}
+ }
+\item example.
 \end{itemize}
-Current version needs metadata for correct merging therefore its strongly recommended to never delete those.
-Omitting this flag is equivalent to \textbf{-d 111}.
 
-\section{Examples}
+As we mentioned before Cli builds pipes in predetermined order therefore we will list options in the same order as their pipes (if they represent one) will be in pipeline.
 
-In all examples to follow we will assume we have two \textbf{S2} files named \textbf{file1.s2} and \textbf{file2.s2} both stored in \textbf{./files/} . Examples are independent.
-
-
-\subsection{example}
-Lets say file1.s2 stores data about EKG measurement and we want to know how long did it last. For that we call Cli as follows. $$\textbf{Cli -s -i ./files/file1.s2} $$
- \textbf{-i} is always necessary and has mandatory arguments file directory. After running the program we will get statistics of \textbf{file1.s2} on standard output.
-
-Now we want to know the actual data for the first 30s. We want them saved in file \textbf{output1.csv} for later use: $$ \textbf{Cli -r -i ./files/file1.s2 -o ./files/output1.csv -t 0 30} $$
-Flag \textbf{-r} tels the program we want actual data in CSV format, \textbf{-o} has necessary argument directory of file in which we will save our CSV data. There is also \textbf{-t} with 2 arguments which represent time interval.
+\subsection{Help}
+Option help doesnt actualy corespond to any pipe. Insted it prints basic info on how to use Cli. Any aditional options are discarded.
+\begin{itemize}
+\item[$\bullet$] -h
+\end{itemize}
+Print help : \begin{lstlisting} 
+-h
+\end{lstlisting}
 
 
-\subsection{example}
-First we want statistics for both files. $$\textbf{Cli -s -i ./files/file1.s2} $$ $$\textbf{Cli -s -i ./files/file2.s2} $$
-Lets say the measurement on \textbf{file2.s2} is too long. We have decided we only want part of data between 45s and 75s since the beginning. We also don't want to keep special messages.We call Cli as follows.
-$$ \textbf{Cli -c -i ./files/file2.s2 -o ./files/newFile2.s2 -t 45 75 -d 101}$$
-Now we want data from \textbf{file1.s2} and \textbf{newFile2.s2} to be in the same S2 file named \textbf{merged.s2}, but in the way we will latter be able to distinguish from which file data came.
-$$ \textbf{Cli -m false -i ./files/file1.s2 ./files/newFile2.s2 -o ./files/merged.s2}$$
-Let say \textbf{file1.s2} has data on two handles, 0 and 1 and \textbf{file2.s2} has data on three handles, 0, 1, 31. Data from first input file will keep their original Handles(0 and 1 in this case). For the second file it will calculate new handles. WARNING mapping depends on sequence in which struct definitions are written. 0 was already used in the first file therefore it will try to give it 1(0+1). 1 was also already used therefore it will try to give it 2(0+2). This was no used before therefore in handle 0 from second file will be handle 2 in merged file. We do the same for handle 1. 1 was used in the first file. 2 was used for 0 from second file. 3 was not used before therefore 1 will be given 3 in next file. Notice that if it would calculate new handle for 1 before 0 it would result in 1->2 0->3.Since 31 was not used before it will stay the same in merged file.
+\subsection{Input}
+Option input also doesnt corespond to any pipe. Its purpuse is to read lines from S2 file saved on disk and give them to the next pipe in line. Directories must be valid. It has optional secondary directory.
+\begin{itemize}
+\item[$\bullet$] -i
+\item[$\circ$] primary directory
+\item[\textasteriskcentered] secondary directory
+\end{itemize}
+Read file1.s2 from disk : \begin{lstlisting} 
+-i ./directory1/directory2/file1.s2
+\end{lstlisting}
 
 
-\subsection{example}
-Let say we have 2 mesurments saved on \textbf{file1.s2}. We are particularly interested in data between 25-30 seconds and 130-205 seconds in first mesurement. First we cut each part out and save it. 
-$$ \textbf{Cli -c -i ./files/file1.s2 -o ./files/cut1.s2 -t 25 30 -h 0}    $$
-$$ \textbf{Cli -c -i ./files/file1.s2 -o ./files cut2.s2 -t 130 205 -h 0}$$
-Now we merge them back into new file. Since they have data from same initial measurement we want them to look like it.
-$$ \textbf{Cli -m true -i ./files/cut1.s2 ./files/cut2.s2 -o ./files/merged.s2}$$
+\subsection{Merge}
+Option merge merges two S2 files into one S2 file. It needs option input with primary and secondary directory.
+\begin{itemize}
+ \item[$\bullet$] -m
+ \end{itemize}
+merge two files provided in option input : \begin{lstlisting} 
+-m
+\end{lstlisting}
+
+
+\subsection{Data}
+This option filters lines. If we want to discard all coments there must be 1 in argument on first place from right to left. If we want to discard all special messagas there must be 1st in argument on 2nd place from right to left. If we want to discard all meta data there must be 1 in argument on 3rd place from right to left. If we want to discard all packets there must be 1 in argument on 4th place from right to left. Warning in curent version of Data filtering we do not allow discarding meta data.
+\begin{itemize}
+\item[$\bullet$] -fd
+\item[$\circ$] data
+\end{itemize}
+Discard comments and packets : 
+\begin{lstlisting} 
+-fd 0110
+\end{lstlisting}
+
+
+\subsection{Comments}
+This option filters coments based on the regex provided in argument.
+\begin{itemize}
+\item[$\bullet$] -fc
+\item[$\circ$] regex
+\end{itemize}
+Keep only comments containing word Hello : 
+\begin{lstlisting} 
+-fc (.*s|)Hello(s.*|)
+\end{lstlisting}
+
+
+\subsection{Special messages}
+This option filters special message. It keeps messagas that have same who and what as in arguments and suits regex.  It needs option input. 
+\begin{itemize}
+\item[$\bullet$] -fs
+\item[$\circ$] who
+\item[$\circ$] what
+\item[$\circ$] regex
+\end{itemize}
+Keep only messages from T about U containing word Hello : 
+\begin{lstlisting} 
+-fs T U (.*s|)Hello(s.*|)
+\end{lstlisting}
+
+
+\subsection{Handles}
+This option filters packages based on handles. To include handle \#i, put 1 in position i+1 (from right to left) in the argument, to exclude it, put 0. It needs option input. 
+\begin{itemize}
+\item[$\bullet$] -fh
+\item[$\circ$] handles
+\end{itemize}
+Keep only packages with handle 0,1 and 4 : 
+\begin{lstlisting} 
+-fh 10011
+\end{lstlisting}
+
+
+\subsection{Filter time}
+This option filters lines with time. We keep only lines inside time interval. Start is included, end is exclusive. If 3rd optional argument is true we give comments and special messagas last known time and filter them accordingly. It needs option input. 
+\begin{itemize}
+\item[$\bullet$] -ft
+\item[$\circ$] start [s]
+\item[$\circ$] time [s]
+\item[\textasteriskcentered] aproximate
+\end{itemize}
+Keep only lines from 5th second till 15th second : 
+\begin{lstlisting} 
+-ft 5 15 true
+\end{lstlisting}
+
+
+\subsection{Change time}
+This option changes timespams by adding them argument. If argument is too negative (firt line with time would have negative timestamp) it changes it so the first line wth time will have timestamp 0. It needs option input. 
+\begin{itemize}
+\item[$\bullet$] -ct
+\item[$\circ$] delay [ns]
+\end{itemize}
+add timestamps 2s : 
+\begin{lstlisting} 
+-ct 2E9
+\end{lstlisting}
+
+
+\subsection{Change datetime}
+This option changes date and time in meta data. We can only change date time backwards. This option also changes timestamps so the absolute time doesnt change. Argument must be date, time and timezone in ISO format. It needs option input. 
+\begin{itemize}
+\item[$\bullet$] -cdt
+\item[$\circ$] dateTimeZone
+\end{itemize}
+change date time : 
+\begin{lstlisting} 
+-cdt 2018-01-31T10:30:10.554+0100
+\end{lstlisting}
+
+
+\subsection{Process time}
+This option localy changes time with least squares method. It needs option input. 
+\begin{itemize}
+\item[$\bullet$] -p
+\end{itemize}
+process time : 
+\begin{lstlisting} 
+-p
+\end{lstlisting}
+
+
+\subsection{Statistics}
+Produces basic statistics about S2 file and saves it into file provided in argument. If argument is omitted statistics will be printed to standard output insted.  It needs option input. 
+\begin{itemize}
+\item[$\bullet$] -s
+\item[\textasteriskcentered] directory
+\end{itemize}
+print statistics : 
+\begin{lstlisting} 
+-s
+\end{lstlisting}
+
+
+\subsection{Output}
+This option saves results of previous pipes. Based on extension of file provided in argument it will save in either txt,csv or S2 format. If we provide only extension it will print result on standard output in coresponding format. It needs option input. 
+\begin{itemize}
+\item[$\bullet$] -o
+\item[$\circ$] directory
+\end{itemize}
+save result in csv format : 
+\begin{lstlisting} 
+-o ./directory/file.csv
+\end{lstlisting}
+
+
+\subsection{Generate}
+%%%            TODO finish this
+This option tries to generates new S2 file. It considers  Disconects are scattered randomly across whole S2 file. When disconect ocurs machine stops recoding and resets counters. Consequently android doesnt get any packets . It needs option output and filter time.  
+\begin{itemize}
+\item[$\bullet$] -g
+\item[$\circ$] seed for random [long]
+\item[$\circ$] frequency in Hz [float] (around 128 for PCARD)
+\item[$\circ$] frequency change [0..1]
+\item[$\circ$] percentage missing [0..1]
+\item[$\circ$] normal delay in s [double]
+\item[$\circ$] big delay chance [0..1]
+\item[$\circ$] big delay in s [double]
+\item[$\circ$] number of disconects
+
+\end{itemize}
+save result in csv format : 
+\begin{lstlisting} 
+-o ./directory/file.csv
+\end{lstlisting}
+
+
+
+
+
+
+
+%\section{Examples}
+%
+%In all examples to follow we will assume we have two \textbf{S2} files named \textbf{file1.s2} and \textbf{file2.s2} both stored in \textbf{./files/} . Examples are independent.
+%
+%
+%\subsection{example}
+%Lets say file1.s2 stores data about EKG measurement and we want to know how long did it last. For that we call Cli as follows. $$\textbf{Cli -s -i ./files/file1.s2} $$
+% \textbf{-i} is always necessary and has mandatory arguments file directory. After running the program we will get statistics of \textbf{file1.s2} on standard output.
+%
+%Now we want to know the actual data for the first 30s. We want them saved in file \textbf{output1.csv} for later use: $$ \textbf{Cli -r -i ./files/file1.s2 -o ./files/output1.csv -t 0 30} $$
+%Flag \textbf{-r} tels the program we want actual data in CSV format, \textbf{-o} has necessary argument directory of file in which we will save our CSV data. There is also \textbf{-t} with 2 arguments which represent time interval.
+%
+%
+%\subsection{example}
+%First we want statistics for both files. $$\textbf{Cli -s -i ./files/file1.s2} $$ $$\textbf{Cli -s -i ./files/file2.s2} $$
+%Lets say the measurement on \textbf{file2.s2} is too long. We have decided we only want part of data between 45s and 75s since the beginning. We also don't want to keep special messages.We call Cli as follows.
+%$$ \textbf{Cli -c -i ./files/file2.s2 -o ./files/newFile2.s2 -t 45 75 -d 101}$$
+%Now we want data from \textbf{file1.s2} and \textbf{newFile2.s2} to be in the same S2 file named \textbf{merged.s2}, but in the way we will latter be able to distinguish from which file data came.
+%$$ \textbf{Cli -m false -i ./files/file1.s2 ./files/newFile2.s2 -o ./files/merged.s2}$$
+%Let say \textbf{file1.s2} has data on two handles, 0 and 1 and \textbf{file2.s2} has data on three handles, 0, 1, 31. Data from first input file will keep their original Handles(0 and 1 in this case). For the second file it will calculate new handles. WARNING mapping depends on sequence in which struct definitions are written. 0 was already used in the first file therefore it will try to give it 1(0+1). 1 was also already used therefore it will try to give it 2(0+2). This was no used before therefore in handle 0 from second file will be handle 2 in merged file. We do the same for handle 1. 1 was used in the first file. 2 was used for 0 from second file. 3 was not used before therefore 1 will be given 3 in next file. Notice that if it would calculate new handle for 1 before 0 it would result in 1->2 0->3.Since 31 was not used before it will stay the same in merged file.
+%
+%
+%\subsection{example}
+%Let say we have 2 mesurments saved on \textbf{file1.s2}. We are particularly interested in data between 25-30 seconds and 130-205 seconds in first mesurement. First we cut each part out and save it. 
+%$$ \textbf{Cli -c -i ./files/file1.s2 -o ./files/cut1.s2 -t 25 30 -h 0}    $$
+%$$ \textbf{Cli -c -i ./files/file1.s2 -o ./files cut2.s2 -t 130 205 -h 0}$$
+%Now we merge them back into new file. Since they have data from same initial measurement we want them to look like it.
+%$$ \textbf{Cli -m true -i ./files/cut1.s2 ./files/cut2.s2 -o ./files/merged.s2}$$
 
 
 \end{document}

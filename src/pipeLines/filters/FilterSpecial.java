@@ -54,8 +54,6 @@ public class FilterSpecial extends Pipe {
 		}
 
 
-
-
 		if(!(keep ^ (one & two & three)))
 		{
 			return super.onSpecialMessage(who, what, message);

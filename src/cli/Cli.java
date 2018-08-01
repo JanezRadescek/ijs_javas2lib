@@ -44,23 +44,24 @@ public class Cli {
 	private static final int badInputArgs = 3;
 
 	//special it doesnt need input file
-	public static final String GENERATE = "g";
+	
 	public static final String HELP = "help";
 	
-	//need input
-	public static final String MEARGE = "m";
-	public static final String STATISTIKA = "s";
-
-	public static final String CHANGE_TIME = "ct";
-	public static final String CHANGE_DATE_TIME = "cdt";
-	public static final String PROCESS_SIGNAL = "p";
-	public static final String FILTER_TIME = "ft";
 	public static final String INPUT = "i";
-	public static final String OUTPUT = "o";
-	public static final String FILTER_HANDLES = "fh";
+	public static final String MEARGE = "m";
 	public static final String FILTER_DATA = "fd";
 	public static final String FILTER_COMMENTS = "fc";
 	public static final String FILTER_SPECIAL = "fs";
+	public static final String FILTER_HANDLES = "fh";
+	public static final String FILTER_TIME = "ft";
+	public static final String CHANGE_TIME = "ct";
+	public static final String CHANGE_DATE_TIME = "cdt";
+	public static final String PROCESS_SIGNAL = "p";
+	
+	public static final String STATISTIKA = "s";
+	public static final String OUTPUT = "o";
+	
+	public static final String GENERATE = "g";
 
 
 
@@ -121,79 +122,22 @@ public class Cli {
 
 		Options options = new Options();
 
-
-		Option statistika = new Option(STATISTIKA,true, "Output statistics of input S2 file. Has optional argument directory and name of file for outputting statistics. "
-				+ "If argument is missing it will print statistics to outPS (default is System.out). DO NOT confuse this argument with flag -o output.\nArguments:\n"
-				+ "-String directoryAndName");
-		statistika.setArgs(1);
-		statistika.setOptionalArg(true);;
-		options.addOption(statistika);
+		options.addOption(HELP, false, "Prints Help. Other flags will be ignored.");
+		
+		Option input = new Option(INPUT, "General input. First argument is Directory and name of input file. "
+				+ "Secondary argument is optional and is secondary input used when needed."
+				+ "\nArguments:\n"
+				+ "-file path"
+				+ "-[file path]");
+		input.setArgs(2);
+		input.setOptionalArg(true);
+		options.addOption(input);
 
 		options.addOption(MEARGE, true, "Combines two S2 files in one S2 file. Needs flag '-i' with two inputs. Combining with other filters has undefined behavior!  Has mandatory argument."
 				+ " If true streams with same handles will be merged,"
 				+ " else streams from second file will get new one where needed.\nArguments:\n"
 				+ "-Boolean mergingHandles");
-		options.addOption(HELP, false, "Prints Help. Other flags will be ignored.");
-		options.addOption(CHANGE_TIME, true, "Add time in argument to all timestamps. "
-				+ "If added time is negative and its absolute value bigger than value of first time stamp, "
-				+ "added time will be set to -first time, resulting in new first time being 0.\nArguments:\n"
-				+ "-Long delay[ns]");
-		options.addOption(PROCESS_SIGNAL,false, "Process signal.");
-		/*
-		If argument is true it will process"
-				+ " as if the frequency of sensor is constant. Simple processsing. Otherwise it will split into intervals");*/
-
-		Option generate = new Option(GENERATE, "Generates S2 PCARD based on arguments. Needs option/flag filter time -ft and output -o.\nArguments:\n" 
-				+ "-random seed [long] \n"
-				+ "-frequency in Hz [float] (around 128 for PCARD)\n"
-				+ "-frequency change [0..1]\n"
-				+ "-percentage missing [0..1]\n"
-				+ "-normal delay in s [double]\n"
-				+ "-big delay chance [0..1] \n"		// when pause occurs machine will be saving packets normaly but android will get in transmission (packets are not only delayed, they are missing)
-				+ "-big delay in s [double] \n"
-				+ "-number of disconects (disconects are scattered randomly across whole S2 file). "
-				+ 		"When disconect ocurs machine stops recoding and resets counters. Consequently android doesnt get any packets");
-		generate.setArgs(8);
-		options.addOption(generate);
-
-		Option time = new Option(FILTER_TIME, "Filters time. Data on interval [End, start) will be keep, the rest will be deleted. If third optional argument is true we approximate "
-				+ "comments and speciall messages with last previous time and therefore delete them if outside interval."
-				+ "\nArguments:\n"
-				+ "-start in s [double]"
-				+ "-end in s [double]"
-				+ "-[approximate [bool]]");
-		time.setArgs(3);
-		time.setOptionalArg(true);
-		options.addOption(time);
-
-		options.addOption(CHANGE_DATE_TIME, true, "Change date in meta. Timestamps are relative to date in meta"
-				+ " and therefore are changed so the absolute timestamps of data does not change."
-				+ "\nArguments:\n"
-				+ "-date with time and zone in ISO format. Example: \"2018-01-01T10:30:10.554+0100\"");
 		
-		Option input1 = new Option(INPUT, "General input. First argument is Directory and name of input file. "
-				+ "Secondary argument is optional and is secondary input used when needed."
-				+ "\nArguments:\n"
-				+ "-file path"
-				+ "-[file path]");
-		input1.setArgs(2);
-		input1.setOptionalArg(true);
-
-		options.addOption(input1);
-
-		Option output = new Option(OUTPUT, true, "General output for result of other flags. If Argument is valid Directory and name with extension, it will output into specifed file."
-				+ " If argument equals 'xyz' where 'xyz' is file extension only, it will print result to the outPUT stream (Default is System.out)."
-				+ "Type of output will be based on extension of the name. Possible extensions are 'csv', 's2' and 'txt'."
-				+ "\nArguments:\n"
-				+ "dirNameExt [String]. Example: .\\myFile\\Result.s2 or txt");
-		options.addOption(output);
-
-		Option handle = new Option(FILTER_HANDLES,true ,"Filters handles. Argument represent wanted handles. " +
-				"To include handle #i, put 1 in position i+1 (from right to left) in the argument, to exclude it, put 0." +
-				"\nArguments:\n"
-				+ "-handles written in binary notation [Long]. Example: If we want to keep only handles 0 and 4 we pass '10001'");
-		options.addOption(handle);
-
 		Option dataTypes = new Option(FILTER_DATA,true, "Filters datatype. Argument must be a number in binary form"+
 				"@@@1=keeps comments, @@1@=keeps Special, @1@@=keeps meta, 1@@@=keeps data streams."
 				+ "\nArguments:\n"
@@ -210,6 +154,70 @@ public class Cli {
 				+ "-regex for message [String]");
 		special.setArgs(3);
 		options.addOption(special);
+		
+		
+		Option handle = new Option(FILTER_HANDLES,true ,"Filters handles. Argument represent wanted handles. " +
+				"To include handle #i, put 1 in position i+1 (from right to left) in the argument, to exclude it, put 0." +
+				"\nArguments:\n"
+				+ "-handles written in binary notation [Long]. Example: If we want to keep only handles 0 and 4 we pass '10001'");
+		options.addOption(handle);
+		
+		
+		Option time = new Option(FILTER_TIME, "Filters time. Data on interval [End, start) will be keep, the rest will be deleted. If third optional argument is true we approximate "
+				+ "comments and speciall messages with last previous time and therefore delete them if outside interval."
+				+ "\nArguments:\n"
+				+ "-start in s [double]"
+				+ "-end in s [double]"
+				+ "-[approximate [bool]]");
+		time.setArgs(3);
+		time.setOptionalArg(true);
+		options.addOption(time);
+
+		
+		options.addOption(CHANGE_TIME, true, "Add time in argument to all timestamps. "
+				+ "If added time is negative and its absolute value bigger than value of first time stamp, "
+				+ "added time will be set to -first time, resulting in new first time being 0.\nArguments:\n"
+				+ "-Long delay[ns]");
+		options.addOption(PROCESS_SIGNAL,false, "Process signal.");
+		/*
+		If argument is true it will process"
+				+ " as if the frequency of sensor is constant. Simple processsing. Otherwise it will split into intervals");*/
+
+
+		options.addOption(CHANGE_DATE_TIME, true, "Change date in meta. Timestamps are relative to date in meta"
+				+ " and therefore are changed so the absolute timestamps of data does not change."
+				+ "\nArguments:\n"
+				+ "-date with time and zone in ISO format. Example: \"2018-01-01T10:30:10.554+0100\"");
+		
+		
+		Option statistika = new Option(STATISTIKA,true, "Output statistics of input S2 file. Has optional argument directory and name of file for outputting statistics. "
+				+ "If argument is missing it will print statistics to outPS (default is System.out). DO NOT confuse this argument with flag -o output.\nArguments:\n"
+				+ "-String directoryAndName");
+		statistika.setArgs(1);
+		statistika.setOptionalArg(true);;
+		options.addOption(statistika);
+		
+		
+		Option output = new Option(OUTPUT, true, "General output for result of other flags. If Argument is valid Directory and name with extension, it will output into specifed file."
+				+ " If argument equals 'xyz' where 'xyz' is file extension only, it will print result to the outPUT stream (Default is System.out)."
+				+ "Type of output will be based on extension of the name. Possible extensions are 'csv', 's2' and 'txt'."
+				+ "\nArguments:\n"
+				+ "dirNameExt [String]. Example: .\\myFile\\Result.s2 or txt");
+		options.addOption(output);
+		
+		
+		Option generate = new Option(GENERATE, "Generates S2 PCARD based on arguments. Needs option/flag filter time -ft and output -o.\nArguments:\n" 
+				+ "-seed for random [long] \n"
+				+ "-frequency in Hz [float] (around 128 for PCARD)\n"
+				+ "-frequency change [0..1]\n"
+				+ "-percentage missing [0..1]\n"
+				+ "-normal delay in s [double]\n"
+				+ "-big delay chance [0..1] \n"		// when pause occurs machine will be saving packets normaly but android will get in transmission (packets are not only delayed, they are missing)
+				+ "-big delay in s [double] \n"
+				+ "-number of disconects (disconects are scattered randomly across whole S2 file. "
+				+ 		"When disconect ocurs machine stops recoding and resets counters. Consequently android doesnt get any packets");
+		generate.setArgs(8);
+		options.addOption(generate);
 
 
 		//************************************         APACHE CLI                      *******************************
@@ -312,6 +320,18 @@ public class Cli {
 					return badInputArgs;
 				}
 			}
+			
+			
+			if(cmd.hasOption(FILTER_DATA))
+			{
+				try
+				{
+					pipeLine.add(new FilterData(Byte.parseByte(cmd.getOptionValue(FILTER_DATA),2),errPS));
+				}catch(NumberFormatException e){
+					errPS.println("argument of "+FILTER_DATA+" must be a number in binary format. TERMINATE");
+					return badInputArgs;
+				}
+			}
 
 			
 			if(cmd.hasOption(FILTER_COMMENTS))
@@ -327,19 +347,7 @@ public class Cli {
 				String regex = cmd.getOptionValues(FILTER_SPECIAL)[2];
 				pipeLine.add(new FilterSpecial(who, what, regex, true));
 			}
-
-
-			if(cmd.hasOption(FILTER_DATA))
-			{
-				try
-				{
-					pipeLine.add(new FilterData(Byte.parseByte(cmd.getOptionValue(FILTER_DATA),2),errPS));
-				}catch(NumberFormatException e){
-					errPS.println("argument of "+FILTER_DATA+" must be a number in binary format. TERMINATE");
-					return badInputArgs;
-				}
-			}
-
+			
 
 			if(cmd.hasOption(FILTER_HANDLES))
 			{

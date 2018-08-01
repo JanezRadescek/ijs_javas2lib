@@ -166,6 +166,23 @@ public class CliTest {
 		}
 	}
 	
+	
+	@Test
+	public void filterDataTest()
+	{
+		Cli.start(new String[] {"-"+Cli.INPUT, inDirName, "-"+Cli.FILTER_DATA, "1111", "-"+Cli.OUTPUT, outDir +File.separator+ "FilteredData.txt" });
+		
+		File corect = new File(inDir + File.separator + inTXT);
+		File testing = new File(outDir + File.separator + "FilteredData.txt");
+		try {
+			boolean isTwoEqual = FileUtils.contentEquals(corect, testing);
+			assertTrue("Testing filtering data ", isTwoEqual);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 	@Test
 	public void filterCommentsTest()
 	{
@@ -202,25 +219,11 @@ public class CliTest {
 		}
 	}
 	
+	
 	@Test
 	public void filterSpecialTest()
 	{
 		//TODO this
-	}
-	
-	@Test
-	public void filterDataTest()
-	{
-		Cli.start(new String[] {"-"+Cli.INPUT, inDirName, "-"+Cli.FILTER_DATA, "1111", "-"+Cli.OUTPUT, outDir +File.separator+ "FilteredData.txt" });
-		
-		File corect = new File(inDir + File.separator + inTXT);
-		File testing = new File(outDir + File.separator + "FilteredData.txt");
-		try {
-			boolean isTwoEqual = FileUtils.contentEquals(corect, testing);
-			assertTrue("Testing filtering data ", isTwoEqual);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	
@@ -249,12 +252,12 @@ public class CliTest {
 		}
 	}
 	
+	
 	@Test
 	public void filterTimeTest()
 	{
 		//testeed in singleton
 	}
-	
 	
 	
 	@Test
