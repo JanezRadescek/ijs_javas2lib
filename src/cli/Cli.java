@@ -503,16 +503,17 @@ public class Cli {
 					errPS.println("Output needs directory and name. Not just name.");
 					return badInputArgs;
 				}
-				if(!tepF.getParentFile().exists())
-				{
-					errPS.println("Given directory " +tepF.getParent() +" does not exist. Creating one");
-					tepF.getParentFile().mkdirs();
-				}
 				if(tepF.getName().split("\\.").length != 2)
 				{
 					errPS.println("Name in given directory mush have extension .s2");
 					return badInputArgs;
 				}
+				if(!tepF.getParentFile().exists())
+				{
+					errPS.println("Given directory " +tepF.getParent() +" does not exist. Creating one");
+					tepF.getParentFile().mkdirs();
+				}
+				
 				long a = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[0])* 1E9);
 				long b = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[1])* 1E9);
 				

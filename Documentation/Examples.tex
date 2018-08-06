@@ -3,6 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{listings}
+\usepackage{amsmath}
 
 \begin{document}
 
@@ -13,14 +14,14 @@ This article provides some information about \textit{Cli} alongside with example
 \section{Introduction}
 
 Cli giveus us acces to \textit{pipes} which can manipulate and work with S2 format. Pipes works as followed. They get valid S2 format. They do something with it. Finally they send changed but still valid S2 format to the next Pipe in line. We get desired pipeline by combaning appropriate pipes.
-The main purpose of Cli is to parse input arguments and based on them, it build pipeline from pipes. In its curent version every pipe can be included at most ones and in predetermed unmutable order. In most cases the order of pipes doesnt matter. In thoes that does the corect order can be achieved by reapingly calling Cli, thought for some very special task it may be more efficent to build a program that can directly use pipes.
+The main purpose of Cli is to parse input arguments and based on them, it build pipeline from pipes. In its curent version every pipe can be included at most ones and in predetermed unmutable order. In most cases the order of pipes doesnt matter. In thoes that does the corect order can be achieved by reapingly calling Cli, thought for some task it may be more efficent to build a program that can directly use pipes.
 
 In next section we will briefly explain parsing and how Cli build pipes together.
-In the section to follow we will explain flags and functionalities of coresponding pipe along side with bare bone examples focused on how to use them in Cli. The implementation of pipes will not be discused here.
-In the last section there will be some more realistic examples. 
+In the section to follow we will explain options and functionalities of coresponding pipe along side with examples of posible arguments. The implementation of pipes will not be discused here.
+In the last section there will be some more realistic working examples and some examples that doesnt work. 
 
 \section{Parsing}
-For every option that we want to include into our pipeline we must include its flag followed by arguments if option needs them. Order of flags doesnt matter. It is inportant thought that if flag has any arguments, this arguments are directly after flag and in corect order. 
+For every funcionality that we want to include into our pipeline we must include apropriate pipe. We do so by passing flag (one that represent desired pipe) to the Cli followed by arguments if any is needed. Functionality, pipe, flag and arguments together are called \textit{Option}. Order of flags doesnt matter. It is inportant thought that if option has any arguments, this arguments are directly after flag and in corect order. 
 
 If there is problem with the input arguments (flags + arguments) or file acces, Cli will stop with a brif explanation why.
 
@@ -34,10 +35,11 @@ Warning: From point of Cli none existing or pointless pipeline is perfectly fine
 The structure of following subsections will be:
 \begin{itemize}
 \item functionalities of the option
+\item requirements if any
 \item{
-Flag and argument in the following structure:
+Flag and arguments in the following structure:
  \begin{itemize}
- \item[$\bullet$] -Flag
+ \item[$\bullet$] -flag
  \item[$\circ$] mandatory argument 1
  \item[$\circ$] mandatory argument 2
  
@@ -52,7 +54,7 @@ Flag and argument in the following structure:
 As we mentioned before Cli builds pipes in predetermined order therefore we will list options in the same order as their pipes (if they represent one) will be in pipeline.
 
 \subsection{Help}
-Option help doesnt actualy corespond to any pipe. Insted it prints basic info on how to use Cli. Any aditional options are discarded.
+Option help doesnt actualy corespond to any pipe. It prints basic info on how to use Cli. Any aditional options are discarded.
 \begin{itemize}
 \item[$\bullet$] -h
 \end{itemize}
@@ -74,7 +76,9 @@ Read file1.s2 from disk : \begin{lstlisting}
 
 
 \subsection{Merge}
-Option merge merges two S2 files into one S2 file. It needs option input with primary and secondary directory.
+Option merge merges two S2 files into one S2 file. 
+
+It needs option input with primary and secondary directory.
 \begin{itemize}
  \item[$\bullet$] -m
  \end{itemize}
@@ -84,7 +88,13 @@ merge two files provided in option input : \begin{lstlisting}
 
 
 \subsection{Data}
-This option filters lines. If we want to discard all coments there must be 1 in argument on first place from right to left. If we want to discard all special messagas there must be 1st in argument on 2nd place from right to left. If we want to discard all meta data there must be 1 in argument on 3rd place from right to left. If we want to discard all packets there must be 1 in argument on 4th place from right to left. Warning in curent version of Data filtering we do not allow discarding meta data.
+This option filters lines. If we want to discard all coments there must be 0 in argument on 1st place from right to left. If we want to discard all special messagas there must be 0 in argument on 2nd place from right to left. If we want to discard all meta data there must be 0 in argument on 3rd place from right to left. If we want to discard all packets there must be 0 in argument on 4th place from right to left. Warning in curent version of Data filtering we do not allow discarding meta data. 
+
+\noindent Requirements : 
+\begin{itemize}
+\item option input. 
+\end{itemize}
+Flag and arguments :
 \begin{itemize}
 \item[$\bullet$] -fd
 \item[$\circ$] data
@@ -97,6 +107,13 @@ Discard comments and packets :
 
 \subsection{Comments}
 This option filters coments based on the regex provided in argument.
+
+\noindent Requirements : 
+\begin{itemize}
+\item option input. 
+\end{itemize}
+Flag and arguments : 
+
 \begin{itemize}
 \item[$\bullet$] -fc
 \item[$\circ$] regex
@@ -108,7 +125,13 @@ Keep only comments containing word Hello :
 
 
 \subsection{Special messages}
-This option filters special message. It keeps messagas that have same who and what as in arguments and suits regex.  It needs option input. 
+This option filters special message. It keeps messagas that have same who and what as in arguments and suits regex.  
+
+\noindent Requirements : 
+\begin{itemize}
+\item option input. 
+\end{itemize}
+Flag and arguments :
 \begin{itemize}
 \item[$\bullet$] -fs
 \item[$\circ$] who
@@ -122,7 +145,13 @@ Keep only messages from T about U containing word Hello :
 
 
 \subsection{Handles}
-This option filters packages based on handles. To include handle \#i, put 1 in position i+1 (from right to left) in the argument, to exclude it, put 0. It needs option input. 
+This option filters packages based on handles. To include handle \#i, put 1 in position i+1 (from right to left) in the argument, to exclude it, put 0. 
+
+\noindent Requirements : 
+\begin{itemize}
+\item option input. 
+\end{itemize}
+Flag and arguments :
 \begin{itemize}
 \item[$\bullet$] -fh
 \item[$\circ$] handles
@@ -134,7 +163,13 @@ Keep only packages with handle 0,1 and 4 :
 
 
 \subsection{Filter time}
-This option filters lines with time. We keep only lines inside time interval. Start is included, end is exclusive. If 3rd optional argument is true we give comments and special messagas last known time and filter them accordingly. It needs option input. 
+This option filters lines with time. We keep only lines inside time interval. Start is included, end is exclusive. If 3rd optional argument is true we give comments and special messagas last known time and filter them accordingly. 
+
+\noindent Requirements : 
+\begin{itemize}
+\item option input OR option generate
+\end{itemize}
+Flag and arguments :
 \begin{itemize}
 \item[$\bullet$] -ft
 \item[$\circ$] start [s]
@@ -148,7 +183,13 @@ Keep only lines from 5th second till 15th second :
 
 
 \subsection{Change time}
-This option changes timespams by adding them argument. If argument is too negative (firt line with time would have negative timestamp) it changes it so the first line wth time will have timestamp 0. It needs option input. 
+This option changes timespams by adding them argument. If argument is too negative (firt line with time would have negative timestamp) it changes it so the first line wth time will have timestamp 0. 
+
+\noindent Requirements : 
+\begin{itemize}
+\item option input. 
+\end{itemize}
+Flag and arguments :
 \begin{itemize}
 \item[$\bullet$] -ct
 \item[$\circ$] delay [ns]
@@ -160,7 +201,13 @@ add timestamps 2s :
 
 
 \subsection{Change datetime}
-This option changes date and time in meta data. We can only change date time backwards. This option also changes timestamps so the absolute time doesnt change. Argument must be date, time and timezone in ISO format. It needs option input. 
+This option changes date and time in meta data. We can only change date time backwards. This option also changes timestamps so the absolute time doesnt change. Argument must be date, time and timezone in ISO format. 
+
+\noindent Requirements : 
+\begin{itemize}
+\item option input. 
+\end{itemize}
+Flag and arguments :
 \begin{itemize}
 \item[$\bullet$] -cdt
 \item[$\circ$] dateTimeZone
@@ -172,7 +219,13 @@ change date time :
 
 
 \subsection{Process time}
-This option localy changes time with least squares method. It needs option input. 
+This option localy changes time with least squares method. 
+
+\noindent Requirements : 
+\begin{itemize}
+\item option input. 
+\end{itemize}
+Flag and arguments :
 \begin{itemize}
 \item[$\bullet$] -p
 \end{itemize}
@@ -183,7 +236,13 @@ process time :
 
 
 \subsection{Statistics}
-Produces basic statistics about S2 file and saves it into file provided in argument. If argument is omitted statistics will be printed to standard output insted.  It needs option input. 
+Produces basic statistics about S2 file and saves it into file provided in argument. If argument is omitted statistics will be printed to standard output insted.
+
+\noindent Requirements : 
+\begin{itemize}
+\item option input. 
+\end{itemize}
+Flag and arguments :
 \begin{itemize}
 \item[$\bullet$] -s
 \item[\textasteriskcentered] directory
@@ -195,7 +254,13 @@ print statistics :
 
 
 \subsection{Output}
-This option saves results of previous pipes. Based on extension of file provided in argument it will save in either txt,csv or S2 format. If we provide only extension it will print result on standard output in coresponding format. It needs option input. 
+This option saves results of previous pipes. Based on extension of file provided in argument it will save in either txt,csv or S2 format. If we provide only extension it will print result on standard output in coresponding format. Warning : if the directory doesnt exist, it will create one.
+
+\noindent Requirements : 
+\begin{itemize}
+\item option input OR option generate. 
+\end{itemize}
+Flag and arguments :
 \begin{itemize}
 \item[$\bullet$] -o
 \item[$\circ$] directory
@@ -208,7 +273,15 @@ save result in csv format :
 
 \subsection{Generate}
 %%%            TODO finish this
-This option tries to generates new S2 file. It considers  Disconects are scattered randomly across whole S2 file. When disconect ocurs machine stops recoding and resets counters. Consequently android doesnt get any packets . It needs option output and filter time.  
+This option simulates procces of generating samples on device and sending them over wifi to android. It makes new S2 file in PCARD standard. In order to make it more realistics it is made pseudo-randomly within boundaries provided with arguments. It will generate file in time interval provided with option filter time and then save it to output provided with option output. In order to reapet random result we provide seed for random generator. Frequency is expected frequency of device this this program tries to simulate (must be a positive value). Frequency change is faktor of how much can frequency change during simulation. Pecenting missing is aproximate faktor of packets that should be lost. Normal delay is maximum value of delay that occuers for every packet. Big dela chance is chance that packets are significantly delayed than they all come in quick burst. Big delay is maximum value for big delay. Disconects are scattered randomly across whole S2 file. When disconect ocurs device stops recoding and resets counters. Consequently android doesnt get any packets. If we want file without `wifi-flaves` we set percentage missing, normal delay and big delay chance to zero. 
+
+\noindent Requirements : 
+\begin{itemize}
+\item option output
+\item option filter time
+\end{itemize}
+Flag and arguments :
+
 \begin{itemize}
 \item[$\bullet$] -g
 \item[$\circ$] seed for random [long]
@@ -221,12 +294,62 @@ This option tries to generates new S2 file. It considers  Disconects are scatter
 \item[$\circ$] number of disconects
 
 \end{itemize}
-save result in csv format : 
+generate S2 file : 
 \begin{lstlisting} 
--o ./directory/file.csv
+-g 1 128 0.1 0.2 0.001 0.01 0.1 3 -o ./directory/file.s2 -t 5 18
 \end{lstlisting}
 
 
+\section{Examples}
+
+In the following examples we will assume we have 2 folders \textit{folderIn} and \textit{folderOut} in curent directory. In folder \textit{folderIn} we have 2 files called \textit{file1.s2} and \textit{file2.s2} and no others. \textit{folderOut} is empty.
+
+\subsection{Working}
+Here we will provide some working examples that can be copied and used. 
+
+Lets say we forgot what is in file \textit{file1.s2}. We want some basic info to help us remember. Later we wont need it therefore we dont save it. Call Cli as followed:
+$$\text{Cli -i ./folderIn/file1.s2 -s}$$
+We realize this isnt file we wanted. We quickly look into second file. As we mentioned before the order in which options appear doesnt matter.
+$$\text{Cli -s -i ./folderIn/file2.s2}$$
+This is the one. We are actualy only interested in packets from \textbf{30s} till \textbf{125s}. We want the result saved in \textit{folderOut} in new file caled \textit{file3.s2}.
+$$\text{Cli -i ./folderIn/file2.s2 -ft 30 125 -fd 1100 -o ./folderOut/file3.s2}$$
+we are not interested in all the comment and special messages in this time interval, therefore we only keep comments which include word \textbf{time} and \textbf{warnings} from \textbf{recording device} that begin with \textbf{t1}. We want it in txt format so we can read it directly.
+$$\text{Cli -fc .*time.* -fs 1 w t1.* -i ./folderOut/file3.s2 -o ./folderOut/file4.txt}$$
+%MISSING GENNERATOR
+
+Our first coworker asked us to get him data from \textit{file1.s2} on \textbf{handle=2} in \textbf{csv} format.
+$$\text{Cli -i ./folderIn/file1.s2  -fh 100 -o ./folderOut/coworker1.csv}$$
+After some work he realizes the timestaps are not as expected and asks us to fix them as much as possible. We override previous file.
+$$\text{Cli -p -i ./folderIn/file1.s2 -fh 100 -o ./folderOut/coworker1.csv}$$
+Our second coworker asked us to get him data from \textit{file1.s2} and \textit{file2.s2} in \textbf{one file}.
+$$\text{Cli -m -i ./folderIn/file2.s2 ./folderIn/file1.s2 -o ./folderOut/coworker2.s2}$$
+Our second coworker realizes that times are delayed for \textbf{0.001s} and dateTime in metadata should be \textbf{25.2.2017 15h 31min UTC} and asks us to fix it.
+$$\text{Cli -ct -1000000 -cdt 2017-02-25T15:31:00.000+0000}$$ $$ \text{-i ./folderOut/coworker2.s2 -o ./folderOut/coworker2fixed.s2}$$
+
+
+\subsection{Misconceptions}
+Here we will provide some examples that doesnt work or not as expected.
+
+One might expect that the next command line will save statistics into file123.txt. What will actually happes is statistics will get printed on stdout and S2 file itself will be saved in txt format.
+$$\text{Cli -s -i ./folderIn/file1.s2 -o ./folderOut/file123.txt}$$
+
+The next command line is valid but useless since it dosnt save the work done.
+$$\text{Cli -i ./folderIn/file1.s2 -ft 10 20}$$
+
+The next command line is invalid since option output requires directory.
+$$\text{Cli -i ./folderIn/file1.s2 -ft 10 20 true -o}$$
+
+The next command line will ignore option generate because we provided input. Therefore the next 2 commans lines has the same functionality.
+$$\text{Cli -i ./folderIn/file1.s2 -g 1 128 0.1 0.2 0.001 0.01 0.1 3 -o ./directory/file.s2 -t 5 18}$$
+$$\text{Cli -i ./folderIn/file1.s2 -o ./directory/file.s2 -t 5 18}$$
+
+The next command line will ignore option change time because we didnt provided input. Therefore the next 2 commans lines has the same functionality.
+$$\text{Cli -g 1 128 0.1 0.2 0.001 0.01 0.1 3 -o ./directory/file.s2 -t 5 18}$$
+$$\text{Cli -g 1 128 0.1 0.2 0.001 0.01 0.1 3 -o ./directory/file.s2 -t 5 18 - ct 1000}$$
+
+The next command line will ignore all options except help. Therefore the next 2 commans lines has the same functionality.
+$$\text{Cli -h -i ./folderIn/file1.s2 -o ./directory/file.s2 -t 5 18}$$
+$$\text{Cli -h}$$
 
 
 
