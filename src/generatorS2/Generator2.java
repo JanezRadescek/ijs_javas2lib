@@ -1,6 +1,5 @@
 package generatorS2;
 
-import java.io.File;
 import java.io.PrintStream;
 import java.util.Random;
 
@@ -33,7 +32,7 @@ public class Generator2 {
 
 	/**
 	 * device is simulated randomly inside provided borders. Providing seed for random allow us repetions with the same result.
-	 * @param directory directory of new file S2 file.
+	 * @param outDir directory of new file S2 file.
 	 * @param errPS	PrintStream for errors.
 	 * @param seed seed for random generator.
 	 * @param start start in ns. [normal use 10^10 = 10s]
@@ -47,7 +46,7 @@ public class Generator2 {
 	 * @param bigDelay big delay in ns will be added to delay that would come from @param normalDelay [reasonable value is 10*normalDelay].
 	 * @param numDisconects number of disconects that will ocure in file. Machine stops recording packages for some random time. consequently android also doesnt get them.
 	 */
-	public Generator2(String directory, PrintStream errPS, long start, long end, long seed, float frequency, float frequencyChange, float percentageMissing,
+	public Generator2(String outDir, PrintStream errPS, long start, long end, long seed, float frequency, float frequencyChange, float percentageMissing,
 			long normalDelay, float bigDelayChance, long bigDelay, int numDisconects) 
 	{
 		this.frequency = frequency;
@@ -61,11 +60,11 @@ public class Generator2 {
 
 		//*************************************                  VERSION,META,DEFINITIONS
 
-		File f = new File(directory);
+		//File f = new File(outDir);
 		//******************        Simulating saving on machine
-		SaveS2 ss2M = new SaveS2(f.getParent() +File.separator+ "Machine" + f.getName(), errPS);
+		//SaveS2 ss2M = new SaveS2(f.getParent() +File.separator+ "Machine" + f.getName(), errPS);
 		//******************        Simulating saving on Android
-		SaveS2 ss2A = new SaveS2(f.getParent() +File.separator+ "Android" + f.getName(), errPS);
+		SaveS2 ss2A = new SaveS2(outDir, errPS);
 		
 
 		S2.SensorDefinition sd1 = new S2.SensorDefinition("EKG test");
@@ -89,20 +88,20 @@ public class Generator2 {
 		ss2A.onComment("1. comment. Original location after definitions");
 		ss2A.onComment("Command line for generating this file using Cli was '-"+Cli.GENERATE+" "+seed+" "+frequency+" "+frequencyChange+" "
 				+percentageMissing+" "+normalDelay/1E9+" "+bigDelayChance+" "+bigDelay/1E9+" "+numDisconects+" -"+Cli.FILTER_TIME+" "+start/1E9+" "+end/1E9
-				+" -"+Cli.OUTPUT+" "+directory+"'.");
+				+" -"+Cli.OUTPUT+" "+outDir+"'.");
 
-		ss2M.onVersion(1, "PCARD");
-		ss2M.onMetadata("date", "2018-01-01");
-		ss2M.onMetadata("time", "10:30:10.555");
-		ss2M.onMetadata("timezone", "+01:00");
-		ss2M.onDefinition((byte) 'e', sd1);
-		ss2M.onDefinition((byte) 'c', sd2);
-		ss2M.onDefinition((byte)0, new S2.StructDefinition("EKG stream", "eeeeeeeeeeeeeec"));
-		ss2M.onDefinition((byte)0, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)3, 1E-6));
-		ss2M.onComment("1. comment. Original location after definitions");
-		ss2M.onComment("Command line for generating this file using Cli was '-"+Cli.GENERATE+" "+seed+" "+frequency+" "+frequencyChange+" "
-				+percentageMissing+" "+normalDelay/1E9+" "+bigDelayChance+" "+bigDelay/1E9+" "+numDisconects+" -"+Cli.FILTER_TIME+" "+start/1E9+" "+end/1E9
-				+" -"+Cli.OUTPUT+" "+directory+"'.");
+//		ss2M.onVersion(1, "PCARD");
+//		ss2M.onMetadata("date", "2018-01-01");
+//		ss2M.onMetadata("time", "10:30:10.555");
+//		ss2M.onMetadata("timezone", "+01:00");
+//		ss2M.onDefinition((byte) 'e', sd1);
+//		ss2M.onDefinition((byte) 'c', sd2);
+//		ss2M.onDefinition((byte)0, new S2.StructDefinition("EKG stream", "eeeeeeeeeeeeeec"));
+//		ss2M.onDefinition((byte)0, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)3, 1E-6));
+//		ss2M.onComment("1. comment. Original location after definitions");
+//		ss2M.onComment("Command line for generating this file using Cli was '-"+Cli.GENERATE+" "+seed+" "+frequency+" "+frequencyChange+" "
+//				+percentageMissing+" "+normalDelay/1E9+" "+bigDelayChance+" "+bigDelay/1E9+" "+numDisconects+" -"+Cli.FILTER_TIME+" "+start/1E9+" "+end/1E9
+//				+" -"+Cli.OUTPUT+" "+outDir+"'.");
 		
 		//*************************************                 RANDOM
 
@@ -141,7 +140,7 @@ public class Generator2 {
 				curentD = makeData();
 
 				//*******************           SAVING ON MACHINE
-				ss2M.onStreamPacket((byte) 0, curentTonMashine, curentD.length, curentD);
+				//ss2M.onStreamPacket((byte) 0, curentTonMashine, curentD.length, curentD);
 
 				//*******************           SAVING ON ANDROID
 				bigMissing();
@@ -163,8 +162,8 @@ public class Generator2 {
 
 		}
 
-		ss2M.onComment("2. comment. Original location after packets before end");
-		ss2M.onEndOfFile();
+		//ss2M.onComment("2. comment. Original location after packets before end");
+		//ss2M.onEndOfFile();
 
 		ss2A.onComment("2. comment. Original location after packets before end");
 		ss2A.onEndOfFile();

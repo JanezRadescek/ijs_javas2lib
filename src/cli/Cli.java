@@ -61,7 +61,8 @@ public class Cli {
 	public static final String STATISTIKA = "s";
 	public static final String OUTPUT = "o";
 	
-	public static final String GENERATE = "g";
+	public static final String GENERATE = "g2";
+	public static final String GENERATE_FROM_FILE = "g3";
 
 
 

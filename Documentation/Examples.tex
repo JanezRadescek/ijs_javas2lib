@@ -315,7 +315,8 @@ This is the one. We are actualy only interested in packets from \textbf{30s} til
 $$\text{Cli -i ./folderIn/file2.s2 -ft 30 125 -fd 1100 -o ./folderOut/file3.s2}$$
 we are not interested in all the comment and special messages in this time interval, therefore we only keep comments which include word \textbf{time} and \textbf{warnings} from \textbf{recording device} that begin with \textbf{t1}. We want it in txt format so we can read it directly.
 $$\text{Cli -fc .*time.* -fs 1 w t1.* -i ./folderOut/file3.s2 -o ./folderOut/file4.txt}$$
-%MISSING GENNERATOR
+
+%For testing purposes we want to generate file 
 
 Our first coworker asked us to get him data from \textit{file1.s2} on \textbf{handle=2} in \textbf{csv} format.
 $$\text{Cli -i ./folderIn/file1.s2  -fh 100 -o ./folderOut/coworker1.csv}$$
@@ -325,6 +326,7 @@ Our second coworker asked us to get him data from \textit{file1.s2} and \textit{
 $$\text{Cli -m -i ./folderIn/file2.s2 ./folderIn/file1.s2 -o ./folderOut/coworker2.s2}$$
 Our second coworker realizes that times are delayed for \textbf{0.001s} and dateTime in metadata should be \textbf{25.2.2017 15h 31min UTC} and asks us to fix it.
 $$\text{Cli -ct -1000000 -cdt 2017-02-25T15:31:00.000+0000}$$ $$ \text{-i ./folderOut/coworker2.s2 -o ./folderOut/coworker2fixed.s2}$$
+
 
 
 \subsection{Misconceptions}

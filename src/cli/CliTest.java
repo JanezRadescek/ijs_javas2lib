@@ -479,8 +479,7 @@ public class CliTest {
 		Cli.start(new String[] {"-"+Cli.GENERATE, "10", "125", "0.1", "0.1", "1000000", "0.05", "10", "0", "-"+Cli.FILTER_TIME, "1", "10",
 				"-"+Cli.OUTPUT, outDir +File.separator+ "generatedRan.s2"});
 
-		assertTrue("generating S2 PCARD", new File(outDir +File.separator+ "AndroidgeneratedRan.s2").exists());
-		assertTrue("generating S2 PCARD", new File(outDir +File.separator+ "MachinegeneratedRan.s2").exists());
+		assertTrue("generating S2 PCARD", new File(outDir +File.separator+ "generatedRan.s2").exists());
 
 	}
 
