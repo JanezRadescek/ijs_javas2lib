@@ -32,9 +32,16 @@ public class SaveTXT extends Pipe {
 		this.errPS = errPS;
 	}
 	
-	public SaveTXT(String directory, PrintStream errPS) {
+	public SaveTXT(String outDir, PrintStream errPS) {
+		File temF = new File(outDir);
+		if(!temF.getParentFile().exists())
+		{
+			errPS.println("Given directory " +temF.getParent() +" does not exist. Creating one");
+			temF.getParentFile().mkdirs();
+		}
+		
 		try {
-			this.txt = new PrintStream(new FileOutputStream(new File(directory)));
+			this.txt = new PrintStream(new FileOutputStream(new File(outDir)));
 			close = true;
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

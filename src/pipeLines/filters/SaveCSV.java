@@ -1,5 +1,6 @@
 package pipeLines.filters;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -35,14 +36,21 @@ public class SaveCSV extends Pipe{
 
 	/**
 	 * Filter which saves as CSV. Since CSV is very restrictive only timestamps, handles and actual datas will be saved.
-	 * @param directory string representing file directory AND name
+	 * @param outDir string representing file directory AND name
 	 * @param errPS PrintStream on which we write any errors or something like that.
 	 */
-	public SaveCSV(String directory, PrintStream errPS)
+	public SaveCSV(String outDir, PrintStream errPS)
 	{
+		File temF = new File(outDir);
+		if(!temF.getParentFile().exists())
+		{
+			errPS.println("Given directory " +temF.getParent() +" does not exist. Creating one");
+			temF.getParentFile().mkdirs();
+		}
+		
 		this.errPS = errPS;
 		try {
-			this.outCSV = new PrintStream(new FileOutputStream(directory));
+			this.outCSV = new PrintStream(new FileOutputStream(outDir));
 			close = true;
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -91,8 +99,7 @@ public class SaveCSV extends Pipe{
 		
 		if(close) outCSV.close();
 		
-		pushEndofFile();
-		return false;
+		return pushEndofFile();
 	}
 
 	@Override
@@ -112,8 +119,7 @@ public class SaveCSV extends Pipe{
 		
 		if(close) outCSV.close();
 		
-		pushUnmarkedEndofFile();
-		return false;
+		return pushUnmarkedEndofFile();
 	}
 
 
@@ -134,7 +140,6 @@ public class SaveCSV extends Pipe{
 		{
 			maxColumns = temp;
 		}
-
 
 		return pushDefinition(handle, definition);
 	}

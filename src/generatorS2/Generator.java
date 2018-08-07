@@ -22,7 +22,6 @@ public class Generator {
 		String fname = "generated";
 		S2 s2 = new S2();
 		File targetDirectory = new File(outDir);
-		// if it doesn't exis, create it now
 		targetDirectory.mkdir();
 		S2.StoreStatus storeS = s2.store(targetDirectory, fname+".s2");
 

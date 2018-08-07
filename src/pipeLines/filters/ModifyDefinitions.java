@@ -19,17 +19,32 @@ public class ModifyDefinitions extends Pipe {
 	
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
-		return super.onDefinition(handle, (SensorDefinition) modifications.getOrDefault(handle, definition));
+		if(modifications.containsKey(handle) && modifications.get(handle) instanceof SensorDefinition)
+		{
+			SensorDefinition sd = (SensorDefinition) modifications.get(handle);
+			return super.onDefinition(handle, sd);
+		}
+		return super.onDefinition(handle, definition);
 	}
 	
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
-		return super.onDefinition(handle, (StructDefinition) modifications.getOrDefault(handle, definition));
+		if(modifications.containsKey(handle) && modifications.get(handle) instanceof StructDefinition)
+		{
+			StructDefinition sd = (StructDefinition) modifications.get(handle);
+			return super.onDefinition(handle, sd);
+		}
+		return super.onDefinition(handle, definition);
 	}
 	
 	@Override
 	public boolean onDefinition(byte handle, TimestampDefinition definition) {
-		return super.onDefinition(handle, (TimestampDefinition) modifications.getOrDefault(handle, definition));
+		if(modifications.containsKey(handle) && modifications.get(handle) instanceof TimestampDefinition)
+		{
+			TimestampDefinition sd = (TimestampDefinition) modifications.get(handle);
+			return super.onDefinition(handle, sd);
+		}
+		return super.onDefinition(handle, definition);
 	}
 
 }

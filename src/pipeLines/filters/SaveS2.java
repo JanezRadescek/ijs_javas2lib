@@ -29,14 +29,21 @@ public class SaveS2 extends Pipe {
 	private Map<Byte,Long> lastTime = new HashMap<Byte,Long>();
 
 	/**
-	 * @param filePath directory AND name of new S2 file in which we will save
+	 * @param outDir directory AND name of new S2 file in which we will save
 	 * @param errPS printstrem for errors
 	 */
-	public SaveS2(String filePath, PrintStream errPS)
+	public SaveS2(String outDir, PrintStream errPS)
 	{
+		File temF = new File(outDir);
+		if(!temF.getParentFile().exists())
+		{
+			errPS.println("Given directory " +temF.getParent() +" does not exist. Creating one");
+			temF.getParentFile().mkdirs();
+		}
+		
 		this.errPS = errPS;
 		s2 = new S2();
-		File f = new File(filePath);
+		File f = new File(outDir);
 		storeS = s2.store(f);
 		storeS.enableDebugOutput(false);
 	}
@@ -73,23 +80,23 @@ public class SaveS2 extends Pipe {
 	@Override
 	public boolean onEndOfFile() {
 		storeS.endFile(true);
-		pushEndofFile();
+		boolean r = pushEndofFile();
 		if(storeS.getNotes().length() > 0)
 		{
 			errPS.println(storeS.getNotes());
 		}
-		return false;
+		return r;
 	}
 
 	@Override
 	public boolean onUnmarkedEndOfFile() {
 		storeS.endFile(true);
-		pushUnmarkedEndofFile();
+		boolean r = pushUnmarkedEndofFile();
 		if(storeS.getNotes().length() > 0)
 		{
 			errPS.println(storeS.getNotes());
 		}
-		return false;
+		return r;
 	}
 
 	@Override

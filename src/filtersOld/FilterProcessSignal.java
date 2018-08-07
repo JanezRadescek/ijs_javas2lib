@@ -14,7 +14,6 @@ import suportingClasses.Comment;
 import suportingClasses.StreamPacket;
 import suportingClasses.Line;
 import suportingClasses.SpecialMessage;
-import suportingClasses.TimeStamp;
 
 /**
  * Linear regresion is performed locally and then timestamps of packets are changed appropriatly. 
@@ -105,9 +104,9 @@ public class FilterProcessSignal extends Pipe {
 	@Override
 	public boolean onVersion(int versionInt, String version) {
 		if(!version.equals("PCARD"))
-			System.err.print("We are processing S2 file which is not PCARD, resulting in Undefined behavior.");
+			System.err.print("Processing timestamp is only available for PCARD files. this S2 file is not PCARD.");
 		
-		return pushVersion(versionInt, version);
+		return false;
 	}
 
 	@Override
@@ -131,8 +130,7 @@ public class FilterProcessSignal extends Pipe {
 		previousBlockP.addAll(curentBlockP);
 		procesOldInterval();
 
-		pushEndofFile();
-		return false;
+		return pushEndofFile();
 	}
 
 	@Override
@@ -141,8 +139,7 @@ public class FilterProcessSignal extends Pipe {
 		previousBlockP.addAll(curentBlockP);
 		procesOldInterval();
 
-		pushUnmarkedEndofFile();
-		return false;
+		return pushUnmarkedEndofFile();
 	}
 
 

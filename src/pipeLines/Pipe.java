@@ -94,33 +94,34 @@ public class Pipe implements ReadLineCallbackInterface
 
 	@Override
 	public boolean onEndOfFile() {
-		pushEndofFile();
-		return false;
+		return pushEndofFile();
 	}
-	protected void pushEndofFile() {
+	protected boolean pushEndofFile() {
+		boolean r = true;
 		for(Pipe c:children)
 		{
-			c.onEndOfFile();
+			r &= c.onEndOfFile();
 		}
+		return r;
 	}
 
 
 	@Override
 	public boolean onUnmarkedEndOfFile() {
-		pushUnmarkedEndofFile();
-		return false;
+		return pushUnmarkedEndofFile();
 	}
-	protected void pushUnmarkedEndofFile() {
+	protected boolean pushUnmarkedEndofFile() {
+		boolean r = true;
 		for(Pipe c:children)
 		{
-			c.onUnmarkedEndOfFile();
+			r &= c.onUnmarkedEndOfFile();
 		}
+		return r;
 	}
 
 
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
-	
 		return pushDefinition(handle, definition);
 	}
 	protected boolean pushDefinition(byte handle, SensorDefinition definition) {

@@ -1,5 +1,6 @@
 package generatorS2;
 
+import java.io.File;
 import java.io.PrintStream;
 import java.util.Random;
 
@@ -28,6 +29,7 @@ public class Generator2 {
 	long[] disconectIntervals;
 	long bigMissingTill = 0;
 	Random r;
+	int cicle = 0; //counter for cicle in which we are if there were no disconects
 
 
 	/**
@@ -49,6 +51,42 @@ public class Generator2 {
 	public Generator2(String outDir, PrintStream errPS, long start, long end, long seed, float frequency, float frequencyChange, float percentageMissing,
 			long normalDelay, float bigDelayChance, long bigDelay, int numDisconects) 
 	{
+		if(frequency <= 0)
+		{
+			errPS.println("Frequency should be bigger than 0.");
+			return;
+		}
+		if(frequencyChange < 0)
+		{
+			errPS.println("frequencyChange should be 0 or bigger.");
+			return;
+		}
+		if(percentageMissing < 0)
+		{
+			errPS.println("PercantigeMissing should be 0 or bigger.");
+			return;
+		}
+		if(normalDelay < 0)
+		{
+			errPS.println("NormalDelay should be 0 or bigger.");
+			return;
+		}
+		if(bigDelayChance < 0)
+		{
+			errPS.println("BigDelayChance should be 0 or bigger.");
+			return;
+		}
+		if(bigDelay < 0)
+		{
+			errPS.println("BigDelay should be 0 or bigger.");
+			return;
+		}
+		if(numDisconects < 0)
+		{
+			errPS.print("numDisconects should be 0 or bigger.");
+			return;
+		}
+		
 		this.frequency = frequency;
 		this.curentF = frequency;
 		this.frequencyChange = frequencyChange;
@@ -86,7 +124,7 @@ public class Generator2 {
 		ss2A.onDefinition((byte)0, new S2.StructDefinition("EKG stream", "eeeeeeeeeeeeeec"));
 		ss2A.onDefinition((byte)0, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)3, 1E-6));
 		ss2A.onComment("1. comment. Original location after definitions");
-		ss2A.onComment("Command line for generating this file using Cli was '-"+Cli.GENERATE+" "+seed+" "+frequency+" "+frequencyChange+" "
+		ss2A.onComment("Command line for generating this file using Cli was '-"+Cli.GENERATE_RANDOM+" "+seed+" "+frequency+" "+frequencyChange+" "
 				+percentageMissing+" "+normalDelay/1E9+" "+bigDelayChance+" "+bigDelay/1E9+" "+numDisconects+" -"+Cli.FILTER_TIME+" "+start/1E9+" "+end/1E9
 				+" -"+Cli.OUTPUT+" "+outDir+"'.");
 
@@ -124,14 +162,23 @@ public class Generator2 {
 
 		while(curentTonMashine < end)
 		{
-			calculateFrequency();
-			curentTonMashine += 1E9/curentF * 14;
+			if(frequencyChange > 0)
+			{
+				calculateFrequency();
+				curentTonMashine += 1E9/curentF * 14;
+			}
+			else
+			{
+				curentTonMashine =  start + (long) (cicle*frequency);
+			}
+			
 
 
 			checkDisconnect();
 
 			if(disconnect)
 			{
+				ss2A.onComment("Disconect has just happened.");
 				// we are inside disconnect we just restart counters. No data is sent.
 				curentC = 0;
 			}else
@@ -159,7 +206,7 @@ public class Generator2 {
 					}
 				}
 			}
-
+			cicle++;
 		}
 
 		//ss2M.onComment("2. comment. Original location after packets before end");
@@ -243,13 +290,16 @@ public class Generator2 {
 		if(normalDelay > 0)
 		{
 			curentTonAndroid = curentTonMashine + Math.abs(r.nextLong() % normalDelay);
-			if(r.nextFloat() < bigDelayChance)
-			{
-				curentTonAndroid += Math.abs(r.nextLong() % bigDelay);
-			}
 			if(curentTonAndroid<=previousTonAndroid)
 			{
 				curentTonAndroid = previousTonAndroid + normalDelay/20 + 1;
+			}
+			else
+			{
+				if(r.nextFloat() < bigDelayChance)
+				{
+					curentTonAndroid += Math.abs(r.nextLong() % bigDelay);
+				}
 			}
 		}
 		else

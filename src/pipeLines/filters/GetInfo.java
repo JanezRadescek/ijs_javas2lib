@@ -204,8 +204,7 @@ public class GetInfo extends Pipe {
 		{
 			izpisi();
 		}
-		pushEndofFile();
-		return false;
+		return pushEndofFile();
 	}
 
 	@Override
@@ -215,8 +214,7 @@ public class GetInfo extends Pipe {
 		{
 			izpisi();
 		}
-		pushUnmarkedEndofFile();
-		return false;
+		return pushUnmarkedEndofFile();
 	}
 
 

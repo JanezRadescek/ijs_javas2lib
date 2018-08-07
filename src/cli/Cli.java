@@ -61,7 +61,8 @@ public class Cli {
 	public static final String STATISTIKA = "s";
 	public static final String OUTPUT = "o";
 	
-	public static final String GENERATE = "g2";
+	public static final String GENERATE_OLD = "g1";
+	public static final String GENERATE_RANDOM = "g2";
 	public static final String GENERATE_FROM_FILE = "g3";
 
 
@@ -123,7 +124,9 @@ public class Cli {
 
 		Options options = new Options();
 
+		
 		options.addOption(HELP, false, "Prints Help. Other flags will be ignored.");
+		
 		
 		Option input = new Option(INPUT, "General input. First argument is Directory and name of input file. "
 				+ "Secondary argument is optional and is secondary input used when needed."
@@ -134,10 +137,12 @@ public class Cli {
 		input.setOptionalArg(true);
 		options.addOption(input);
 
+		
 		options.addOption(MEARGE, true, "Combines two S2 files in one S2 file. Needs flag '-i' with two inputs. Combining with other filters has undefined behavior!  Has mandatory argument."
 				+ " If true streams with same handles will be merged,"
 				+ " else streams from second file will get new one where needed.\nArguments:\n"
 				+ "-Boolean mergingHandles");
+		
 		
 		Option dataTypes = new Option(FILTER_DATA,true, "Filters datatype. Argument must be a number in binary form"+
 				"@@@1=keeps comments, @@1@=keeps Special, @1@@=keeps meta, 1@@@=keeps data streams."
@@ -145,8 +150,10 @@ public class Cli {
 				+ "Byte data [Byte]");
 		options.addOption(dataTypes);
 		
+		
 		options.addOption(Cli.FILTER_COMMENTS, true, "Filters comments based on regex provided in argument. Comments not matching regex will be removed.\nArguments:\n"
 				+ "-String regex");
+		
 		
 		Option special = new Option(Cli.FILTER_SPECIAL, "Filters special messages. Who and What must be equal to their respective values in SP to get throught."
 				+ " Masegge must suit regex provided in argument to get throught.\nArguments:\n"
@@ -179,16 +186,15 @@ public class Cli {
 				+ "If added time is negative and its absolute value bigger than value of first time stamp, "
 				+ "added time will be set to -first time, resulting in new first time being 0.\nArguments:\n"
 				+ "-Long delay[ns]");
-		options.addOption(PROCESS_SIGNAL,false, "Process signal.");
-		/*
-		If argument is true it will process"
-				+ " as if the frequency of sensor is constant. Simple processsing. Otherwise it will split into intervals");*/
-
+		
 
 		options.addOption(CHANGE_DATE_TIME, true, "Change date in meta. Timestamps are relative to date in meta"
 				+ " and therefore are changed so the absolute timestamps of data does not change."
 				+ "\nArguments:\n"
 				+ "-date with time and zone in ISO format. Example: \"2018-01-01T10:30:10.554+0100\"");
+		
+		
+		options.addOption(PROCESS_SIGNAL,false, "Process signal.");
 		
 		
 		Option statistika = new Option(STATISTIKA,true, "Output statistics of input S2 file. Has optional argument directory and name of file for outputting statistics. "
@@ -207,7 +213,7 @@ public class Cli {
 		options.addOption(output);
 		
 		
-		Option generate = new Option(GENERATE, "Generates S2 PCARD based on arguments. Needs option/flag filter time -ft and output -o.\nArguments:\n" 
+		Option generate = new Option(GENERATE_RANDOM, "Generates semirandom S2 PCARD based on arguments. Needs option/flag filter time -ft and output -o.\nArguments:\n" 
 				+ "-seed for random [long] \n"
 				+ "-frequency in Hz [float] (around 128 for PCARD)\n"
 				+ "-frequency change [0..1]\n"
@@ -495,7 +501,7 @@ public class Cli {
 		}
 		else
 		{
-			if(cmd.hasOption(GENERATE) & cmd.hasOption(OUTPUT) & cmd.hasOption(FILTER_TIME))
+			if(cmd.hasOption(GENERATE_RANDOM) & cmd.hasOption(OUTPUT) & cmd.hasOption(FILTER_TIME))
 			{
 				String outDir = cmd.getOptionValue(OUTPUT);
 				File tepF = new File(outDir);
@@ -508,17 +514,12 @@ public class Cli {
 				{
 					errPS.println("Name in given directory mush have extension .s2");
 					return badInputArgs;
-				}
-				if(!tepF.getParentFile().exists())
-				{
-					errPS.println("Given directory " +tepF.getParent() +" does not exist. Creating one");
-					tepF.getParentFile().mkdirs();
-				}
+				}				
 				
 				long a = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[0])* 1E9);
 				long b = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[1])* 1E9);
 				
-				String[] tem = cmd.getOptionValues(GENERATE);
+				String[] tem = cmd.getOptionValues(GENERATE_RANDOM);
 				long seed = Long.parseLong(tem[0]);
 				float frequency = Float.parseFloat(tem[1]);
 				float frequencyChange = Float.parseFloat(tem[2]);
@@ -537,9 +538,9 @@ public class Cli {
 				Generator2 g = new Generator2(outDir, errPS, a, b, seed, frequency, frequencyChange, percentageMissing, normalDelay, bigDelayChance, bigDelay, numDisconects);
 			}else
 			{
-				if(cmd.hasOption(GENERATE))
+				if(cmd.hasOption(GENERATE_RANDOM))
 				{
-					errPS.println("Option "+GENERATE+"-generate s2 PCARD needs option o-out and option t-time. TERMINATE");
+					errPS.println("Option "+GENERATE_RANDOM+"-generate s2 PCARD needs option o-out and option t-time. TERMINATE");
 					return badInputArgs;
 				}
 			}
