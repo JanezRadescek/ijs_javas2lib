@@ -184,8 +184,6 @@ public class Generator2 {
 			}else
 			{
 				curentC += 14;
-				curentD = makeData();
-
 				//*******************           SAVING ON MACHINE
 				//ss2M.onStreamPacket((byte) 0, curentTonMashine, curentD.length, curentD);
 
@@ -201,6 +199,7 @@ public class Generator2 {
 					if(wifi >= this.percentageMissing) //random losess
 					{
 						calculateTonAndroid();//calculates normal or posibly big delay
+						curentD = makeData();
 						ss2A.onStreamPacket((byte) 0, curentTonAndroid, curentD.length, curentD);
 						previousTonAndroid = curentTonAndroid;
 					}

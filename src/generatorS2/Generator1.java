@@ -9,7 +9,7 @@ import si.ijs.e6.S2.Nanoseconds;
  * @author janez
  *For generating special S2 for testing purposes
  */
-public class Generator {
+public class Generator1 {
 
 	public static void main(String[] args) {
 		
@@ -27,7 +27,7 @@ public class Generator {
 
 		long sensorTime = 5L;
 
-		storeS.setVersion(1, "PCARD")
+		storeS.setVersion(1, "TEST")
                 .addMetadata("date", "2018-01-01")
                 .addMetadata("time", "10:30:10.555")
 		        .addMetadata("timezone", "+01:00")
