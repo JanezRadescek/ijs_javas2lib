@@ -19,7 +19,7 @@ public class Generator {
 	private static void generateS2() {
 		
 		String outDir  = "."+File.separator+"Generated";
-		String fname = "generated";
+		String fname = "generated34";
 		S2 s2 = new S2();
 		File targetDirectory = new File(outDir);
 		targetDirectory.mkdir();
@@ -78,6 +78,11 @@ public class Generator {
 		
 		
 		storeS.endFile(true);
+		
+		if(storeS.getNotes().length() > 0)
+		{
+			System.out.println(storeS.getNotes());
+		}
 		
 		System.out.println("generator THE END");
 	}

@@ -271,9 +271,8 @@ save result in csv format :
 \end{lstlisting}
 
 
-\subsection{Generate}
-%%%            TODO finish this
-This option simulates procces of generating samples on device and sending them over wifi to android. It makes new S2 file in PCARD standard. In order to make it more realistics it is made pseudo-randomly within boundaries provided with arguments. It will generate file in time interval provided with option filter time and then save it to output provided with option output. In order to reapet random result we provide seed for random generator. Frequency is expected frequency of device this this program tries to simulate (must be a positive value). Frequency change is faktor of how much can frequency change during simulation. Pecenting missing is aproximate faktor of packets that should be lost. Normal delay is maximum value of delay that occuers for every packet. Big dela chance is chance that packets are significantly delayed than they all come in quick burst. Big delay is maximum value for big delay. Disconects are scattered randomly across whole S2 file. When disconect ocurs device stops recoding and resets counters. Consequently android doesnt get any packets. If we want file without `wifi-flaves` we set percentage missing, normal delay and big delay chance to zero. 
+\subsection{Generate random}
+This option simulates procces of generating samples on device and sending them over wifi to android. It makes new S2 file in PCARD standard. In order to make it more realistics it is made pseudo-randomly within boundaries provided with arguments. It will generate file in time interval provided with option filter time and then save it to output provided with option output. In order to reapet random result we provide seed for random generator. Frequency is expected frequency of device this this program tries to simulate (must be a positive value). Frequency change is faktor of how much can frequency change during simulation. Pecenting missing is aproximate faktor of packets that should be lost. Normal delay is maximum value of delay that occuers for every packet. Big dela chance is chance that packets are significantly delayed than they all come in quick burst. Big delay is maximum value for big delay. Big delay canot happen again till previous big delay has ended. Disconects are scattered randomly across whole S2 file. They can overlap or be so small that they dont cover any package at all! When disconect ocurs device `stops` recoding, resets counters and add comment \''Disconect\'' . Consequently android doesnt get any packets. If we want file without `wifi-flaves` we set percentage missing, normal delay and big delay chance to zero. 
 
 \noindent Requirements : 
 \begin{itemize}
@@ -283,7 +282,7 @@ This option simulates procces of generating samples on device and sending them o
 Flag and arguments :
 
 \begin{itemize}
-\item[$\bullet$] -g
+\item[$\bullet$] -g2
 \item[$\circ$] seed for random [long]
 \item[$\circ$] frequency in Hz [float] (around 128 for PCARD)
 \item[$\circ$] frequency change [0..1]

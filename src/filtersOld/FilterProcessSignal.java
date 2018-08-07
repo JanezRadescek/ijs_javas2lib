@@ -104,23 +104,25 @@ public class FilterProcessSignal extends Pipe {
 	@Override
 	public boolean onVersion(int versionInt, String version) {
 		if(!version.equals("PCARD"))
+		{
 			System.err.print("Processing timestamp is only available for PCARD files. this S2 file is not PCARD.");
-		
-		return false;
+			return false;
+		}
+		return pushVersion(versionInt, version);
 	}
 
 	@Override
 	public boolean onComment(String comment) {
 		int key = curentBlockP.size() + curentBlockD.size();
 		curentBlockD.put(key, new Comment(comment));
-		return true;
+		return true;//we want them in same order as before procesing
 	}
 
 	@Override
 	public boolean onSpecialMessage(char who, char what, String message) {
 		int key = curentBlockP.size() + curentBlockD.size();
 		curentBlockD.put(key, new SpecialMessage(who, what, message));
-		return true;
+		return true;//we want them in same order as before procesing
 	}
 
 
@@ -311,6 +313,13 @@ public class FilterProcessSignal extends Pipe {
 	{
 		int n = previousBlockC.size();
 
+		if(n == 0)
+		{
+			//it can happen we have 0 packets in previous block
+			moveBlocks();
+			return;
+		}
+		
 		//Vseh je samo ocena zato se lahko zgodi da dobimo več paketov kot je ocenjeno
 		previousMark = n/((1+previousMerges)*vseh);
 
@@ -405,9 +414,6 @@ public class FilterProcessSignal extends Pipe {
 
 		moveBlocks();
 		writtenMark = previousMark;
-
-
-
 	}
 
 	private void pushLines(int pozicija) {

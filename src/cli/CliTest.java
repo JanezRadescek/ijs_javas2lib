@@ -302,7 +302,7 @@ public class CliTest {
 	}
 	
 	
-	//@Test
+	@Test
 	public void SignalTest2()
 	{
 		//TODO 
@@ -313,8 +313,6 @@ public class CliTest {
 		//String out2 = outDir +File.separator+ ime2;
 		Cli.start(new String[]{"-"+Cli.PROCESS_SIGNAL, "-"+Cli.INPUT, inDirName, "-"+Cli.OUTPUT, out1});
 		assertTrue("Testing processing ",new File(out1).exists());
-		
-		int a = 5;
 		
 		//Cli.start(new String[]{"-p", "-i", inDirNameSignal2, "-o", out2, "-t", "0","3600"});
 

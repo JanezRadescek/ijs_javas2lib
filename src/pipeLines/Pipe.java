@@ -111,7 +111,7 @@ public class Pipe implements ReadLineCallbackInterface
 		return pushUnmarkedEndofFile();
 	}
 	protected boolean pushUnmarkedEndofFile() {
-		boolean r = true;
+		boolean r = false;
 		for(Pipe c:children)
 		{
 			r &= c.onUnmarkedEndOfFile();
