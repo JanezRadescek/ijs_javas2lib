@@ -45,7 +45,7 @@ public class SaveS2 extends Pipe {
 		s2 = new S2();
 		File f = new File(outDir);
 		storeS = s2.store(f);
-		storeS.enableDebugOutput(false);
+		storeS.enableDebugOutput(true);
 	}
 
 
@@ -162,7 +162,9 @@ public class SaveS2 extends Pipe {
 			writeReadyDiff = 0;
 		}
 		storeS.addSensorPacket(handle, writeReadyDiff, data);
-		lastTime.replace(handle, timestamp);
+		long reducedPrecisionTimestamp = lastTime.get(handle) + timestampDefinitions.get(handle).getNanoMultiplier() * writeReadyDiff;
+		lastTime.replace(handle, reducedPrecisionTimestamp);
+		//lastTime.replace(handle, timestamp);
 
 		
 		return pushStreamPacket(handle, timestamp, len, data);

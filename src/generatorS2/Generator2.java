@@ -1,6 +1,5 @@
 package generatorS2;
 
-import java.io.File;
 import java.io.PrintStream;
 import java.util.Random;
 
@@ -8,6 +7,8 @@ import cli.Cli;
 import pipeLines.filters.SaveS2;
 import si.ijs.e6.MultiBitBuffer;
 import si.ijs.e6.S2;
+
+import static java.lang.Math.floor;
 
 public class Generator2 {
 
@@ -19,17 +20,17 @@ public class Generator2 {
 	float bigDelayChance;
 	long bigDelay;
 	float curentF;
-	long curentTonMashine;
-	long curentTonAndroid;
+	long currentTonMashine;
+	long currentTonAndroid;
 	long previousTonAndroid = 0;
 	int curentC;
-	byte[] curentD;
+	byte[] currentD;
 	boolean pause;
 	boolean disconnect = false;
 	long[] disconectIntervals;
 	long bigMissingTill = 0;
 	Random r;
-	int cicle = 0; //counter for cicle in which we are if there were no disconects
+	int cycle = 0; //counter for cycle in which we are if there were no disconects
 
 
 	/**
@@ -147,66 +148,70 @@ public class Generator2 {
 		r.setSeed(seed);
 
 
-
 		//************************************                  STARTING POINT
 
-		curentTonMashine = start;
+		currentTonMashine = start;
 		curentC = 0;
 		for(int i=0;i<numDisconects;i++)
 		{
-			disconectIntervals[2*i] = r.nextLong()%end;
-			disconectIntervals[2*i+1] =  (long) (disconectIntervals[2*i] + 1E9 + r.nextLong()%(60E9));
+            // start of the disconnect: random positive long lower than 'end'
+			disconectIntervals[2*i] = (r.nextLong() & Long.MAX_VALUE) % end;
+            // end of the disconnect: start + 1 second + random 0.000..59.000 seconds
+			disconectIntervals[2*i+1] =  (long) (disconectIntervals[2*i] + 1E9 + r.nextInt(59000)*1000000L);
 		}
 
 		//************************************                 FILING STREAMLINES
 
-		while(curentTonMashine < end)
+        long firstAndroidTime = -1;
+		while(currentTonMashine < end)
 		{
-			if(frequencyChange > 0)
-			{
+			if (frequencyChange > 0) {
 				calculateFrequency();
-				curentTonMashine += 1E9/curentF * 14;
-			}
-			else
-			{
-				curentTonMashine =  start + (long) (cicle*frequency);
+				currentTonMashine += 1E9/curentF * 14;
+			} else {
+				currentTonMashine =  start + (long) (cycle * 14e9/frequency);
 			}
 			
+            // check if disconnect is 'scheduled' and if it is, get the time of reconnect
+			long timeAfterDisconnect = checkDisconnect();
 
-
-			checkDisconnect();
-
-			if(disconnect)
-			{
-				ss2A.onComment("Disconect has just happened.");
-				// we are inside disconnect we just restart counters. No data is sent.
+			if (disconnect) {
+				ss2A.onComment("Disconnect has just happened.");
+				// we are inside disconnect: we just restart counters. No data is sent.
 				curentC = 0;
-			}else
-			{
+                currentTonMashine = timeAfterDisconnect;
+                // advance 'cycle' to the time just prior to reconnect
+                cycle = (int)floor((timeAfterDisconnect - start)*frequency/14*1e-9);
+            } else {
 				curentC += 14;
 				//*******************           SAVING ON MACHINE
-				//ss2M.onStreamPacket((byte) 0, curentTonMashine, curentD.length, curentD);
+				//ss2M.onStreamPacket((byte) 0, currentTonMashine, currentD.length, currentD);
 
 				//*******************           SAVING ON ANDROID
 				bigMissing();
 
 				if(pause)
 				{
-					//unlike  disconect machine still saves packages but android doesnt. chance for pause is calculated based on chanceForMissing
+					// unlike disconnect, machine still saves packages but android doesn't. chance for pause is calculated based on chanceForMissing
 				}else
 				{
 					float wifi = r.nextFloat();
-					if(wifi >= this.percentageMissing) //random losess
+					if(wifi >= this.percentageMissing) //random losses
 					{
-						calculateTonAndroid();//calculates normal or posibly big delay
-						curentD = makeData();
-						ss2A.onStreamPacket((byte) 0, curentTonAndroid, curentD.length, curentD);
-						previousTonAndroid = curentTonAndroid;
+						calculateTonAndroid(); //calculates normal or possibly big delay
+                        if (firstAndroidTime == -1)
+                            firstAndroidTime = currentTonAndroid;
+
+						currentD = makeData();
+						ss2A.onStreamPacket((byte) 0, currentTonAndroid, currentD.length, currentD);
+						previousTonAndroid = currentTonAndroid;
 					}
 				}
 			}
-			cicle++;
+			cycle++;
 		}
+		System.err.printf("0 .. %g, %d .. %.8g; %.8g\n", start * 1e-9, cycle, currentTonMashine*1e-9, (cycle-1)*14e9/(currentTonMashine-start));
+        System.err.printf("0 .. %g, %d .. %.8g; %.8g\n", start * 1e-9, cycle, currentTonAndroid*1e-9, (cycle-1)*14e9/(currentTonAndroid-firstAndroidTime));
 
 		//ss2M.onComment("2. comment. Original location after packets before end");
 		//ss2M.onEndOfFile();
@@ -215,23 +220,23 @@ public class Generator2 {
 		ss2A.onEndOfFile();
 	}
 
-	private void checkDisconnect() {
+	private long checkDisconnect() {
 		int n = disconectIntervals.length/2;
 		for(int i = 0;i<n;i++)
 		{
-			if(disconectIntervals[2*i] <= curentTonMashine & curentTonMashine < disconectIntervals[2*i+1])
+			if ((disconectIntervals[2*i] <= currentTonMashine) && (currentTonMashine < disconectIntervals[2*i+1]))
 			{
 				disconnect = true;
-				return;
+				return disconectIntervals[2*i+1];
 			}
 		}
 		disconnect = false;
-
+        return -1;
 	}
 
 	private void bigMissing()
 	{
-		if(curentTonMashine < bigMissingTill)
+		if(currentTonMashine < bigMissingTill)
 		{
 			//PASS
 		}
@@ -243,7 +248,7 @@ public class Generator2 {
 
 			if(wifi < percentageMissing /modifier)
 			{
-				bigMissingTill = curentTonMashine + (long)(modifier* percentageMissing / frequency * 1E6);
+				bigMissingTill = currentTonMashine + (long)(modifier* percentageMissing / frequency * 1E6);
 				pause = true;
 			}
 			else
@@ -284,26 +289,19 @@ public class Generator2 {
 	/**
 	 * calculates timestamps for android
 	 */
-	private void calculateTonAndroid()
-	{
-		if(normalDelay > 0)
-		{
-			curentTonAndroid = curentTonMashine + Math.abs(r.nextLong() % normalDelay);
-			if(curentTonAndroid<=previousTonAndroid)
-			{
-				curentTonAndroid = previousTonAndroid + normalDelay/20 + 1;
-			}
-			else
-			{
+	private void calculateTonAndroid() {
+		if(normalDelay > 0) {
+			currentTonAndroid = currentTonMashine + Math.abs(r.nextLong() % normalDelay);
+			if(currentTonAndroid <=previousTonAndroid) {
+				currentTonAndroid = previousTonAndroid + normalDelay/20 + 1;
+			} else if (bigDelay != 0) {
 				if(r.nextFloat() < bigDelayChance)
 				{
-					curentTonAndroid += Math.abs(r.nextLong() % bigDelay);
+					currentTonAndroid += Math.abs(r.nextLong() % bigDelay);
 				}
 			}
-		}
-		else
-		{
-			curentTonAndroid = curentTonMashine;
+		} else {
+			currentTonAndroid = currentTonMashine;
 		}
 	}
 
