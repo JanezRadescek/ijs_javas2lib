@@ -45,7 +45,7 @@ public class SaveS2 extends Pipe {
 		s2 = new S2();
 		File f = new File(outDir);
 		storeS = s2.store(f);
-		storeS.enableDebugOutput(true);
+		storeS.enableDebugOutput(false);
 	}
 
 
