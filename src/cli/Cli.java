@@ -13,6 +13,7 @@ import org.apache.commons.cli.*;
 
 import filtersOld.FilterProcessSignal;
 import generatorS2.Generator2;
+import generatorS2.Generator3;
 import pipeLines.Connector;
 import pipeLines.Pipe;
 import pipeLines.conglomerates.SmartMerge;
@@ -213,7 +214,7 @@ public class Cli {
 		options.addOption(output);
 		
 		
-		Option generate = new Option(GENERATE_RANDOM, "Generates semirandom S2 PCARD based on arguments. Needs option/flag filter time -ft and output -o.\nArguments:\n" 
+		Option generate2 = new Option(GENERATE_RANDOM, "Generates semirandom S2 PCARD based on arguments. Needs option/flag filter time -ft and output -o.\nArguments:\n" 
 				+ "-seed for random [long] \n"
 				+ "-frequency in Hz [float] (around 128 for PCARD)\n"
 				+ "-frequency change [0..1]\n"
@@ -223,8 +224,16 @@ public class Cli {
 				+ "-big delay in s [double] \n"
 				+ "-number of disconects (disconects are scattered randomly across whole S2 file. "
 				+ 		"When disconect ocurs machine stops recoding and resets counters. Consequently android doesnt get any packets");
-		generate.setArgs(8);
-		options.addOption(generate);
+		generate2.setArgs(8);
+		options.addOption(generate2);
+		
+		Option generate3 = new Option(GENERATE_FROM_FILE,"Generates S2 PCARD based on 'numbers' in files from arguments.\nArguments:\n"
+				+ "-input directory of Frequencies file \n"
+				+ "-input directory of Disconects file \n"
+				+ "-input directory of Pauses file \n"
+				+ "-input directory of Delays file \n");
+		generate3.setArgs(4);
+		options.addOption(generate3);
 
 
 		//************************************         APACHE CLI                      *******************************
@@ -501,8 +510,11 @@ public class Cli {
 		}
 		else
 		{
+			//TODO generate could replace input file in Cli ?
+			
 			if(cmd.hasOption(GENERATE_RANDOM) & cmd.hasOption(OUTPUT) & cmd.hasOption(FILTER_TIME))
 			{
+				
 				String outDir = cmd.getOptionValue(OUTPUT);
 				File tepF = new File(outDir);
 				if(tepF.getParentFile() == null)
@@ -543,6 +555,57 @@ public class Cli {
 					errPS.println("Option "+GENERATE_RANDOM+"-generate s2 PCARD needs option o-out and option t-time. TERMINATE");
 					return badInputArgs;
 				}
+			}
+			
+			
+			if(cmd.hasOption(GENERATE_FROM_FILE) & cmd.hasOption(OUTPUT) & cmd.hasOption(FILTER_TIME))
+			{
+				//output
+				String outDir = cmd.getOptionValue(OUTPUT);
+				File tepF = new File(outDir);
+				if(tepF.getParentFile() == null)
+				{
+					errPS.println("Output needs directory and name. Not just name.");
+					return badInputArgs;
+				}
+				if(tepF.getName().split("\\.").length != 2)
+				{
+					errPS.println("Name in given directory mush have extension .s2");
+					return badInputArgs;
+				}
+				
+				//
+				
+				long start = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[0])* 1E9);
+				long end = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[1])* 1E9);
+				
+				String[] tem = cmd.getOptionValues(GENERATE_FROM_FILE);
+				if(! new File(tem[0]).exists())
+				{
+					errPS.println("File from first argument of option "+GENERATE_FROM_FILE+" doesnt exist.");
+					return badInputArgs;
+				}
+				if(! new File(tem[1]).exists())
+				{
+					errPS.println("File from second argument of option "+GENERATE_FROM_FILE+" doesnt exist.");
+					return badInputArgs;
+				}
+				if(! new File(tem[2]).exists())
+				{
+					errPS.println("File from third argument of option "+GENERATE_FROM_FILE+" doesnt exist.");
+					return badInputArgs;
+				}
+				if(! new File(tem[3]).exists())
+				{
+					errPS.println("File from fourth argument of option "+GENERATE_FROM_FILE+" doesnt exist.");
+					return badInputArgs;
+				}
+				
+				
+				@SuppressWarnings("unused")
+				Generator3 g = new Generator3(outDir, errPS, start, end, tem[0], tem[1], tem[2], tem[3]);
+				
+				
 			}
 
 		}

@@ -38,6 +38,7 @@ public class CliTest {
 
 	static String inDir  = "." + File.separator + "UnitInput";
 	static String inFile = "generated.s2";
+	static String inG3TXT = "generated3.txt";
 	static String inCSV = "generated.csv";
 	static String inINFO = "generatedINFO.txt";
 	static String inTXT = "generatedTXT.txt";
@@ -477,7 +478,30 @@ public class CliTest {
 		Cli.start(new String[] {"-"+Cli.GENERATE_RANDOM, "10", "125", "0.1", "0.1", "1000000", "0.05", "10", "0", "-"+Cli.FILTER_TIME, "1", "10",
 				"-"+Cli.OUTPUT, outDir +File.separator+ "generatedRan.s2"});
 
-		assertTrue("generating S2 PCARD", new File(outDir +File.separator+ "generatedRan.s2").exists());
+		assertTrue("generating random S2 PCARD", new File(outDir +File.separator+ "generatedRan.s2").exists());
+
+	}
+	
+	
+	@Test
+	public void testGenerator3()
+	{
+		String s = "inputFile";
+		Cli.start(new String[] {"-"+Cli.GENERATE_FROM_FILE, inDir +File.separator+ s+"0.csv", inDir +File.separator+ s+"1.csv", inDir +File.separator+ s+"2.csv",
+				inDir +File.separator+ s+"3.csv", "-"+Cli.FILTER_TIME, "1", "10",
+				"-"+Cli.OUTPUT, outDir +File.separator+ "generated3.s2"});
+
+		Cli.start(new String[]{"-"+Cli.INPUT, outDir +File.separator+ "generated3.s2" ,"-"+Cli.OUTPUT, outDir +File.separator+ "generated3.txt"});
+
+		File correct = new File(inDir + File.separator + inG3TXT);
+		File testing = new File(outDir + File.separator + "generated3.txt");
+
+		try {
+			boolean isTwoEqual = FileUtils.contentEquals(correct, testing);
+			assertTrue("generating S2 from files",isTwoEqual);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 	}
 

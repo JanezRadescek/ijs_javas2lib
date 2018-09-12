@@ -20,20 +20,27 @@ public class Generator3 {
 
 	ArrayList<Long> freqTime = new ArrayList<Long>();
 	ArrayList<Float> freq = new ArrayList<Float>();
-	int freqCurentIndex = 0;//for faster searching
+	private int freqCurentIndex = 0;//for faster searching
 	long freqOffset = 0; //for repeting
-	
+
 	ArrayList<Long> disc = new ArrayList<Long>();
-	int discCurentIndex = 0;
-	long discOffset = 0;
-	
+	private int discCurentIndex = 0;//for faster seaching 
+	private long discOffset = 0; //for repeting
+
 	ArrayList<Long> paus = new ArrayList<Long>();
+	private int pauseCurentIndex = 0;//for faster seaching 
+	long pauseOffset = 0; //for repeting
+
 	ArrayList<Long> dela = new ArrayList<Long>();
+	private int delaCurentIndex = 0;//
 
 	private long curentTonMashine; //trenutni čas
 	private int curentC = 0; //trenutni counter
 	private float curentF; //trenutna frequenca
-	private int cicle = 0;// trenutni cikel podobno kor counter le da se counter lahko resetira, ustavi...
+	//private int cicle = 0;// trenutni cikel podobno kor counter le da se counter lahko resetira, ustavi...
+
+	PrintStream errPS;//to get it ouside construct
+	
 
 	/**
 	 * @param outDir directory of new file S2 file.
@@ -47,6 +54,8 @@ public class Generator3 {
 	 */
 	public Generator3(String outDir, PrintStream errPS, long start, long end, String frequencies, String disconects, String pauses, String delays)
 	{
+		this.errPS = errPS;
+		
 		try {	
 			BufferedReader brF = new BufferedReader(new FileReader(frequencies));
 			String s;
@@ -61,28 +70,28 @@ public class Generator3 {
 			{
 				errPS.println("Bad frequency file");
 			}
-			
+
 			BufferedReader brDi = new BufferedReader(new FileReader(disconects));
 			while((s = brDi.readLine()) != null)
 			{
 				disc.add(Long.parseLong(s));
 			}
 			brDi.close();
-			
+
 			BufferedReader brP = new BufferedReader(new FileReader(pauses));
 			while((s = brP.readLine()) != null)
 			{
 				paus.add(Long.parseLong(s));
 			}
 			brP.close();
-			
+
 			BufferedReader brDe = new BufferedReader(new FileReader(delays));
 			while((s = brDe.readLine()) != null)
 			{
 				dela.add(Long.parseLong(s));
 			}
 			brDe.close();
-			
+
 		} catch (FileNotFoundException e) {
 			errPS.println("Canon read from input files");
 			return;
@@ -132,31 +141,48 @@ public class Generator3 {
 			if(checkDisconnect())
 			{
 				ss2.onComment("Disconect has just happened.");
-				// we are inside disconnect we just restart counters. No data is sent.
+				// we are inside disconnect. we just restart counters. No data is sent.
 				curentC = 0;
 			}
 			else
 			{
 				curentC += 14;
-				
-				
-				
+
+				if(checkPause())
+				{
+					// we are inside pause. we dont restart counters. No data is sent.
+					//calculateDelay(); //TODO do we increase delayIndex ? that way delay and pauses which are logicly independent actualy became independent.
+					//delaCurentIndex++;//chiper wersion
+				}
+				else
+				{
+					long currentTonAndroid = curentTonMashine + calculateDelay();
+					byte[] currentD = makeData();
+					ss2.onStreamPacket((byte) 0, currentTonAndroid, currentD.length, currentD);
+				}
+
 			}
 
 		}
 
+		ss2.onComment("last comment. Original location after packets before end");
+		ss2.onEndOfFile();
 
 	}
 
-	
 
 	private void calculateFrequency() {
 		int n = freqTime.size();	
 		for(int i = freqCurentIndex; i<n; i++)
 		{
-			if(freqTime.get(i) + freqOffset > curentTonMashine)
+			if(curentTonMashine < freqTime.get(i) + freqOffset)
 			{
 				curentF = freq.get(i);
+				if(curentF <= 0)
+				{
+					errPS.println("frequency shouldnt be <= 0. it has been changed to 1.");
+					curentF = 1;
+				}
 				freqCurentIndex = i;
 				return;
 			}
@@ -172,9 +198,11 @@ public class Generator3 {
 		int n = disc.size()/2;
 		for(int i = discCurentIndex; i<n; i++)
 		{
+			disc.get(2*i);
 			if(disc.get(2*i) + discOffset < curentTonMashine)
 			{
 				discCurentIndex = i;
+				disc.get(2*i + 1);
 				if(curentTonMashine < disc.get(2*i + 1) + discOffset)
 				{
 					return true;
@@ -190,8 +218,50 @@ public class Generator3 {
 		discCurentIndex = 0;
 		return checkDisconnect();
 	}
-	
-	
+
+
+	private boolean checkPause() {
+		int n = paus.size()/2;
+		for(int i = pauseCurentIndex; i<n; i++)
+		{
+			if(paus.get(2*i) + pauseOffset < curentTonMashine)
+			{
+				pauseCurentIndex = i;
+				if(curentTonMashine < paus.get(2*i + 1) + pauseOffset)
+				{
+					return true;
+				}	
+			}
+			else
+			{
+				return false;
+			}
+		}
+		//reapet
+		pauseOffset += paus.get(2*n - 1);
+		pauseCurentIndex = 0;
+		return checkPause();
+	}
+
+
+	private long calculateDelay() {
+		int n = dela.size();
+		if(n>0)
+		{
+			long delay = dela.get(delaCurentIndex % n);
+			delaCurentIndex++;
+			return delay;
+		}
+		else
+		{
+			//empty file?
+			
+			return 0;
+		}
+	}
+
+
+
 	/**
 	 * creates constant data compatible with struct and sensor definition
 	 * @return
@@ -201,7 +271,7 @@ public class Generator3 {
 		byte R[] = new byte[19];
 		MultiBitBuffer mbb = new MultiBitBuffer(R);
 		mbb.setInts(10, 0, 10, 14);
-		mbb.setInts(curentC, 140, 10, 1);
+		mbb.setInts(curentC % 1024, 140, 10, 1);//TODO check if corrrect modulo
 		return R;
 	}
 
