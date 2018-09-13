@@ -45,7 +45,7 @@ public class Generator2 {
 	 * @param frequency frequency of EKG device in Hz. [PCARD has around 128].
 	 * @param frequencyChange factor of how much can frequency frequencyRamp. [?normal? use 0.1].
 	 * @param percentageMissing Aproximate factor of missing packets. This number is used to calculate number of pauses(machine still save the data but not android).[for ?good? S2 use 0.01 for ?bad? use 0.1].
-	 * @param normalDelay aproximate usual delay of packets in ns [?reasonable? value is around (1/ @param frequency /10) * 10^9].
+	 * @param normalDelay maximal delay of packets in ns [?reasonable? value is around (1/ @param frequency /10) * 10^9].
 	 * @param bigDelayChance chance for big delay, meaning machine works on. Android doesnt get any packets till the end of big delay.
 	 * 				After that it gets them all in burst. They come in same order they would if not delayed [?reasonable? value is 0.01].
 	 * @param bigDelay big delay in ns will be added to delay that would come from @param normalDelay [reasonable value is 10*normalDelay].

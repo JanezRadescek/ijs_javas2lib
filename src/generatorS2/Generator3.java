@@ -93,11 +93,11 @@ public class Generator3 {
 			brDe.close();
 
 		} catch (FileNotFoundException e) {
-			errPS.println("Canon read from input files");
+			errPS.println("Can not read from input files");
 			return;
 		}catch (IOException e)
 		{
-			errPS.println("Canon read from input files");
+			errPS.println("Can not read from input files");
 			return;
 		}
 
@@ -136,7 +136,7 @@ public class Generator3 {
 		while(curentTonMashine < end)
 		{
 			calculateFrequency();
-			curentTonMashine += 1E9/curentF * 14;
+			curentTonMashine += 14E9/curentF;
 
 			if(checkDisconnect())
 			{
@@ -147,7 +147,6 @@ public class Generator3 {
 			else
 			{
 				curentC += 14;
-
 				if(checkPause())
 				{
 					// we are inside pause. we dont restart counters. No data is sent.
@@ -160,9 +159,7 @@ public class Generator3 {
 					byte[] currentD = makeData();
 					ss2.onStreamPacket((byte) 0, currentTonAndroid, currentD.length, currentD);
 				}
-
 			}
-
 		}
 
 		ss2.onComment("last comment. Original location after packets before end");
@@ -193,9 +190,14 @@ public class Generator3 {
 		calculateFrequency();
 	}
 
+
 	private boolean checkDisconnect() 
 	{
 		int n = disc.size()/2;
+		if(n == 0)
+		{
+			return false;
+		}
 		for(int i = discCurentIndex; i<n; i++)
 		{
 			disc.get(2*i);
@@ -222,6 +224,10 @@ public class Generator3 {
 
 	private boolean checkPause() {
 		int n = paus.size()/2;
+		if(n == 0)
+		{
+			return false;
+		}
 		for(int i = pauseCurentIndex; i<n; i++)
 		{
 			if(paus.get(2*i) + pauseOffset < curentTonMashine)

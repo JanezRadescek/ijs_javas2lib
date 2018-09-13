@@ -23,7 +23,7 @@ public class SaveTXT extends Pipe {
 	int counterT = 0;
 	int counterP = 0;
 	
-	String format = "%.2fs %23s";	
+	String format = "%8.2fs %23s";	
 	
 	long lastTime = 0;
 
