@@ -25,13 +25,18 @@ public class Generator2 {
 	long currentTonMachine;
 	long currentTonAndroid;
 	long previousTonAndroid = 0;
-	int currentC;
-	byte[] currentD;
-	boolean pause;
+	int currentC = 0;//current counter
+	byte[] currentD; //current data
 	boolean disconnect = false;
 	long[] disconnectIntervals;
-	long bigMissingTill = 0;
+	long pauseTill = 0;
 	Random r;
+	Random rFreq;
+	Random rDisc;
+	Random rPaus;
+	Random rMiss;
+	Random rDela;
+	Random rBDel;
 	int cycle = 0; //counter for cycle in which we are if there were no disconects
 
 
@@ -54,6 +59,8 @@ public class Generator2 {
 	public Generator2(String outDir, PrintStream errPS, long start, long end, long seed, float frequency, float frequencyChange, float percentageMissing,
 			long normalDelay, float bigDelayChance, long bigDelay, int numDisconects) 
 	{
+		//*************************************                  CHECK IF INPUT IS OK
+		
 		if(frequency <= 0)
 		{
 			errPS.println("Frequency should be bigger than 0.");
@@ -90,6 +97,8 @@ public class Generator2 {
 			return;
 		}
 		
+		//*************************************                  VERSION,META,DEFINITIONS
+		
 		this.frequency = frequency;
 		this.currentF = frequency;
 		this.frequencyChange = frequencyChange;
@@ -101,10 +110,6 @@ public class Generator2 {
 
 		//*************************************                  VERSION,META,DEFINITIONS
 
-		//File f = new File(outDir);
-		//******************        Simulating saving on machine
-		//SaveS2 ss2M = new SaveS2(f.getParent() +File.separator+ "Machine" + f.getName(), errPS);
-		//******************        Simulating saving on Android
 		SaveS2 ss2A = new SaveS2(outDir, errPS);
 		
 
@@ -130,36 +135,42 @@ public class Generator2 {
 		ss2A.onComment("Command line for generating this file using Cli was '-"+Cli.GENERATE_RANDOM+" "+seed+" "+frequency+" "+frequencyChange+" "
 				+percentageMissing+" "+normalDelay/1E9+" "+bigDelayChance+" "+bigDelay/1E9+" "+numDisconects+" -"+Cli.FILTER_TIME+" "+start/1E9+" "+end/1E9
 				+" -"+Cli.OUTPUT+" "+outDir+"'.");
-
-//		ss2M.onVersion(1, "PCARD");
-//		ss2M.onMetadata("date", "2018-01-01");
-//		ss2M.onMetadata("time", "10:30:10.555");
-//		ss2M.onMetadata("timezone", "+01:00");
-//		ss2M.onDefinition((byte) 'e', sd1);
-//		ss2M.onDefinition((byte) 'c', sd2);
-//		ss2M.onDefinition((byte)0, new S2.StructDefinition("EKG stream", "eeeeeeeeeeeeeec"));
-//		ss2M.onDefinition((byte)0, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)3, 1E-6));
-//		ss2M.onComment("1. comment. Original location after definitions");
-//		ss2M.onComment("Command line for generating this file using Cli was '-"+Cli.GENERATE+" "+seed+" "+frequency+" "+frequencyChange+" "
-//				+percentageMissing+" "+normalDelay/1E9+" "+bigDelayChance+" "+bigDelay/1E9+" "+numDisconects+" -"+Cli.FILTER_TIME+" "+start/1E9+" "+end/1E9
-//				+" -"+Cli.OUTPUT+" "+outDir+"'.");
 		
 		//*************************************                 RANDOM
 
 		r = new Random();
 		r.setSeed(seed);
+		
+		rFreq = new Random();
+		rFreq.setSeed(r.nextLong());
+		
+		rDisc = new Random();
+		rDisc.setSeed(r.nextLong());
+		
+		rPaus = new Random();
+		rPaus.setSeed(r.nextLong());
+		
+		rMiss = new Random();
+		rMiss.setSeed(r.nextLong());
+		
+		rDela = new Random();
+		rDela.setSeed(r.nextLong());
+		
+		rBDel = new Random();
+		rBDel.setSeed(r.nextLong());
+		
+		
 
 
 		//************************************                  STARTING POINT
 
 		currentTonMachine = start;
-		currentC = 0;
 		for(int i=0;i<numDisconects;i++)
 		{
             // start of the disconnect: random positive long lower than 'end'
-			disconnectIntervals[2*i] = (r.nextLong() & Long.MAX_VALUE) % end;
+			disconnectIntervals[2*i] = (rDisc.nextLong() & Long.MAX_VALUE) % end;
             // end of the disconnect: start + 1 second + random 0.000..59.000 seconds
-			disconnectIntervals[2*i+1] =  (long) (disconnectIntervals[2*i] + 1E9 + r.nextInt(59000)*1000000L);
+			disconnectIntervals[2*i+1] =  (long) (disconnectIntervals[2*i] + 1E9 + rDisc.nextInt(59000)*1000000L);
 		}
 
 		//************************************                 FILING STREAMLINES
@@ -193,14 +204,14 @@ public class Generator2 {
 				//ss2M.onStreamPacket((byte) 0, currentTonMachine, currentD.length, currentD);
 
 				//*******************           SAVING ON ANDROID
-				bigMissing();
+				
 
-				if(pause)
+				if(pause())
 				{
 					// unlike disconnect, machine still saves packages but android doesn't. chance for pause is calculated based on chanceForMissing
 				}else
 				{
-					float wifi = r.nextFloat();
+					float wifi = rMiss.nextFloat();
 					if(wifi >= this.percentageMissing) //random losses
 					{
 						calculateTonAndroid(); //calculates normal or possibly big delay
@@ -239,26 +250,26 @@ public class Generator2 {
         return -1;
 	}
 
-	private void bigMissing()
+	private boolean pause()
 	{
-		if(currentTonMachine < bigMissingTill)
+		if(currentTonMachine < pauseTill)
 		{
-			//PASS
+			return true;
 		}
 		else
 		{
-			float wifi = r.nextFloat();
+			float wifi = rPaus.nextFloat();
 
-			float modifier = 20 + 30*r.nextFloat();
+			float modifier = 20 + 30*wifi;
 
 			if(wifi < percentageMissing /modifier)
 			{
-				bigMissingTill = currentTonMachine + (long)(modifier* percentageMissing / frequency * 1E6);
-				pause = true;
+				pauseTill = currentTonMachine + (long)(modifier* percentageMissing / frequency * 1E6);
+				return true;
 			}
 			else
 			{
-				pause = false;
+				return false;
 			}
 		}
 	}
@@ -275,12 +286,12 @@ public class Generator2 {
             frequencyRamp--;
         } else {
             // chance for changing the frequency
-			if (r.nextFloat() < 0.01) {
+			if (rFreq.nextFloat() < 0.01) {
                 // set a new target frequency (minimum of 0.1 Hz) and set up a slow ramp up to that frequency
-                targetF = Math.max((frequency + r.nextGaussian() * frequencyChange * frequency), 0.1);
+                targetF = Math.max((frequency + rFreq.nextGaussian() * frequencyChange * frequency), 0.1);
                 double freqDiff = Math.abs(targetF - currentF);
                 int rampLengthMin = 1+(int)(freqDiff * 100.0f);
-                frequencyRamp = rampLengthMin + r.nextInt(rampLengthMin*9);
+                frequencyRamp = rampLengthMin + rFreq.nextInt(rampLengthMin*9);
                 frequencyIncrement = (targetF - currentF) / frequencyRamp;
                 return true;
 			}
@@ -293,13 +304,13 @@ public class Generator2 {
 	 */
 	private void calculateTonAndroid() {
 		if(normalDelay > 0) {
-			currentTonAndroid = currentTonMachine + Math.abs(r.nextLong() % normalDelay);
+			currentTonAndroid = currentTonMachine + Math.abs(rDela.nextLong() % normalDelay);
 			if(currentTonAndroid <=previousTonAndroid) {
 				currentTonAndroid = previousTonAndroid + normalDelay/20 + 1;
 			} else if (bigDelay != 0) {
-				if(r.nextFloat() < bigDelayChance)
+				if(rBDel.nextFloat() < bigDelayChance)
 				{
-					currentTonAndroid += Math.abs(r.nextLong() % bigDelay);
+					currentTonAndroid += Math.abs(rBDel.nextLong() % bigDelay);
 				}
 			}
 		} else {
@@ -307,6 +318,7 @@ public class Generator2 {
 		}
 	}
 
+	
 	/**
 	 * creates constant data compatible with struct and sensor definition
 	 * @return
