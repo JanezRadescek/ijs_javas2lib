@@ -33,6 +33,7 @@ public class FilterTime extends Pipe {
 
 	boolean overWasSend = false;
 
+	private boolean deleted = false;//in case we have deleted timestamps related data we want to keep timestams in some cases.
 
 	/**
 	 * [start, end) in nanoseconds
@@ -135,6 +136,11 @@ public class FilterTime extends Pipe {
 	public boolean onComment(String comment) {
 		if(!approximate || (approximate && (start<=lastRecordedTime && lastRecordedTime<end)))
 		{
+			if(deleted)
+			{
+				deleted = false;
+				pushTimestamp(lastRecordedTime);
+			}
 			return pushComment(comment);
 		}
 
@@ -146,6 +152,11 @@ public class FilterTime extends Pipe {
 	public boolean onSpecialMessage(char who, char what, String message) {
 		if(!approximate || (approximate && (start<=lastRecordedTime && lastRecordedTime<end)))
 		{
+			if(deleted)
+			{
+				deleted = false;
+				pushTimestamp(lastRecordedTime);
+			}
 			return pushSpecilaMessage(who, what, message);
 		}
 		return true;
@@ -157,10 +168,12 @@ public class FilterTime extends Pipe {
 		lastRecordedTime = nanoSecondTimestamp;
 		if(lastRecordedTime<end)
 		{
+			deleted = false;
 			return pushTimestamp(nanoSecondTimestamp);
 		}
 		else
 		{
+			deleted = true;
 			return atWorldsEns();
 		}
 	}
@@ -171,15 +184,18 @@ public class FilterTime extends Pipe {
 
 		if(lastRecordedTime<start)
 		{
+			deleted = true;
 			return true;
 		}
 
 		if(start<=lastRecordedTime && lastRecordedTime<end)
 		{
+			deleted = false;
 			return pushStreamPacket(handle, timestamp, len, data);
 		}
 		else
 		{
+			deleted = true;
 			return atWorldsEns();
 		}
 

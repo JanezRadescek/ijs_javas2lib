@@ -14,6 +14,9 @@ public class FilterData extends Pipe
 	final int SP = 0b1000;
 
 	private int dataTypes;
+	
+	private boolean deleted = false;
+	private long lastTime = 0;
 
 	/**
 	 * @param dataTypes which lines should stayed 
@@ -40,6 +43,11 @@ public class FilterData extends Pipe
 	public boolean onComment(String comment) {
 		if((dataTypes & C) != 0)
 		{
+			if(deleted)
+			{
+				pushTimestamp(lastTime);
+				deleted = false;
+			}
 			return pushComment(comment);
 		}
 		return true;
@@ -49,6 +57,11 @@ public class FilterData extends Pipe
 	public boolean onSpecialMessage(char who, char what, String message) {
 		if((dataTypes & SM) != 0)
 		{
+			if(deleted)
+			{
+				pushTimestamp(lastTime);
+				deleted = false;
+			}
 			return pushSpecilaMessage(who, what, message);
 		}
 		return true;
@@ -62,15 +75,25 @@ public class FilterData extends Pipe
 		}
 		return true;
 	}
+	
+	@Override
+	public boolean onTimestamp(long nanoSecondTimestamp) {
+		deleted = false;
+		return super.onTimestamp(nanoSecondTimestamp);
+	}
+	
 
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
 		if((dataTypes & SP) != 0)
 		{
+			deleted = false;
 			return super.onStreamPacket(handle, timestamp, len, data);
 		}
 		else
 		{
+			deleted = true;
+			lastTime = timestamp;
 			return true;
 		}
 	}

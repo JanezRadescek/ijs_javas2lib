@@ -483,7 +483,7 @@ public class CliTest {
 	}
 	
 	
-	@Test
+	//@Test
 	public void testGenerator3()
 	{
 		String s = "inputFile";

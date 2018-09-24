@@ -37,6 +37,8 @@ public class Generator3 {
 	private long curentTonMashine; //trenutni čas
 	private int curentC = 0; //trenutni counter
 	private float curentF; //trenutna frequenca
+	private float previousF = 0; //target frequency
+	private long previousT = 0;
 	//private int cicle = 0;// trenutni cikel podobno kor counter le da se counter lahko resetira, ustavi...
 
 	PrintStream errPS;//to get it ouside construct
@@ -136,7 +138,18 @@ public class Generator3 {
 		while(curentTonMashine < end)
 		{
 			calculateFrequency();
-			curentTonMashine += 14E9/curentF;
+			if(curentF > 0)
+			{
+				curentTonMashine += 14E9/curentF;
+			}
+			else 
+			{
+				errPS.println("Curent frequency is " + curentF + ". Frequency should be positive. Generating is ended");
+				ss2.onEndOfFile();
+				return;
+			}
+
+			
 
 			if(checkDisconnect())
 			{
@@ -172,17 +185,34 @@ public class Generator3 {
 		int n = freqTime.size();	
 		for(int i = freqCurentIndex; i<n; i++)
 		{
-			if(curentTonMashine < freqTime.get(i) + freqOffset)
+			long targetT = freqTime.get(i) + freqOffset;
+			if(curentTonMashine < targetT)
 			{
-				curentF = freq.get(i);
-				if(curentF <= 0)
+				float targetF = freq.get(i);
+				
+				//curentF = freq.get(i);
+				if(targetF <= 0)
 				{
-					errPS.println("frequency shouldnt be <= 0. it has been changed to 1.");
-					curentF = 1;
+					curentF = 0;
+					errPS.println("frequency shouldnt be <= 0.");
+					return;
+				}
+				if(previousF <= 0)
+				{
+					curentF = 0;
+					errPS.println("frequency shouldnt be <= 0. Be aware that first frequency must occur before start.");
 				}
 				freqCurentIndex = i;
+				
+				double kk = (targetF - previousF)/(targetT- previousT);
+				double nn = previousF - kk * previousT;
+				
+				curentF = (float) (kk * curentTonMashine + nn);
+				
 				return;
 			}
+			previousF = freq.get(i);
+			previousT = targetT;
 		}
 		//we must reapet/reset 
 		freqOffset += freqTime.get(n-1);
