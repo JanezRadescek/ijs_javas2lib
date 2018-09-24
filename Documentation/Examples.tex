@@ -88,7 +88,7 @@ merge two files provided in option input : \begin{lstlisting}
 
 
 \subsection{Data}
-This option filters lines. If we want to discard all coments there must be 0 in argument on 1st place from right to left. If we want to discard all special messagas there must be 0 in argument on 2nd place from right to left. If we want to discard all meta data there must be 0 in argument on 3rd place from right to left. If we want to discard all packets there must be 0 in argument on 4th place from right to left. Warning in curent version of Data filtering we do not allow discarding meta data. 
+This option filters lines. If we want to discard all coments there must be 0 in argument on 1st place from right to left. If we want to discard all special messagas there must be 0 in argument on 2nd place from right to left. If we want to discard all meta data there must be 0 in argument on 3rd place from right to left. If we want to discard all packets there must be 0 in argument on 4th place from right to left. Warning in curent version of Data filtering we do not allow discarding meta data. Whenever we delete line with time which is placed just before line without time, we put timestamp in front of line without time.
 
 \noindent Requirements : 
 \begin{itemize}
@@ -145,7 +145,7 @@ Keep only messages from T about U containing word Hello :
 
 
 \subsection{Handles}
-This option filters packages based on handles. To include handle \#i, put 1 in position i+1 (from right to left) in the argument, to exclude it, put 0. 
+This option filters packages based on handles. To include handle \#i, put 1 in position i+1 (from right to left) in the argument, to exclude it, put 0. Whenever we delete packet which is placed just before line without time, we put timestamp in front of line without time.
 
 \noindent Requirements : 
 \begin{itemize}
@@ -163,7 +163,7 @@ Keep only packages with handle 0,1 and 4 :
 
 
 \subsection{Filter time}
-This option filters lines with time. We keep only lines inside time interval. Start is included, end is exclusive. If 3rd optional argument is true we give comments and special messagas last known time and filter them accordingly. 
+This option filters lines with time. We keep only lines inside time interval. Start is included, end is exclusive. If 3rd optional argument is true we give comments and special messagas last known time and filter them accordingly.  Whenever we delete line with time which is placed just before line without time, we put timestamp in front of line without time.
 
 \noindent Requirements : 
 \begin{itemize}
@@ -254,7 +254,7 @@ print statistics :
 
 
 \subsection{Output}
-This option saves results of previous pipes. Based on extension of file provided in argument it will save in either txt,csv or S2 format. If we provide only extension it will print result on standard output in coresponding format. Warning : if the directory doesnt exist, it will create one.
+This option saves results of previous pipes. Based on extension of file provided in argument it will save in either txt,csv or S2 format. If we provide only extension it will print result on standard output in coresponding format. If we provide only name, it will use curent directory. Warning : if the directory doesnt exist, it will create one.
 
 \noindent Requirements : 
 \begin{itemize}
@@ -298,6 +298,10 @@ generate S2 file :
 -g 1 128 0.1 0.2 0.001 0.01 0.1 3 -o ./directory/file.s2 -t 5 18
 \end{lstlisting}
 
+\subsection{Generate from files}
+
+TODO
+
 
 \section{Examples}
 
@@ -329,7 +333,7 @@ $$\text{Cli -ct -1000000 -cdt 2017-02-25T15:31:00.000+0000}$$ $$ \text{-i ./fold
 
 
 \subsection{Misconceptions}
-Here we will provide some examples that doesnt work or not as expected.
+Here we will provide some examples that dont work, not as expected or suprisingly work.
 
 One might expect that the next command line will save statistics into file123.txt. What will actually happes is statistics will get printed on stdout and S2 file itself will be saved in txt format.
 $$\text{Cli -s -i ./folderIn/file1.s2 -o ./folderOut/file123.txt}$$
@@ -340,15 +344,19 @@ $$\text{Cli -i ./folderIn/file1.s2 -ft 10 20}$$
 The next command line is invalid since option output requires directory.
 $$\text{Cli -i ./folderIn/file1.s2 -ft 10 20 true -o}$$
 
-The next command line will ignore option generate because we provided input. Therefore the next 2 commans lines has the same functionality.
+IF we only provide name, it will assume we want to use current directory. Therefore the next 2 command lines have the same functionality.
+$$\text{Cli -i ./folderIn/file1.s2 -ft 10 20 true -o ./file.s2}$$
+$$\text{Cli -i ./folderIn/file1.s2 -ft 10 20 true -o file.s2}$$
+
+The next command line will ignore option generate because we provided input. Therefore the next 2 command lines has the same functionality.
 $$\text{Cli -i ./folderIn/file1.s2 -g 1 128 0.1 0.2 0.001 0.01 0.1 3 -o ./directory/file.s2 -t 5 18}$$
 $$\text{Cli -i ./folderIn/file1.s2 -o ./directory/file.s2 -t 5 18}$$
 
-The next command line will ignore option change time because we didnt provided input. Therefore the next 2 commans lines has the same functionality.
-$$\text{Cli -g 1 128 0.1 0.2 0.001 0.01 0.1 3 -o ./directory/file.s2 -t 5 18}$$
-$$\text{Cli -g 1 128 0.1 0.2 0.001 0.01 0.1 3 -o ./directory/file.s2 -t 5 18 - ct 1000}$$
+The next command line will ignore option change time because we didnt provided input. Therefore the next 2 command lines has the same functionality.
+$$\text{Cli -g2 1 128 0.1 0.2 0.001 0.01 0.1 3 -o ./directory/file.s2 -t 5 18}$$
+$$\text{Cli -g2 1 128 0.1 0.2 0.001 0.01 0.1 3 -o ./directory/file.s2 -t 5 18 - ct 1000}$$
 
-The next command line will ignore all options except help. Therefore the next 2 commans lines has the same functionality.
+The next command line will ignore all options except help. Therefore the next 2 command lines has the same functionality.
 $$\text{Cli -h -i ./folderIn/file1.s2 -o ./directory/file.s2 -t 5 18}$$
 $$\text{Cli -h}$$
 
