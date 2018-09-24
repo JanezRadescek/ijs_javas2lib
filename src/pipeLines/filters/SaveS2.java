@@ -35,7 +35,7 @@ public class SaveS2 extends Pipe {
 	public SaveS2(String outDir, PrintStream errPS)
 	{
 		File temF = new File(outDir);
-		if(!temF.getParentFile().exists())
+		if((temF.getParentFile() != null) && !temF.getParentFile().exists())
 		{
 			errPS.println("Given directory " +temF.getParent() +" does not exist. Creating one");
 			temF.getParentFile().mkdirs();

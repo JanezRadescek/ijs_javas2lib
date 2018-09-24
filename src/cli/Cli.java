@@ -463,8 +463,8 @@ public class Cli {
 					default: errPS.println("Wrong extension of output file name");return badInputArgs;
 					}
 				}else
-				{
-					if(!tepF.getParentFile().exists())
+				{		
+					if((tepF.getParentFile() != null) && !tepF.getParentFile().exists())
 					{
 						errPS.println("Given directory " +tepF.getParent() +" does not exist. Creating one");
 						tepF.getParentFile().mkdirs();
@@ -516,11 +516,11 @@ public class Cli {
 				
 				String outDir = cmd.getOptionValue(OUTPUT);
 				File tepF = new File(outDir);
-				if(tepF.getParentFile() == null)
-				{
-					errPS.println("Output needs directory and name. Not just name.");
-					return badInputArgs;
-				}
+//				if(tepF.getParentFile() == null)
+//				{
+//					errPS.println("Output needs directory and name. Not just name.");
+//					return badInputArgs;
+//				}
 				if(tepF.getName().split("\\.").length != 2)
 				{
 					errPS.println("Name in given directory mush have extension .s2");
