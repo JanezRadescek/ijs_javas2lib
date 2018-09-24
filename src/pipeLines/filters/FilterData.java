@@ -97,5 +97,15 @@ public class FilterData extends Pipe
 			return true;
 		}
 	}
+	
+	@Override
+	public boolean onUnknownLineType(byte type, int len, byte[] data) {
+		if(deleted)
+		{
+			pushTimestamp(lastTime);
+			deleted = false;
+		}
+		return super.onUnknownLineType(type, len, data);
+	}
 
 }
