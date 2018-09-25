@@ -76,14 +76,18 @@ public class Generator3 {
 			BufferedReader brDi = new BufferedReader(new FileReader(disconects));
 			while((s = brDi.readLine()) != null)
 			{
-				disc.add(Long.parseLong(s));
+				String[] ss = s.split(",");
+				disc.add(Long.parseLong(ss[0]));
+				disc.add(Long.parseLong(ss[1]));
 			}
 			brDi.close();
 
 			BufferedReader brP = new BufferedReader(new FileReader(pauses));
 			while((s = brP.readLine()) != null)
 			{
-				paus.add(Long.parseLong(s));
+				String[] ss = s.split(",");
+				paus.add(Long.parseLong(ss[0]));
+				paus.add(Long.parseLong(ss[1]));
 			}
 			brP.close();
 
@@ -95,11 +99,16 @@ public class Generator3 {
 			brDe.close();
 
 		} catch (FileNotFoundException e) {
-			errPS.println("Can not read from input files");
+			errPS.println("Can not read from input files.");
 			return;
 		}catch (IOException e)
 		{
 			errPS.println("Can not read from input files");
+			return;
+		}
+		catch(NumberFormatException e)
+		{
+			errPS.println("Make sure the data in files are in correct pattern.");
 			return;
 		}
 
@@ -199,8 +208,9 @@ public class Generator3 {
 				}
 				if(previousF <= 0)
 				{
-					curentF = 0;
-					errPS.println("frequency shouldnt be <= 0. Be aware that first frequency must occur before start.");
+					//since we dont have frequency at the start we will just make it constant till first frequency.
+					curentF = targetF;
+					return;
 				}
 				freqCurentIndex = i;
 				
@@ -245,7 +255,7 @@ public class Generator3 {
 				return false;
 			}
 		}
-		//reapet
+		//repeat
 		discOffset += disc.get(2*n - 1);
 		discCurentIndex = 0;
 		return checkDisconnect();

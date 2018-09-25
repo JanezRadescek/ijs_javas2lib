@@ -163,7 +163,7 @@ Keep only packages with handle 0,1 and 4 :
 
 
 \subsection{Filter time}
-This option filters lines with time. We keep only lines inside time interval. Start is included, end is exclusive. If 3rd optional argument is true we give comments and special messagas last known time and filter them accordingly.  Whenever we delete line with time which is placed just before line without time, we put timestamp in front of line without time.
+This option filters lines with time. We keep only lines inside time interval. Start is included, end is exclusive. Start and end are relative times from the time/date in metadata. If 3rd optional argument is true we give comments and special messagas last known time and filter them accordingly.  Whenever we delete line with time which is placed just before line without time, we put timestamp in front of line without time.
 
 \noindent Requirements : 
 \begin{itemize}
@@ -183,7 +183,7 @@ Keep only lines from 5th second till 15th second :
 
 
 \subsection{Change time}
-This option changes timespams by adding them argument. If argument is too negative (firt line with time would have negative timestamp) it changes it so the first line wth time will have timestamp 0. 
+This option changes timespams by adding them argument. If argument is too negative (firt line with time would have negative timestamp) it changes it so the first line with time will have timestamp 0. 
 
 \noindent Requirements : 
 \begin{itemize}
@@ -272,7 +272,7 @@ save result in csv format :
 
 
 \subsection{Generate random}
-This option simulates procces of generating samples on device and sending them over wifi to android. It makes new S2 file in PCARD standard. In order to make it more realistics it is made pseudo-randomly within boundaries provided with arguments. It will generate file in time interval provided with option filter time and then save it to output provided with option output. In order to reapet random result we provide seed for random generator. Frequency is expected frequency of device this this program tries to simulate (must be a positive value). Frequency change is faktor of how much can frequency change during simulation. Pecenting missing is aproximate faktor of packets that should be lost. Normal delay is maximum value of delay that occuers for every packet. Big dela chance is chance that packets are significantly delayed than they all come in quick burst. Big delay is maximum value for big delay. Big delay canot happen again till previous big delay has ended. Disconects are scattered randomly across whole S2 file. They can overlap or be so small that they dont cover any package at all! When disconect ocurs device `stops` recoding, resets counters and add comment \''Disconect\'' . Consequently android doesnt get any packets. If we want file without `wifi-flaves` we set percentage missing, normal delay and big delay chance to zero. 
+This option simulates procces of generating samples on device and sending them over wifi to android. Main idea of this option is to be able to test all S2 related tools. The data itself is constant except for the counters. It makes new S2 file in PCARD standard. In order to make it more realistics it is made pseudo-randomly within boundaries provided with arguments. It will generate file in time interval provided with option filter time and then save it to output provided with option output. In order to reapet random result we provide seed for random generator. Frequency is expected frequency of device this this program tries to simulate (must be a positive value). Frequency change is faktor of how much can frequency change during simulation. Pecenting missing is aproximate faktor of packets that should be lost. Normal delay is maximum value of delay that occuers for every packet. Big dela chance is chance that packets are significantly delayed than they all come in quick burst. Big delay is maximum value for big delay. Big delay canot happen again till previous big delay has ended. Disconects are scattered randomly across whole S2 file. They can overlap or be so small that they dont cover any package at all! When disconect ocurs device `stops` recoding, resets counters and add comment \''Disconect\'' . Consequently android doesnt get any packets. If we want file without `wifi-flaves` we set percentage missing, normal delay and big delay chance to zero. 
 
 \noindent Requirements : 
 \begin{itemize}
@@ -295,13 +295,34 @@ Flag and arguments :
 \end{itemize}
 generate S2 file : 
 \begin{lstlisting} 
--g 1 128 0.1 0.2 0.001 0.01 0.1 3 -o ./directory/file.s2 -t 5 18
+-g2 1 128 0.1 0.2 0.001 0.01 0.1 3 -o ./directory/file.s2 -t 5 18
 \end{lstlisting}
 
 \subsection{Generate from files}
+This option generates S2 PCARD file from pattern provided in the files. It will make file in time interval provided with option filter time and then save it to output provided with option output. File with frequencies must be in the next order: In every line there must be time relative to the time/date in meta data and a freaquency. They must be separated with comma. This two data represent a dot. The 'dots are connected linearly. If the first dot appears after start we will use constant frequency equal to the first frequency till firts dot. If the last dot apears before end we will ''reuse'' dots by interpreting times as relative to the last dot in previos cicle. All frequencies must be strictly positive. At least one frequency with time bigger that 0 must be given. File disconects must contain in every line start and end of disconect relative to the time/date in metadata separated with comma. Intervals of disconect should be ordered ascendingly. If the last interval ends before the END it will reuse disconect intervals this time relative to the last interval. If we dont want to reapet the intervals, workaround is to include interval (Long.MAX\_VALUE,Long.MAX\_VALUE) at the end. File with pauses should be in the same format as disconects. File with delays must contain delays in nanoseconds for every packet in its own line. If we are still generating packets after we use all delays we will go from the start. All delays must be zero or bigger.
 
-TODO
+\noindent Requirements : 
+\begin{itemize}
+\item option output
+\item option filter time
+\end{itemize}
+Flag and arguments :
 
+\begin{itemize}
+\item[$\bullet$] -g3
+\item[$\circ$] directory of Frequencies
+\item[$\circ$] directory of Disconects
+\item[$\circ$] directory of Pauses
+\item[$\circ$] directory of Delays
+
+
+\end{itemize}
+generate S2 file : 
+\begin{lstlisting} 
+-g3 ./Input/inputFile0.csv ./Input/inputFile1.csv
+./Input/inputFile2.csv ./Input/inputFile3.csv 
+-ft 0 10 -o ./Output/generated3.s2
+\end{lstlisting}
 
 \section{Examples}
 
@@ -330,7 +351,34 @@ $$\text{Cli -m -i ./folderIn/file2.s2 ./folderIn/file1.s2 -o ./folderOut/coworke
 Our second coworker realizes that times are delayed for \textbf{0.001s} and dateTime in metadata should be \textbf{25.2.2017 15h 31min UTC} and asks us to fix it.
 $$\text{Cli -ct -1000000 -cdt 2017-02-25T15:31:00.000+0000}$$ $$ \text{-i ./folderOut/coworker2.s2 -o ./folderOut/coworker2fixed.s2}$$
 
+For testing purposes want to create file starting at 1s and ending at 10s. From the start till the 2nd second we want constant frequency of 50. After that and till 4th second we want frequency to slowly linearly rise to 100. From 4th to 7th second we want constant frequency of 100. And till 8th second we want frequency to drop down to 80. After that we want to repeat the cicle till the end. frequencies.csv should be as followed.
+\begin{verbatim}
+2000000000,50
+4000000000,100
+7000000000,100
+8000000000,80
+\end{verbatim}
+Note that from 8th till 10th second frequeny will be dropping from 80 to 50. IF we would set the END after 10s the frequency would be rissing from 10th second till 12th second than from 12th second till 15th second it would be constantly 100 and so on.
 
+We want one disconect in interval [2.9s,3.0s] and no pauses. 
+disconects.csv chould contain
+\begin{verbatim}
+2900000000,3000000000
+10000000000,10000000000
+\end{verbatim}
+We included one disconect after 10s to make sure we dont get disconects with intervals (5.9s-6s) and (8.9s-9s).
+pauses.csv should be empty.
+
+We want odd Packets with 0ns delay while even should have delay 1000ns.
+delays.csv chould contain
+\begin{verbatim}
+0
+1000
+\end{verbatim}
+We call CLI with next command line.
+$$\text{Cli -g3 ./Input/frequencies.csv ./Input/disconects.csv}$$
+$$\text{./Input/pauses.csv ./Input/delays.csv}$$
+$$\text{-ft 1 10 -o ./Output/generated3.s2} $$
 
 \subsection{Misconceptions}
 Here we will provide some examples that dont work, not as expected or suprisingly work.
