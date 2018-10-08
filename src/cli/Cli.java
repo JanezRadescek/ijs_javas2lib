@@ -44,9 +44,9 @@ public class Cli {
 	private static final int badInputArgs = 3;
 
 	//special it doesnt need input file
-	
+
 	public static final String HELP = "help";
-	
+
 	public static final String INPUT = "i";
 	public static final String MEARGE = "m";
 	public static final String FILTER_DATA = "fd";
@@ -57,10 +57,10 @@ public class Cli {
 	public static final String CHANGE_TIME = "ct";
 	public static final String CHANGE_DATE_TIME = "cdt";
 	public static final String PROCESS_SIGNAL = "p";
-	
+
 	public static final String STATISTIKA = "s";
 	public static final String OUTPUT = "o";
-	
+
 	public static final String GENERATE_OLD = "g1";
 	public static final String GENERATE_RANDOM = "g2";
 	public static final String GENERATE_FROM_FILE = "g3";
@@ -124,10 +124,10 @@ public class Cli {
 
 		Options options = new Options();
 
-		
+
 		options.addOption(HELP, false, "Prints Help. Other flags will be ignored.");
-		
-		
+
+
 		Option input = new Option(INPUT, "General input. First argument is Directory and name of input file. "
 				+ "Secondary argument is optional and is secondary input used when needed."
 				+ "\nArguments:\n"
@@ -137,24 +137,24 @@ public class Cli {
 		input.setOptionalArg(true);
 		options.addOption(input);
 
-		
+
 		options.addOption(MEARGE, true, "Combines two S2 files in one S2 file. Needs flag '-i' with two inputs. Combining with other filters has undefined behavior!  Has mandatory argument."
 				+ " If true streams with same handles will be merged,"
 				+ " else streams from second file will get new one where needed.\nArguments:\n"
 				+ "-Boolean mergingHandles");
-		
-		
+
+
 		Option dataTypes = new Option(FILTER_DATA,true, "Filters datatype. Argument must be a number in binary form"+
 				"@@@1=keeps comments, @@1@=keeps Special, @1@@=keeps meta, 1@@@=keeps data streams."
 				+ "\nArguments:\n"
 				+ "Byte data [Byte]");
 		options.addOption(dataTypes);
-		
-		
+
+
 		options.addOption(Cli.FILTER_COMMENTS, true, "Filters comments based on regex provided in argument. Comments not matching regex will be removed.\nArguments:\n"
 				+ "-String regex");
-		
-		
+
+
 		Option special = new Option(Cli.FILTER_SPECIAL, "Filters special messages. Who and What must be equal to their respective values in SP to get throught."
 				+ " Masegge must suit regex provided in argument to get throught.\nArguments:\n"
 				+ "-Who [char]"
@@ -162,15 +162,15 @@ public class Cli {
 				+ "-regex for message [String]");
 		special.setArgs(3);
 		options.addOption(special);
-		
-		
+
+
 		Option handle = new Option(FILTER_HANDLES,true ,"Filters handles. Argument represent wanted handles. " +
 				"To include handle #i, put 1 in position i+1 (from right to left) in the argument, to exclude it, put 0." +
 				"\nArguments:\n"
 				+ "-handles written in binary notation [Long]. Example: If we want to keep only handles 0 and 4 we pass '10001'");
 		options.addOption(handle);
-		
-		
+
+
 		Option time = new Option(FILTER_TIME, "Filters time. Data on interval [End, start) will be keep, the rest will be deleted. If third optional argument is true we approximate "
 				+ "comments and speciall messages with last previous time and therefore delete them if outside interval."
 				+ "\nArguments:\n"
@@ -181,38 +181,38 @@ public class Cli {
 		time.setOptionalArg(true);
 		options.addOption(time);
 
-		
+
 		options.addOption(CHANGE_TIME, true, "Add time in argument to all timestamps. "
 				+ "If added time is negative and its absolute value bigger than value of first time stamp, "
 				+ "added time will be set to -first time, resulting in new first time being 0.\nArguments:\n"
 				+ "-Long delay[ns]");
-		
+
 
 		options.addOption(CHANGE_DATE_TIME, true, "Change date in meta. Timestamps are relative to date in meta"
 				+ " and therefore are changed so the absolute timestamps of data does not change."
 				+ "\nArguments:\n"
 				+ "-date with time and zone in ISO format. Example: \"2018-01-01T10:30:10.554+0100\"");
-		
-		
+
+
 		options.addOption(PROCESS_SIGNAL,false, "Process signal.");
-		
-		
+
+
 		Option statistika = new Option(STATISTIKA,true, "Output statistics of input S2 file. Has optional argument directory and name of file for outputting statistics. "
 				+ "If argument is missing it will print statistics to outPS (default is System.out). DO NOT confuse this argument with flag -o output.\nArguments:\n"
 				+ "-String directoryAndName");
 		statistika.setArgs(1);
 		statistika.setOptionalArg(true);;
 		options.addOption(statistika);
-		
-		
+
+
 		Option output = new Option(OUTPUT, true, "General output for result of other flags. If Argument is valid Directory and name with extension, it will output into specifed file."
 				+ " If argument equals 'xyz' where 'xyz' is file extension only, it will print result to the outPUT stream (Default is System.out)."
 				+ "Type of output will be based on extension of the name. Possible extensions are 'csv', 's2' and 'txt'."
 				+ "\nArguments:\n"
 				+ "dirNameExt [String]. Example: .\\myFile\\Result.s2 or txt");
 		options.addOption(output);
-		
-		
+
+
 		Option generate2 = new Option(GENERATE_RANDOM, "Generates semirandom S2 PCARD based on arguments. Needs option/flag filter time -ft and output -o.\nArguments:\n" 
 				+ "-seed for random [long] \n"
 				+ "-frequency in Hz [float] (around 128 for PCARD)\n"
@@ -222,10 +222,12 @@ public class Cli {
 				+ "-big delay chance [0..1] \n"		// when pause occurs machine will be saving packets normaly but android will get in transmission (packets are not only delayed, they are missing)
 				+ "-big delay in s [double] \n"
 				+ "-number of disconects (disconects are scattered randomly across whole S2 file. "
-				+ 		"When disconect ocurs machine stops recoding and resets counters. Consequently android doesnt get any packets");
-		generate2.setArgs(8);
+				+ 		"When disconect ocurs machine stops recoding and resets counters. Consequently android doesnt get any packets \n"
+				+ "-index of stuck bit. LITTLE_ENDIAN. Negative value will not change any index. \n"
+				+ "-value of stuck bit");
+		generate2.setArgs(10);
 		options.addOption(generate2);
-		
+
 		Option generate3 = new Option(GENERATE_FROM_FILE,"Generates S2 PCARD based on 'numbers' in files from arguments.\nArguments:\n"
 				+ "-input directory of Frequencies file \n"
 				+ "-input directory of Disconects file \n"
@@ -257,12 +259,12 @@ public class Cli {
 			return badInputArgs;
 		} catch (ParseException e) {
 
+			errPS.println("Exception caught while parsing input arguments. " + e.getLocalizedMessage());
 			formatter.printHelp("Cli",header,options,footer);
-			errPS.println("Exception caught while parting input arguments:");
-			e.printStackTrace(errPS);
 
 			return unknown;
-		}
+		} 
+		
 		if(cmd.hasOption(HELP))
 		{
 			formatter.printHelp("Cli",header,options,footer);
@@ -326,7 +328,7 @@ public class Cli {
 					Connector con = new Connector();
 					con.addStart(pipeP);
 					sm.getPrimaryOutPut().addChild(con.getEnd());
-					
+
 					pipeLine.add(con);
 				}
 				catch(Exception r)
@@ -335,8 +337,8 @@ public class Cli {
 					return badInputArgs;
 				}
 			}
-			
-			
+
+
 			if(cmd.hasOption(FILTER_DATA))
 			{
 				try
@@ -348,13 +350,13 @@ public class Cli {
 				}
 			}
 
-			
+
 			if(cmd.hasOption(FILTER_COMMENTS))
 			{
 				pipeLine.add(new FilterComments(cmd.getOptionValue(Cli.FILTER_COMMENTS), true));
 			}
-			
-			
+
+
 			if(cmd.hasOption(FILTER_SPECIAL))
 			{
 				char who = cmd.getOptionValues(FILTER_SPECIAL)[0].charAt(0);
@@ -362,7 +364,7 @@ public class Cli {
 				String regex = cmd.getOptionValues(FILTER_SPECIAL)[2];
 				pipeLine.add(new FilterSpecial(who, what, regex, true));
 			}
-			
+
 
 			if(cmd.hasOption(FILTER_HANDLES))
 			{
@@ -405,7 +407,7 @@ public class Cli {
 
 				pipeLine.add(cts);
 			}
-			
+
 			if(cmd.hasOption(CHANGE_DATE_TIME))
 			{
 				String iso = cmd.getOptionValue(CHANGE_DATE_TIME);
@@ -438,7 +440,7 @@ public class Cli {
 			{
 				Pipe filterSave;
 				String outDir;
-				
+
 				try
 				{
 					outDir = cmd.getOptionValue(OUTPUT);
@@ -447,7 +449,7 @@ public class Cli {
 					errPS.println("Option "+OUTPUT+" needs file directory and name with extension. Example './File/name.txt'. TERMINATE");
 					return badInputArgs;
 				}
-				
+
 				File tepF = new File(outDir);
 				String name = tepF.getName();
 				String[] parts = name.split("\\.");
@@ -469,7 +471,7 @@ public class Cli {
 						errPS.println("Given directory " +tepF.getParent() +" does not exist. Creating one");
 						tepF.getParentFile().mkdirs();
 					}
-					
+
 					switch(extension)
 					{
 					case "txt": filterSave = new SaveTXT(outDir, errPS);break;
@@ -478,11 +480,11 @@ public class Cli {
 					default: errPS.println("Wrong extension of output file name");return badInputArgs;
 					}
 				}
-				
+
 				pipeLine.add(filterSave);
 			}
 
-			
+
 			//***************************************          COMBINING           **************************
 			//***************************************          EXECUTING           **************************
 			if(pipeLine.size() > 0)
@@ -504,32 +506,32 @@ public class Cli {
 				return unknown;
 			}
 
-			
+
 
 		}
 		else
 		{
 			//TODO generate could replace input file in Cli ?
-			
+
 			if(cmd.hasOption(GENERATE_RANDOM) & cmd.hasOption(OUTPUT) & cmd.hasOption(FILTER_TIME))
 			{
-				
+
 				String outDir = cmd.getOptionValue(OUTPUT);
 				File tepF = new File(outDir);
-//				if(tepF.getParentFile() == null)
-//				{
-//					errPS.println("Output needs directory and name. Not just name.");
-//					return badInputArgs;
-//				}
+				//				if(tepF.getParentFile() == null)
+				//				{
+				//					errPS.println("Output needs directory and name. Not just name.");
+				//					return badInputArgs;
+				//				}
 				if(tepF.getName().split("\\.").length != 2)
 				{
 					errPS.println("Name in given directory mush have extension .s2");
 					return badInputArgs;
 				}				
-				
+
 				long a = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[0])* 1E9);
 				long b = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[1])* 1E9);
-				
+
 				String[] tem = cmd.getOptionValues(GENERATE_RANDOM);
 				long seed = Long.parseLong(tem[0]);
 				float frequency = Float.parseFloat(tem[1]);
@@ -544,9 +546,11 @@ public class Cli {
 				float bigDelayChance = Float.parseFloat(tem[5]);
 				Long bigDelay = (long) (Double.parseDouble(tem[6])*1E9);
 				int numDisconects = Integer.parseInt(tem[7]);
+				int indexSB = Integer.parseInt(tem[8]);
+				int valueSB = Integer.parseInt(tem[9]);
 
 				@SuppressWarnings("unused")
-				Generator2 g = new Generator2(outDir, errPS, a, b, seed, frequency, frequencyChange, percentageMissing, normalDelay, bigDelayChance, bigDelay, numDisconects);
+				Generator2 g = new Generator2(outDir, errPS, a, b, seed, frequency, frequencyChange, percentageMissing, normalDelay, bigDelayChance, bigDelay, numDisconects, indexSB, valueSB);
 			}else
 			{
 				if(cmd.hasOption(GENERATE_RANDOM))
@@ -555,8 +559,8 @@ public class Cli {
 					return badInputArgs;
 				}
 			}
-			
-			
+
+
 			if(cmd.hasOption(GENERATE_FROM_FILE) & cmd.hasOption(OUTPUT) & cmd.hasOption(FILTER_TIME))
 			{
 				//output
@@ -572,12 +576,12 @@ public class Cli {
 					errPS.println("Name in given directory mush have extension .s2");
 					return badInputArgs;
 				}
-				
+
 				//
-				
+
 				long start = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[0])* 1E9);
 				long end = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[1])* 1E9);
-				
+
 				String[] tem = cmd.getOptionValues(GENERATE_FROM_FILE);
 				if(! new File(tem[0]).exists())
 				{
@@ -599,12 +603,12 @@ public class Cli {
 					errPS.println("File from fourth argument of option "+GENERATE_FROM_FILE+" doesnt exist.");
 					return badInputArgs;
 				}
-				
-				
+
+
 				@SuppressWarnings("unused")
 				Generator3 g = new Generator3(outDir, errPS, start, end, tem[0], tem[1], tem[2], tem[3]);
-				
-				
+
+
 			}
 
 		}

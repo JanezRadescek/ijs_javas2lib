@@ -8,6 +8,9 @@ import java.util.Arrays;
 import java.util.Locale;
 
 import pipeLines.Pipe;
+import si.ijs.e6.S2;
+import si.ijs.e6.S2.DeviceType;
+import si.ijs.e6.S2.MessageType;
 import si.ijs.e6.S2.SensorDefinition;
 import si.ijs.e6.S2.StructDefinition;
 import si.ijs.e6.S2.TimestampDefinition;
@@ -65,7 +68,8 @@ public class SaveTXT extends Pipe {
 	
 	@Override
 	public boolean onSpecialMessage(char who, char what, String message) {
-		printOnTXT("Special message : ", "who=" + who + ", what=" + what + ", message="+ message);
+		printOnTXT("Special message : ", "who=" + DeviceType.convert((byte) who)  + ", what=" + MessageType.convert((byte) what) + ", message="+ message);
+		//printOnTXT("Special message : ", "who=" + (byte) who  + ", what=" + what + ", message="+ message);
 		counterSM++;
 		return super.onSpecialMessage(who, what, message);
 	}

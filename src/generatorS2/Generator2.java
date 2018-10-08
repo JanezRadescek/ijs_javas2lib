@@ -1,6 +1,8 @@
 package generatorS2;
 
+import java.io.File;
 import java.io.PrintStream;
+import java.nio.ByteBuffer;
 import java.util.Random;
 
 import cli.Cli;
@@ -20,6 +22,8 @@ public class Generator2 {
 	long normalDelay;
 	float bigDelayChance;
 	long bigDelay;
+	int indexSB;
+	int valueSB;
 	double currentF;
     double targetF;
 	long currentTonMachine;
@@ -55,9 +59,11 @@ public class Generator2 {
 	 * 				After that it gets them all in burst. They come in same order they would if not delayed [?reasonable? value is 0.01].
 	 * @param bigDelay big delay in ns will be added to delay that would come from @param normalDelay [reasonable value is 10*normalDelay].
 	 * @param numDisconects number of disconects that will ocure in file. Machine stops recording packages for some random time. consequently android also doesnt get them.
+	 * @param stuckBit index of stuck bit. In every sample stuck bit will have selecected value of valueSB. LITTLE_ENDIAN indexation. Negative value means dont change it
+	 * @param valueSB value of stuck bit.
 	 */
 	public Generator2(String outDir, PrintStream errPS, long start, long end, long seed, float frequency, float frequencyChange, float percentageMissing,
-			long normalDelay, float bigDelayChance, long bigDelay, int numDisconects) 
+			long normalDelay, float bigDelayChance, long bigDelay, int numDisconects, int stuckBit, int valueSB) 
 	{
 		//*************************************                  CHECK IF INPUT IS OK
 		
@@ -97,7 +103,7 @@ public class Generator2 {
 			return;
 		}
 		
-		//*************************************                  VERSION,META,DEFINITIONS
+		//*************************************                  SAVE PARAMETERS
 		
 		this.frequency = frequency;
 		this.currentF = frequency;
@@ -107,6 +113,9 @@ public class Generator2 {
 		this.bigDelayChance = bigDelayChance;
 		this.bigDelay = bigDelay;
 		this.disconnectIntervals = new long[2*numDisconects];
+		this.indexSB = stuckBit;
+		this.valueSB = valueSB;
+		
 
 		//*************************************                  VERSION,META,DEFINITIONS
 
@@ -328,6 +337,17 @@ public class Generator2 {
 		byte R[] = new byte[19];
 		MultiBitBuffer mbb = new MultiBitBuffer(R);
 		mbb.setInts(10, 0, 10, 14);
+		if(indexSB >= 0)
+		{
+			ByteBuffer bb = mbb.getBytes();
+			for(int i = 0; i < 14; i++)
+			{
+				int allOff = i*10+indexSB;
+				int bitOff = allOff % 8;
+				int byteOff = allOff / 8;
+				bb.put(byteOff, (byte) ((bb.get(byteOff) & ~(1<<bitOff)) | (valueSB << bitOff)));
+			}
+		}
 		mbb.setInts(currentC, 140, 10, 1);
 		return R;
 	}
