@@ -427,11 +427,11 @@ public class Cli {
 				String outStat = cmd.getOptionValue(STATISTIKA);
 				if(outStat !=null)
 				{
-					filter = new GetInfo(outStat);
+					filter = new GetInfo(outStat, errPS);
 				}
 				else
 				{
-					filter = new GetInfo(outPS);
+					filter = new GetInfo(outPS, errPS);
 				}
 				pipeLine.add(filter);
 			}

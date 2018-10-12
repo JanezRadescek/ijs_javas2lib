@@ -10,9 +10,16 @@ import si.ijs.e6.S2.StructDefinition;
 
 public class S2utilities {
 
+	/**
+	 * @param sd struck definition with same handle as data
+	 * @param m	map with all known sensor definitions
+	 * @param data data to be decoded
+	 * @param errPS print stream
+	 * @return
+	 */
 	public static ArrayList<Float> decodeData(StructDefinition sd, Map<Byte,SensorDefinition> m, byte[] data, PrintStream errPS)
 	{
-		ArrayList<Float> sensorData = new ArrayList<>();
+		ArrayList<Float> sensorData = new ArrayList<Float>();
 		//hardcoded conversion
 		MultiBitBuffer mbb = new MultiBitBuffer(data);
 		int mbbOffset = 0;
@@ -33,7 +40,8 @@ public class S2utilities {
 
 
 			}else{
-				errPS.println("Measurement data encountered invalid sensor: " + (int) (cb));
+				sensorData.add(0f);
+				errPS.println("Measurement data encountered invalid sensor: " + (int) (cb) + ". We interpreteted its value as 0.");
 			}
 		}
 		return sensorData;

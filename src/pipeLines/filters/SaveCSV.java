@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import callBacks.MultiBitBuffer;
 import pipeLines.Pipe;
 import si.ijs.e6.S2.SensorDefinition;
 import si.ijs.e6.S2.StructDefinition;
@@ -67,8 +66,6 @@ public class SaveCSV extends Pipe{
 	{
 		this.errPS = errPS;
 		this.outCSV = csv;
-		errPS.println("writing data on Console");
-
 	}
 
 

@@ -23,3 +23,6 @@ Data per sensor type:
 	sensor   : 5
 	sensor e : 9
 	sensor ~ : 5
+
+PCARD specific statistics:
+ Min lost packets : 0

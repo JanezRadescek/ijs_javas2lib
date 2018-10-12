@@ -4,13 +4,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
 import pipeLines.Pipe;
 import si.ijs.e6.S2.SensorDefinition;
 import si.ijs.e6.S2.StructDefinition;
 import si.ijs.e6.S2.TimestampDefinition;
+import suportingClasses.S2utilities;
 
 
 /**
@@ -20,8 +21,10 @@ import si.ijs.e6.S2.TimestampDefinition;
  */
 public class GetInfo extends Pipe {
 
-	boolean close = false;//if we made printstrem we close it
+	PrintStream printer;
 	
+	boolean close = false;//if we made printstrem we close it
+
 	boolean start = false;
 	boolean end = false;
 	boolean printAfter = false;
@@ -30,14 +33,24 @@ public class GetInfo extends Pipe {
 	private Map<Byte, Integer> stremCounter = new HashMap<Byte, Integer>();
 	private Map<Character, Integer> sensorCounter = new HashMap<Character, Integer>();
 	long startTime = 0;
-	long endTime = 0;
+
+
+	//for counting lost packets/samples and calculating frequeny   PCARD only
+	long lastPacketCounter = 0;
+	long lostPackets = 0;
+	long lostSamples = 0;
+	long lastTime = 0;
+	ArrayList<Long> dif = new ArrayList<Long>();  
 
 	//save meta for later output
 	Map<String,String> metaData = new HashMap<String, String>();
 	//special message counter based on type
 	Map<Character,Integer> special = new HashMap<Character,Integer>();
 	//save representation of structdefinition
-	Map<Byte,String> structDefinitions = new HashMap<Byte, String>();
+	Map<Byte,StructDefinition> structDefinitions = new HashMap<Byte, StructDefinition>();
+	Map<Byte,SensorDefinition> sensorDefinitions = new HashMap<Byte, SensorDefinition>();
+	ArrayList<String> annotationsM= new ArrayList<String>();
+	ArrayList<Long> annotationsT= new ArrayList<Long>();
 
 	//version
 	int versionInt;
@@ -45,31 +58,36 @@ public class GetInfo extends Pipe {
 
 	/**
 	 * @param print PrintStream on which we will write data
+	 * @param errPS errPS
 	 * 
 	 */
-	public GetInfo(PrintStream print)
+	public GetInfo(PrintStream print, PrintStream errPS)
 	{
-		this(print, true);
+		this(print, true, errPS);
 	}
-	
-	public GetInfo(String directory)
+
+	/**
+	 * @param directory
+	 * @param errPS
+	 */
+	public GetInfo(String directory, PrintStream errPS)
 	{
+		this.errPS = errPS;
 		try {
-			this.errPS = new PrintStream(new FileOutputStream(new File(directory)));
+			this.printer = new PrintStream(new FileOutputStream(new File(directory)));
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e.printStackTrace(errPS);
 		}
 		this.printAfter = true;
 		this.close = true;
+		
 	}
 
-	public GetInfo(PrintStream print, boolean printAfter)
+	public GetInfo(PrintStream print, boolean printAfter, PrintStream errPS)
 	{
-		//  WE USE ERRps BECAUSE WE NEVER PRINT ERRORS IN THIS CLASS. IT WOULD BE MORE CORRECT TO MAKE SOME OTHERPRINTSTREAM BUT HEY :)
-		this.errPS = print;
+		this.errPS = errPS;
+		this.printer = print;
 		this.printAfter = printAfter;
-		
 	}
 
 
@@ -79,7 +97,7 @@ public class GetInfo extends Pipe {
 	 */
 	public void izpisi(PrintStream print)
 	{
-		this.errPS = print;
+		this.printer = print;
 		izpisi();
 	}
 
@@ -92,23 +110,23 @@ public class GetInfo extends Pipe {
 	 */
 	public void izpisi()
 	{
-		if(errPS == null)
+		if(printer == null)
 		{
-			errPS = System.out;
+			printer = System.out;
 		}
 		if(!end)
 		{
 			return;
 		}
-		errPS.println(versionInt + " " + version);
-		float trajanje = ((float)((endTime - startTime) / 1000000))/1000;
+		printer.println(versionInt + " " + version);
+		float trajanje = ((float)((lastTime - startTime) / 1000000))/1000;
 		float st = ((float)(startTime/1000000))/1000;
-		float et = ((float)(endTime/1000000))/1000;
-		errPS.println("Start Time at : " + st + "s");
-		errPS.println("End time at : " + et + "s");
-		errPS.println("Total time : " + trajanje + "s");
+		float et = ((float)(lastTime/1000000))/1000;
+		printer.println("Start Time at : " + st + "s");
+		printer.println("End time at : " + et + "s");
+		printer.println("Total time : " + trajanje + "s");
 		//metadata
-		errPS.println("metaData : ");
+		printer.println("metaData : ");
 		//TODO print all meta not just this one
 		/*
 		String[] potrebni = {"time", "date", "timezone"};
@@ -116,52 +134,86 @@ public class GetInfo extends Pipe {
 		{
 			errPS.println("	" + key + " : " + metaData.get(key));
 		}*/
-		
+
 		for(String key:metaData.keySet())
 		{
-			errPS.println("	" + key + " : " + metaData.get(key));
+			printer.println("	" + key + " : " + metaData.get(key));
 		}
 
-		errPS.println("Special messeges : ");
+		printer.println("Special messeges : ");
 		for(char key:special.keySet())
 		{
-			errPS.println("	" +  key + " : " + special.get(key));
+			printer.println("	" +  key + " : " + special.get(key));
 		}
 
 		for(String key:generalCounter.keySet())
 		{
-			errPS.println(key +" : "+ generalCounter.get(key));
+			printer.println(key +" : "+ generalCounter.get(key));
 		}
 
 
-		errPS.println("Number of streams : " + stremCounter.size());
+		printer.println("Number of streams : " + stremCounter.size());
 
 		//stream represantation
-		errPS.println("Stream represantation: ");
+		printer.println("Stream represantation: ");
 		for(byte key:structDefinitions.keySet())
 		{
-			errPS.println("	stream " + key +" : " + structDefinitions.get(key));
+			printer.println("	stream " + key +" : " + structDefinitions.get(key).elementsInOrder);
 		}
 
 		//packets
-		errPS.println("Packets per stream: ");
+		printer.println("Packets per stream: ");
 		for(byte key:stremCounter.keySet())
 		{
-			errPS.println("	stream " + key + " : " + stremCounter.get(key));
+			printer.println("	stream " + key + " : " + stremCounter.get(key));
 		}
 		//samples
-		errPS.println("Data per sensor type: ");
+		printer.println("Data per sensor type: ");
 		for(char key:sensorCounter.keySet())
 		{
-			errPS.println("	sensor " + (char)key + " : " + sensorCounter.get(key));
+			printer.println("	sensor " + (char)key + " : " + sensorCounter.get(key));
 		}
 
 		if(generalCounter.containsKey("Unknown Lines"))
-			errPS.println("Unknown Lines : "  + generalCounter.get("Unknown Lines"));
+			printer.println("Unknown Lines : "  + generalCounter.get("Unknown Lines"));
 		if(generalCounter.containsKey("Errors"))
-			errPS.println("Errors : "  + generalCounter.get("Errors"));
+			printer.println("Errors : "  + generalCounter.get("Errors"));
 
-		if(close) this.errPS.close();
+		if(version.equals("PCARD"))
+		{
+			printer.println();
+			printer.println("PCARD specific statistics:");
+			printer.println(" Min lost packets : " + lostPackets);
+			
+			if(dif.size() > 0)
+			{
+				long sum = 0;
+				for(long f : dif)
+				{
+					sum += f;
+				}
+				if(sum > 0)
+				{
+					printer.println(" Mean frequency of " + dif.size() + " sequential packets : " + dif.size()*14E9/sum);
+				}
+				else
+				{
+					errPS.println("their are packets with 0 time diffference.");
+				}
+			}
+
+
+			if(annotationsM.size() > 0)
+			{
+				printer.println(" Annotations : ");
+				for(int i = 0; i<annotationsM.size(); i++)
+				{
+					printer.println("  Time : " + annotationsT.get(i) + " message : " + annotationsM.get(i));
+				}
+			}
+		}
+
+		if(close) this.printer.close();
 	}
 
 	@Override
@@ -183,7 +235,11 @@ public class GetInfo extends Pipe {
 	@Override
 	public boolean onSpecialMessage(char who, char what, String message) {
 		special.merge(what, 1, Integer::sum);
-
+		if(what == 'a')
+		{
+			annotationsM.add(message);
+			annotationsT.add(lastTime);
+		}
 
 		return pushSpecilaMessage(who, what, message);
 	}
@@ -220,6 +276,7 @@ public class GetInfo extends Pipe {
 
 	@Override
 	public boolean onDefinition(byte handle, SensorDefinition definition) {
+		sensorDefinitions.put(handle, definition);
 		generalCounter.merge("Definitions", 1, Integer::sum);
 
 		return pushDefinition(handle, definition);
@@ -227,7 +284,7 @@ public class GetInfo extends Pipe {
 
 	@Override
 	public boolean onDefinition(byte handle, StructDefinition definition) {
-		structDefinitions.put(handle, definition.elementsInOrder);
+		structDefinitions.put(handle, definition);
 		generalCounter.merge("Definitions", 1, Integer::sum);
 
 		return pushDefinition(handle, definition);
@@ -246,33 +303,59 @@ public class GetInfo extends Pipe {
 		if (!start)
 		{
 			startTime = nanoSecondTimestamp;
-			endTime = nanoSecondTimestamp;
+
 			start = true;
 		}
-		else{
-			endTime = nanoSecondTimestamp;
-		}
-
+		lastTime = nanoSecondTimestamp;
 		return pushTimestamp(nanoSecondTimestamp);
 	}
 
 	@Override
-	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
+	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {		
+
 		if (!start)
 		{
 			startTime = timestamp;
-			endTime = timestamp;
 			start = true;
-		}
-		else{
-			endTime = timestamp;
 		}
 
 		stremCounter.merge(handle, 1, Integer::sum);
-		for(char element:structDefinitions.get(handle).toCharArray())
+		for(char element:structDefinitions.get(handle).elementsInOrder.toCharArray())
 		{
 			sensorCounter.merge(element, 1, Integer::sum);
 		}
+
+		//PCARD specific statistics
+
+		if(version.equals("PCARD"))
+		{
+			ArrayList<Float> convertedData = S2utilities.decodeData(structDefinitions.get(handle), sensorDefinitions, data, errPS);
+			if(convertedData.size() == 15)
+			{
+				long curentCounter = (long)convertedData.get(14).floatValue();
+				for(int i =0; i<14;i++)
+				{
+					//counting missing samples
+					if(convertedData.get(i) == 0)
+					{
+						lostSamples++;
+					}
+				}
+				if((curentCounter == lastPacketCounter + 14) || (curentCounter == lastPacketCounter + 14 - 1024))
+				{
+					dif.add(timestamp - lastTime);
+				}else
+				{
+					lostPackets++;
+				}
+				lastPacketCounter = curentCounter;
+			}else
+			{
+				errPS.println("This file does not meet PCARD specifications. Only "+ convertedData.size() + " samples. There should be 14+1.");
+			}
+
+		}
+		lastTime = timestamp;
 
 		return pushStreamPacket(handle, timestamp, len, data);
 	}
@@ -341,7 +424,7 @@ public class GetInfo extends Pipe {
 	 * @return the endTime
 	 */
 	public long getEndTime() {
-		return endTime;
+		return lastTime;
 	}
 
 
@@ -362,7 +445,7 @@ public class GetInfo extends Pipe {
 	/**
 	 * @return map of struct representations
 	 */
-	public Map<Byte, String> getStructRepresentations() {
+	public Map<Byte, StructDefinition> getStructRepresentations() {
 		return structDefinitions;
 	}
 
@@ -370,7 +453,7 @@ public class GetInfo extends Pipe {
 	 * @return representation of selected struct
 	 */
 	public String getStructRepresentation(byte handle) {
-		return structDefinitions.get(handle);
+		return structDefinitions.get(handle).elementsInOrder;
 	}
 
 
