@@ -55,6 +55,7 @@
         </div>
         <div id="generate" class="tab-pane fade">
             <h3>Menu 2</h3>
+            <p><?php echo date('Y');?></p>
             <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>
             <img src="../WEB/slike/water.png" style="max-width:100%;height:auto;">
         </div>

@@ -30,3 +30,6 @@ src/cli/CliDonkey.java
 !UnitInput/cutted.txt
 !UnitInput/cutted.s2
 !Matlab/analyzeOne.m
+*.png
+*.jpg
+WEB/Examples.pdf
