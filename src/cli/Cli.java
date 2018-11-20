@@ -23,6 +23,7 @@ import pipeLines.filters.FilterData;
 import pipeLines.filters.FilterHandles;
 import pipeLines.filters.FilterSpecial;
 import pipeLines.filters.GetInfo;
+import pipeLines.filters.LimitNumberLines;
 import pipeLines.filters.SaveCSV;
 import pipeLines.filters.SaveS2;
 import pipeLines.filters.SaveTXT;
@@ -37,19 +38,26 @@ import si.ijs.e6.S2;
  *
  */
 public class Cli {
+	
+	private static final int CLI_VERSION = 1;
 
 	private static final int good = 0;
 	private static final int unknown = 1;
 	private static final int fileError = 2;
 	private static final int badInputArgs = 3;
 
-	//special it doesnt need input file
+	//special it doesnt run filters
 
 	public static final String HELP = "help";
+	public static final String VERSION = "version";
 
 	public static final String INPUT = "i";
 	public static final String MEARGE = "m";
 	public static final String FILTER_DATA = "fd";
+	
+	//TODO make documentation for filternumberlines
+	public static final String FILTER_NUMBER_LINES = "fnl";
+	
 	public static final String FILTER_COMMENTS = "fc";
 	public static final String FILTER_SPECIAL = "fs";
 	public static final String FILTER_HANDLES = "fh";
@@ -126,6 +134,7 @@ public class Cli {
 
 
 		options.addOption(HELP, false, "Prints Help. Other flags will be ignored.");
+		options.addOption(VERSION, false, "Prints version. Help has priority over this. Other flags will be ignored.");
 
 
 		Option input = new Option(INPUT, "General input. First argument is Directory and name of input file. "
@@ -145,10 +154,12 @@ public class Cli {
 
 
 		Option dataTypes = new Option(FILTER_DATA,true, "Filters datatype. Argument must be a number in binary form"+
-				"@@@1=keeps comments, @@1@=keeps Special, @1@@=keeps meta, 1@@@=keeps data streams."
+				"@@@@1=keeps comments, @@@1@=keeps Special, @@1@@=keeps meta, @1@@@=keeps data streams, 1@@@@=keeps unknown lines."
 				+ "\nArguments:\n"
 				+ "Byte data [Byte]");
 		options.addOption(dataTypes);
+		
+		options.addOption(Cli.FILTER_NUMBER_LINES, true, "Max 10 special, max 10 Unknown, max number of lines specified in argument");
 
 
 		options.addOption(Cli.FILTER_COMMENTS, true, "Filters comments based on regex provided in argument. Comments not matching regex will be removed.\nArguments:\n"
@@ -184,11 +195,11 @@ public class Cli {
 
 		options.addOption(CHANGE_TIME, true, "Add time in argument to all timestamps. "
 				+ "If added time is negative and its absolute value bigger than value of first time stamp, "
-				+ "added time will be set to -first time, resulting in new first time being 0.\nArguments:\n"
+				+ "added time will be set to -first time, resulting in new first time stamp being 0.\nArguments:\n"
 				+ "-Long delay[ns]");
 
 
-		options.addOption(CHANGE_DATE_TIME, true, "Change date in meta. Timestamps are relative to date in meta"
+		options.addOption(CHANGE_DATE_TIME, true, "Change date in meta into new one. Timestamps are relative to date in meta"
 				+ " and therefore are changed so the absolute timestamps of data does not change."
 				+ "\nArguments:\n"
 				+ "-date with time and zone in ISO format. Example: \"2018-01-01T10:30:10.554+0100\"");
@@ -268,7 +279,13 @@ public class Cli {
 		if(cmd.hasOption(HELP))
 		{
 			formatter.printHelp("Cli",header,options,footer);
+			
 			return good;
+		}
+		
+		if(cmd.hasOption(VERSION))
+		{
+			outPS.println(CLI_VERSION);
 		}
 
 
@@ -319,11 +336,12 @@ public class Cli {
 						errPS.println("Input file does not exist.");
 						return badInputArgs;
 					}
+					boolean newHandles = Boolean.parseBoolean(cmd.getOptionValue(MEARGE));
 					file2 = new S2();
 					loadS2 = file2.load(inDirectory2.getParentFile(), inDirectory2.getName());
 					Pipe pipeP = new Pipe(); 
 					Pipe pipeS = new Pipe();
-					SmartMerge sm = new SmartMerge(loadS2, pipeS, pipeP, pipeS, inDirectory1, inDirectory2, false, false, errPS);
+					SmartMerge sm = new SmartMerge(loadS2, pipeS, pipeP, pipeS, inDirectory1, inDirectory2, false, newHandles, errPS);
 
 					Connector con = new Connector();
 					con.addStart(pipeP);
@@ -346,6 +364,18 @@ public class Cli {
 					pipeLine.add(new FilterData(Byte.parseByte(cmd.getOptionValue(FILTER_DATA),2),errPS));
 				}catch(NumberFormatException e){
 					errPS.println("argument of "+FILTER_DATA+" must be a number in binary format. TERMINATE");
+					return badInputArgs;
+				}
+			}
+			
+			if(cmd.hasOption(FILTER_NUMBER_LINES))
+			{
+				try
+				{
+				int maxLines = Integer.parseInt(cmd.getOptionValue(Cli.FILTER_NUMBER_LINES));
+				pipeLine.add(new LimitNumberLines(maxLines));
+				}catch(NumberFormatException e){
+					errPS.println("argument of "+FILTER_NUMBER_LINES+" must be an integer. TERMINATE");
 					return badInputArgs;
 				}
 			}
@@ -494,8 +524,10 @@ public class Cli {
 					pipeLine.get(i-1).addChild(pipeLine.get(i));
 				}
 				loadS1.readLines(pipeLine.get(0), false);
+				
 				if(file1.getNotes().length() > 0)
 				{
+					errPS.println("S2 notes are : ");
 					errPS.print(file1.getNotes());
 				}
 				loadS1.closeFile();
