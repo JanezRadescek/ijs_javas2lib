@@ -292,7 +292,6 @@ public class Cli {
 
 		//********************************           PARSANJE   ARGUMENTOV                 ********************************
 
-
 		//brez vhodne ne moremo delati nekaterih
 		if(cmd.hasOption(INPUT))
 		{
@@ -315,8 +314,11 @@ public class Cli {
 				return badInputArgs;
 			}
 			file1 = new S2();
-			loadS1 = file1.load(inDirectory1);
+            loadS1 = file1.load(inDirectory1);
 
+            // path of the source file (when performing filtering or other file modification, output file should hold a reference to the original (source) file for easier bookkeeping)
+            final String sourceFilePath = inDirectory1.getPath();
+            final String commandLine = "Cli "+String.join(" ", args);
 
 			//******************************************************************
 			//******************************************************************
@@ -466,6 +468,24 @@ public class Cli {
 				pipeLine.add(filter);
 			}
 
+			pipeLine.add(new Pipe(){
+                @Override
+                public boolean onVersion(int versionInt, String version) {
+                    // process version normally
+                    super.onVersion(versionInt, version);
+                    // now add own data
+
+                    // store source file path here (if it was ever set up)
+                    // TODO: check that path is less than 253 characters long
+                    if (!sourceFilePath.equals(""))
+                        onMetadata("source file path", sourceFilePath);
+                    // TODO: check that commandLine is less than 253 characters long or split into multiple keys
+                    onMetadata("commandline origin", commandLine);
+
+                    return true;
+                }
+            });
+
 			if(cmd.hasOption(OUTPUT))
 			{
 				Pipe filterSave;
@@ -509,8 +529,6 @@ public class Cli {
 					case "s2": {
 						SaveS2 saveFilter = new SaveS2(outDir, errPS);
 						filterSave = saveFilter;
-						if (cmd.hasOption(INPUT))
-							saveFilter.setSourceFilePath(cmd.getOptionValues(INPUT)[0]);
 						break;
 					}
 					default: errPS.println("Wrong extension of output file name");return badInputArgs;
@@ -519,7 +537,6 @@ public class Cli {
 
 				pipeLine.add(filterSave);
 			}
-
 
 			//***************************************          COMBINING           **************************
 			//***************************************          EXECUTING           **************************

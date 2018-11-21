@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f7602baf-3b8e-4048-8328-99eca45c0b5e" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/submodules/s2-java-lib" afterPath="$PROJECT_DIR$/submodules/s2-java-lib" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cli/Cli.java" afterPath="$PROJECT_DIR$/src/cli/Cli.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gui/BaurOkno2.java" afterPath="$PROJECT_DIR$/src/gui/BaurOkno2.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/pipeLines/filters/SaveS2.java" afterPath="$PROJECT_DIR$/src/pipeLines/filters/SaveS2.java" />
     </list>
     <ignored path="ijs_javas2lib.iws" />
@@ -44,22 +41,20 @@
       <file leaf-file-name="SaveS2.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pipeLines/filters/SaveS2.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="214">
-              <caret line="173" column="38" selection-start-line="173" selection-start-column="38" selection-end-line="173" selection-end-column="38" />
+            <state relative-caret-position="269">
+              <caret line="55" column="5" selection-start-line="55" selection-start-column="5" selection-end-line="55" selection-end-column="5" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#1548#1549#0" expanded="true" />
-                <element signature="e#1576#1577#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BaurOkno2.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="BaurOkno2.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/gui/BaurOkno2.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="472">
-              <caret line="554" column="30" selection-start-line="554" selection-start-column="30" selection-end-line="554" selection-end-column="30" />
+            <state relative-caret-position="58">
+              <caret line="531" column="0" selection-start-line="531" selection-start-column="0" selection-end-line="531" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -88,25 +83,27 @@
       <file leaf-file-name="Pipe.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pipeLines/Pipe.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="650">
-              <caret line="186" column="28" selection-start-line="186" selection-start-column="28" selection-end-line="186" selection-end-column="28" />
+            <state relative-caret-position="97">
+              <caret line="53" column="5" selection-start-line="51" selection-start-column="4" selection-end-line="53" selection-end-column="5" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Cli.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Cli.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/cli/Cli.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="197">
-              <caret line="155" column="38" selection-start-line="155" selection-start-column="38" selection-end-line="155" selection-end-column="38" />
+            <state relative-caret-position="321">
+              <caret line="482" column="50" selection-start-line="482" selection-start-column="50" selection-end-line="482" selection-end-column="50" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#2997#2998#0" expanded="true" />
                 <element signature="e#3050#3051#0" expanded="true" />
                 <element signature="e#3113#3114#0" expanded="true" />
                 <element signature="e#3156#3157#0" expanded="true" />
-                <element signature="e#11078#11084#0" expanded="true" />
+                <element signature="e#11406#11412#0" expanded="true" />
+                <element signature="e#15585#16367#0" expanded="true" />
+                <element signature="e#16366#16367#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -164,10 +161,10 @@
         <option value="$PROJECT_DIR$/src/callBacks/SecondReader.java" />
         <option value="$PROJECT_DIR$/src/callBacks/OutCSVCallback.java" />
         <option value="$PROJECT_DIR$/src/generatorS2/Generator2.java" />
-        <option value="$PROJECT_DIR$/src/pipeLines/filters/SaveS2.java" />
         <option value="$PROJECT_DIR$/submodules/s2-java-lib/src/main/java/si/ijs/e6/S2.java" />
-        <option value="$PROJECT_DIR$/src/cli/Cli.java" />
         <option value="$PROJECT_DIR$/src/gui/BaurOkno2.java" />
+        <option value="$PROJECT_DIR$/src/pipeLines/filters/SaveS2.java" />
+        <option value="$PROJECT_DIR$/src/cli/Cli.java" />
       </list>
     </option>
   </component>
@@ -644,7 +641,7 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28915662" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.28915662" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -718,147 +715,15 @@
         <state relative-caret-position="5238">
           <caret line="291" column="15" selection-start-line="291" selection-start-column="15" selection-end-line="291" selection-end-column="15" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="docComment;class#S2#0" expanded="false" />
-            <element signature="class#MESSAGE_TYPE#0;class#S2#0" expanded="false" />
-            <element signature="class#Dialect#0;class#S2#0" expanded="false" />
-            <element signature="class#DefinitionType#0;class#S2#0" expanded="false" />
-            <element signature="method#DefinitionType#0;class#DefinitionType#0;class#S2#0" expanded="false" />
-            <element signature="method#convert#0;class#DefinitionType#0;class#S2#0" expanded="false" />
-            <element signature="class#AbsoluteId#0;class#S2#0" expanded="false" />
-            <element signature="method#AbsoluteId#0;class#AbsoluteId#0;class#S2#0" expanded="false" />
-            <element signature="method#convert#0;class#AbsoluteId#0;class#S2#0" expanded="false" />
-            <element signature="method#specifiesAbsoluteValue#0;class#S2#0" expanded="false" />
-            <element signature="method#specifiesRelativeValue#0;class#S2#0" expanded="false" />
-            <element signature="class#ValueType#0;class#S2#0" expanded="false" />
-            <element signature="method#ValueType#0;class#ValueType#0;class#S2#0" expanded="false" />
-            <element signature="method#convert#0;class#ValueType#0;class#S2#0" expanded="false" />
-            <element signature="class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#SensorDefinition#0;class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#equals#0;class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#hashCode#0;class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#setUnit#0;class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#setVector#0;class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#setVector#0;class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#totalBitSize#0;class#S2#0" expanded="false" />
-            <element signature="method#totalBitSize#0;class#S2#0" expanded="false" />
-            <element signature="docComment;class#Nanoseconds#0;class#S2#0" expanded="false" />
-            <element signature="class#Nanoseconds#0;class#S2#0" expanded="false" />
-            <element signature="class#TimestampDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#getNanoMultiplier#0;class#TimestampDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#toNanoSeconds#0;class#TimestampDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#toImplementationFormat#0;class#TimestampDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#TimestampDefinition#0;class#TimestampDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#equals#0;class#TimestampDefinition#0;class#S2#0" expanded="false" />
-            <element signature="class#StructDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#StructDefinition#0;class#StructDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#equals#0;class#StructDefinition#0;class#S2#0" expanded="false" />
-            <element signature="class#MessageType#0;class#S2#0" expanded="false" />
-            <element signature="method#MessageType#0;class#MessageType#0;class#S2#0" expanded="false" />
-            <element signature="method#convert#0;class#MessageType#0;class#S2#0" expanded="false" />
-            <element signature="class#DeviceType#0;class#S2#0" expanded="false" />
-            <element signature="method#DeviceType#0;class#DeviceType#0;class#S2#0" expanded="false" />
-            <element signature="method#convert#0;class#DeviceType#0;class#S2#0" expanded="false" />
-            <element signature="n#!!doc;n#FileOperation#0;n#S2#0" expanded="false" />
-            <element signature="class#FileOperation#0;class#S2#0" expanded="false" />
-            <element signature="class#14868:14917" expanded="false" />
-            <element signature="initializer##0;class#14868:14917" expanded="false" />
-            <element signature="docComment;method#addErrorNote#0;class#S2#0" expanded="false" />
-            <element signature="method#addErrorNote#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#clearNotes#0;class#S2#0" expanded="false" />
-            <element signature="method#clearNotes#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addWarning#0;class#S2#0" expanded="false" />
-            <element signature="method#addWarning#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getNotes#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getNumWarnings#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getNumErrors#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getStringVersion#0;class#S2#0" expanded="false" />
-            <element signature="method#getStringVersion#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getIntVersion#0;class#S2#0" expanded="false" />
-            <element signature="method#getIntVersion#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#isVersionValid#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getTimeState#0;class#S2#0" expanded="false" />
-            <element signature="class#LineType#0;class#S2#0" expanded="false" />
-            <element signature="method#LineType#0;class#LineType#0;class#S2#0" expanded="false" />
             <element signature="e#22161#22162#0" expanded="false" />
-            <element signature="method#addSizedStringToArray#0;class#S2#0" expanded="false" />
-            <element signature="method#addFloatToArray#0;class#S2#0" expanded="false" />
-            <element signature="method#addIntToArray#0;class#S2#0" expanded="false" />
-            <element signature="method#addDoubleToArray#0;class#S2#0" expanded="false" />
-            <element signature="method#addArrayToArray#0;class#S2#0" expanded="false" />
-            <element signature="method#addArrayToArray#1;class#S2#0" expanded="false" />
-            <element signature="class#ReadLineCallbackInterface#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#onUnmarkedEndOfFile#0;class#ReadLineCallbackInterface#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#onStreamPacket#0;class#ReadLineCallbackInterface#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#onUnknownLineType#0;class#ReadLineCallbackInterface#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#onError#0;class#ReadLineCallbackInterface#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#StoreStatus#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#StoreStatus#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="e#26087#26199#0" expanded="false" />
-            <element signature="method#StoreStatus#1;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#enableDebugOutput#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getLineOverhead#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#activateDeferredWrite#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#activateDeferredWrite#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#deactivateDeferredWrite#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#deactivateDeferredWrite#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#initialize#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#initialize#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#isOk#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#done#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#done#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#setVersion#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#setVersion#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getNotes#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addTextMessage#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addSpecialTextMessage#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addSpecialTextMessage#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addSpecialTextMessage#1;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addMetadata#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addMetadata#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addDefinition#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addDefinition#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addDefinition#1;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addDefinition#1;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addDefinition#2;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addDefinition#2;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addSensorPacket#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addSensorPacket#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addSensorPacket#1;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addSensorPacket#1;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="e#46902#46903#0" expanded="true" />
-            <element signature="e#46947#46948#0" expanded="true" />
-            <element signature="e#57413#57414#0" expanded="true" />
-            <element signature="e#57453#57454#0" expanded="true" />
-            <element signature="e#59080#59081#0" expanded="true" />
-            <element signature="e#59124#59125#0" expanded="true" />
-            <element signature="e#62278#62279#0" expanded="true" />
-            <element signature="e#62322#62323#0" expanded="true" />
-            <element signature="e#64145#64146#0" expanded="true" />
-            <element signature="e#64232#64233#0" expanded="true" />
-            <element signature="e#65819#65820#0" expanded="true" />
-            <element signature="e#65855#65856#0" expanded="true" />
-            <element signature="e#66434#66435#0" expanded="true" />
-            <element signature="e#66488#66489#0" expanded="true" />
-            <element signature="e#66657#66684#0" expanded="true" />
-            <element signature="e#67196#67197#0" expanded="true" />
-            <element signature="e#67236#67237#0" expanded="true" />
-            <element signature="e#67393#67394#0" expanded="true" />
-            <element signature="e#67482#67483#0" expanded="true" />
-            <element signature="e#67696#67697#0" expanded="true" />
-            <element signature="e#67746#67747#0" expanded="true" />
-            <element signature="e#75977#75978#0" expanded="true" />
-            <element signature="e#76022#76023#0" expanded="true" />
-            <element signature="e#76574#76575#0" expanded="true" />
-            <element signature="e#76621#76622#0" expanded="true" />
-            <element signature="e#76850#76851#0" expanded="true" />
-            <element signature="e#76902#76903#0" expanded="true" />
-            <element signature="e#77036#77037#0" expanded="true" />
-            <element signature="e#77077#77078#0" expanded="true" />
-            <element signature="e#109533#109534#0" expanded="true" />
-            <element signature="e#109623#109624#0" expanded="true" />
-            <element signature="e#109923#109924#0" expanded="true" />
-            <element signature="e#109973#109974#0" expanded="true" />
+            <element signature="e#46902#46903#0" expanded="false" />
+            <element signature="e#46947#46948#0" expanded="false" />
+            <element signature="e#57413#57414#0" expanded="false" />
+            <element signature="e#57453#57454#0" expanded="false" />
+            <element signature="e#59080#59081#0" expanded="false" />
+            <element signature="e#59124#59125#0" expanded="false" />
+            <element signature="e#109923#109924#0" expanded="false" />
+            <element signature="e#109973#109974#0" expanded="false" />
             <element signature="method#S2#1;class#S2#0" expanded="false" />
             <element signature="docComment;method#store#0;class#S2#0" expanded="false" />
             <element signature="method#store#0;class#S2#0" expanded="false" />
@@ -922,147 +787,15 @@
         <state relative-caret-position="4374">
           <caret line="243" column="18" selection-start-line="243" selection-start-column="18" selection-end-line="243" selection-end-column="18" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="docComment;class#S2#0" expanded="false" />
-            <element signature="class#MESSAGE_TYPE#0;class#S2#0" expanded="false" />
-            <element signature="class#Dialect#0;class#S2#0" expanded="false" />
-            <element signature="class#DefinitionType#0;class#S2#0" expanded="false" />
-            <element signature="method#DefinitionType#0;class#DefinitionType#0;class#S2#0" expanded="false" />
-            <element signature="method#convert#0;class#DefinitionType#0;class#S2#0" expanded="false" />
-            <element signature="class#AbsoluteId#0;class#S2#0" expanded="false" />
-            <element signature="method#AbsoluteId#0;class#AbsoluteId#0;class#S2#0" expanded="false" />
-            <element signature="method#convert#0;class#AbsoluteId#0;class#S2#0" expanded="false" />
-            <element signature="method#specifiesAbsoluteValue#0;class#S2#0" expanded="false" />
-            <element signature="method#specifiesRelativeValue#0;class#S2#0" expanded="false" />
-            <element signature="class#ValueType#0;class#S2#0" expanded="false" />
-            <element signature="method#ValueType#0;class#ValueType#0;class#S2#0" expanded="false" />
-            <element signature="method#convert#0;class#ValueType#0;class#S2#0" expanded="false" />
-            <element signature="class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#SensorDefinition#0;class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#equals#0;class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#hashCode#0;class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#setUnit#0;class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#setVector#0;class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#setVector#0;class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#totalBitSize#0;class#S2#0" expanded="false" />
-            <element signature="method#totalBitSize#0;class#S2#0" expanded="false" />
-            <element signature="docComment;class#Nanoseconds#0;class#S2#0" expanded="false" />
-            <element signature="class#Nanoseconds#0;class#S2#0" expanded="false" />
-            <element signature="class#TimestampDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#getNanoMultiplier#0;class#TimestampDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#toNanoSeconds#0;class#TimestampDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#toImplementationFormat#0;class#TimestampDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#TimestampDefinition#0;class#TimestampDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#equals#0;class#TimestampDefinition#0;class#S2#0" expanded="false" />
-            <element signature="class#StructDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#StructDefinition#0;class#StructDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#equals#0;class#StructDefinition#0;class#S2#0" expanded="false" />
-            <element signature="class#MessageType#0;class#S2#0" expanded="false" />
-            <element signature="method#MessageType#0;class#MessageType#0;class#S2#0" expanded="false" />
-            <element signature="method#convert#0;class#MessageType#0;class#S2#0" expanded="false" />
-            <element signature="class#DeviceType#0;class#S2#0" expanded="false" />
-            <element signature="method#DeviceType#0;class#DeviceType#0;class#S2#0" expanded="false" />
-            <element signature="method#convert#0;class#DeviceType#0;class#S2#0" expanded="false" />
-            <element signature="n#!!doc;n#FileOperation#0;n#S2#0" expanded="false" />
-            <element signature="class#FileOperation#0;class#S2#0" expanded="false" />
-            <element signature="class#14868:14917" expanded="false" />
-            <element signature="initializer##0;class#14868:14917" expanded="false" />
-            <element signature="docComment;method#addErrorNote#0;class#S2#0" expanded="false" />
-            <element signature="method#addErrorNote#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#clearNotes#0;class#S2#0" expanded="false" />
-            <element signature="method#clearNotes#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addWarning#0;class#S2#0" expanded="false" />
-            <element signature="method#addWarning#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getNotes#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getNumWarnings#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getNumErrors#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getStringVersion#0;class#S2#0" expanded="false" />
-            <element signature="method#getStringVersion#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getIntVersion#0;class#S2#0" expanded="false" />
-            <element signature="method#getIntVersion#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#isVersionValid#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getTimeState#0;class#S2#0" expanded="false" />
-            <element signature="class#LineType#0;class#S2#0" expanded="false" />
-            <element signature="method#LineType#0;class#LineType#0;class#S2#0" expanded="false" />
             <element signature="e#22161#22162#0" expanded="false" />
-            <element signature="method#addSizedStringToArray#0;class#S2#0" expanded="false" />
-            <element signature="method#addFloatToArray#0;class#S2#0" expanded="false" />
-            <element signature="method#addIntToArray#0;class#S2#0" expanded="false" />
-            <element signature="method#addDoubleToArray#0;class#S2#0" expanded="false" />
-            <element signature="method#addArrayToArray#0;class#S2#0" expanded="false" />
-            <element signature="method#addArrayToArray#1;class#S2#0" expanded="false" />
-            <element signature="class#ReadLineCallbackInterface#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#onUnmarkedEndOfFile#0;class#ReadLineCallbackInterface#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#onStreamPacket#0;class#ReadLineCallbackInterface#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#onUnknownLineType#0;class#ReadLineCallbackInterface#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#onError#0;class#ReadLineCallbackInterface#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#StoreStatus#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#StoreStatus#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="e#26087#26199#0" expanded="false" />
-            <element signature="method#StoreStatus#1;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#enableDebugOutput#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getLineOverhead#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#activateDeferredWrite#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#activateDeferredWrite#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#deactivateDeferredWrite#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#deactivateDeferredWrite#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#initialize#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#initialize#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#isOk#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#done#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#done#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#setVersion#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#setVersion#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getNotes#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addTextMessage#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addSpecialTextMessage#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addSpecialTextMessage#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addSpecialTextMessage#1;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addMetadata#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addMetadata#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addDefinition#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addDefinition#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addDefinition#1;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addDefinition#1;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addDefinition#2;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addDefinition#2;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addSensorPacket#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addSensorPacket#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addSensorPacket#1;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addSensorPacket#1;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="e#46902#46903#0" expanded="true" />
-            <element signature="e#46947#46948#0" expanded="true" />
-            <element signature="e#57413#57414#0" expanded="true" />
-            <element signature="e#57453#57454#0" expanded="true" />
-            <element signature="e#59080#59081#0" expanded="true" />
-            <element signature="e#59124#59125#0" expanded="true" />
-            <element signature="e#62278#62279#0" expanded="true" />
-            <element signature="e#62322#62323#0" expanded="true" />
-            <element signature="e#64145#64146#0" expanded="true" />
-            <element signature="e#64232#64233#0" expanded="true" />
-            <element signature="e#65819#65820#0" expanded="true" />
-            <element signature="e#65855#65856#0" expanded="true" />
-            <element signature="e#66434#66435#0" expanded="true" />
-            <element signature="e#66488#66489#0" expanded="true" />
-            <element signature="e#66657#66684#0" expanded="true" />
-            <element signature="e#67196#67197#0" expanded="true" />
-            <element signature="e#67236#67237#0" expanded="true" />
-            <element signature="e#67393#67394#0" expanded="true" />
-            <element signature="e#67482#67483#0" expanded="true" />
-            <element signature="e#67696#67697#0" expanded="true" />
-            <element signature="e#67746#67747#0" expanded="true" />
-            <element signature="e#75977#75978#0" expanded="true" />
-            <element signature="e#76022#76023#0" expanded="true" />
-            <element signature="e#76574#76575#0" expanded="true" />
-            <element signature="e#76621#76622#0" expanded="true" />
-            <element signature="e#76850#76851#0" expanded="true" />
-            <element signature="e#76902#76903#0" expanded="true" />
-            <element signature="e#77036#77037#0" expanded="true" />
-            <element signature="e#77077#77078#0" expanded="true" />
-            <element signature="e#109533#109534#0" expanded="true" />
-            <element signature="e#109623#109624#0" expanded="true" />
-            <element signature="e#109923#109924#0" expanded="true" />
-            <element signature="e#109973#109974#0" expanded="true" />
+            <element signature="e#46902#46903#0" expanded="false" />
+            <element signature="e#46947#46948#0" expanded="false" />
+            <element signature="e#57413#57414#0" expanded="false" />
+            <element signature="e#57453#57454#0" expanded="false" />
+            <element signature="e#59080#59081#0" expanded="false" />
+            <element signature="e#59124#59125#0" expanded="false" />
+            <element signature="e#109923#109924#0" expanded="false" />
+            <element signature="e#109973#109974#0" expanded="false" />
             <element signature="method#S2#1;class#S2#0" expanded="false" />
             <element signature="docComment;method#store#0;class#S2#0" expanded="false" />
             <element signature="method#store#0;class#S2#0" expanded="false" />
@@ -1219,164 +952,20 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pipeLines/filters/SaveS2.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="214">
-          <caret line="173" column="38" selection-start-line="173" selection-start-column="38" selection-end-line="173" selection-end-column="38" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1548#1549#0" expanded="true" />
-            <element signature="e#1576#1577#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/submodules/s2-java-lib/src/main/java/si/ijs/e6/S2.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="18">
           <caret line="411" column="0" selection-start-line="411" selection-start-column="0" selection-end-line="411" selection-end-column="0" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="docComment;class#S2#0" expanded="false" />
-            <element signature="class#MESSAGE_TYPE#0;class#S2#0" expanded="false" />
-            <element signature="class#Dialect#0;class#S2#0" expanded="false" />
-            <element signature="class#DefinitionType#0;class#S2#0" expanded="false" />
-            <element signature="method#DefinitionType#0;class#DefinitionType#0;class#S2#0" expanded="false" />
-            <element signature="method#convert#0;class#DefinitionType#0;class#S2#0" expanded="false" />
-            <element signature="class#AbsoluteId#0;class#S2#0" expanded="false" />
-            <element signature="method#AbsoluteId#0;class#AbsoluteId#0;class#S2#0" expanded="false" />
-            <element signature="method#convert#0;class#AbsoluteId#0;class#S2#0" expanded="false" />
-            <element signature="method#specifiesAbsoluteValue#0;class#S2#0" expanded="false" />
-            <element signature="method#specifiesRelativeValue#0;class#S2#0" expanded="false" />
-            <element signature="class#ValueType#0;class#S2#0" expanded="false" />
-            <element signature="method#ValueType#0;class#ValueType#0;class#S2#0" expanded="false" />
-            <element signature="method#convert#0;class#ValueType#0;class#S2#0" expanded="false" />
-            <element signature="class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#SensorDefinition#0;class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#equals#0;class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#hashCode#0;class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#setUnit#0;class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#setVector#0;class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#setVector#0;class#SensorDefinition#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#totalBitSize#0;class#S2#0" expanded="false" />
-            <element signature="method#totalBitSize#0;class#S2#0" expanded="false" />
-            <element signature="docComment;class#Nanoseconds#0;class#S2#0" expanded="false" />
-            <element signature="class#Nanoseconds#0;class#S2#0" expanded="false" />
-            <element signature="class#TimestampDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#getNanoMultiplier#0;class#TimestampDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#toNanoSeconds#0;class#TimestampDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#toImplementationFormat#0;class#TimestampDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#TimestampDefinition#0;class#TimestampDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#equals#0;class#TimestampDefinition#0;class#S2#0" expanded="false" />
-            <element signature="class#StructDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#StructDefinition#0;class#StructDefinition#0;class#S2#0" expanded="false" />
-            <element signature="method#equals#0;class#StructDefinition#0;class#S2#0" expanded="false" />
-            <element signature="class#MessageType#0;class#S2#0" expanded="false" />
-            <element signature="method#MessageType#0;class#MessageType#0;class#S2#0" expanded="false" />
-            <element signature="method#convert#0;class#MessageType#0;class#S2#0" expanded="false" />
-            <element signature="class#DeviceType#0;class#S2#0" expanded="false" />
-            <element signature="method#DeviceType#0;class#DeviceType#0;class#S2#0" expanded="false" />
-            <element signature="method#convert#0;class#DeviceType#0;class#S2#0" expanded="false" />
-            <element signature="n#!!doc;n#FileOperation#0;n#S2#0" expanded="false" />
-            <element signature="class#FileOperation#0;class#S2#0" expanded="false" />
-            <element signature="class#14868:14917" expanded="false" />
-            <element signature="initializer##0;class#14868:14917" expanded="false" />
-            <element signature="docComment;method#addErrorNote#0;class#S2#0" expanded="false" />
-            <element signature="method#addErrorNote#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#clearNotes#0;class#S2#0" expanded="false" />
-            <element signature="method#clearNotes#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addWarning#0;class#S2#0" expanded="false" />
-            <element signature="method#addWarning#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getNotes#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getNumWarnings#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getNumErrors#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getStringVersion#0;class#S2#0" expanded="false" />
-            <element signature="method#getStringVersion#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getIntVersion#0;class#S2#0" expanded="false" />
-            <element signature="method#getIntVersion#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#isVersionValid#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getTimeState#0;class#S2#0" expanded="false" />
-            <element signature="class#LineType#0;class#S2#0" expanded="false" />
-            <element signature="method#LineType#0;class#LineType#0;class#S2#0" expanded="false" />
             <element signature="e#22161#22162#0" expanded="false" />
-            <element signature="method#addSizedStringToArray#0;class#S2#0" expanded="false" />
-            <element signature="method#addFloatToArray#0;class#S2#0" expanded="false" />
-            <element signature="method#addIntToArray#0;class#S2#0" expanded="false" />
-            <element signature="method#addDoubleToArray#0;class#S2#0" expanded="false" />
-            <element signature="method#addArrayToArray#0;class#S2#0" expanded="false" />
-            <element signature="method#addArrayToArray#1;class#S2#0" expanded="false" />
-            <element signature="class#ReadLineCallbackInterface#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#onUnmarkedEndOfFile#0;class#ReadLineCallbackInterface#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#onStreamPacket#0;class#ReadLineCallbackInterface#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#onUnknownLineType#0;class#ReadLineCallbackInterface#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#onError#0;class#ReadLineCallbackInterface#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#StoreStatus#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#StoreStatus#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="e#26087#26199#0" expanded="false" />
-            <element signature="method#StoreStatus#1;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#enableDebugOutput#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getLineOverhead#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#activateDeferredWrite#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#activateDeferredWrite#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#deactivateDeferredWrite#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#deactivateDeferredWrite#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#initialize#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#initialize#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#isOk#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#done#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#done#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#setVersion#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#setVersion#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#getNotes#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addTextMessage#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addSpecialTextMessage#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addSpecialTextMessage#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addSpecialTextMessage#1;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addMetadata#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addMetadata#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addDefinition#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addDefinition#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addDefinition#1;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addDefinition#1;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addDefinition#2;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addDefinition#2;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addSensorPacket#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addSensorPacket#0;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="docComment;method#addSensorPacket#1;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="method#addSensorPacket#1;class#StoreStatus#0;class#S2#0" expanded="false" />
-            <element signature="e#46902#46903#0" expanded="true" />
-            <element signature="e#46947#46948#0" expanded="true" />
-            <element signature="e#57413#57414#0" expanded="true" />
-            <element signature="e#57453#57454#0" expanded="true" />
-            <element signature="e#59080#59081#0" expanded="true" />
-            <element signature="e#59124#59125#0" expanded="true" />
-            <element signature="e#62278#62279#0" expanded="true" />
-            <element signature="e#62322#62323#0" expanded="true" />
-            <element signature="e#64145#64146#0" expanded="true" />
-            <element signature="e#64232#64233#0" expanded="true" />
-            <element signature="e#65819#65820#0" expanded="true" />
-            <element signature="e#65855#65856#0" expanded="true" />
-            <element signature="e#66434#66435#0" expanded="true" />
-            <element signature="e#66488#66489#0" expanded="true" />
-            <element signature="e#66657#66684#0" expanded="true" />
-            <element signature="e#67196#67197#0" expanded="true" />
-            <element signature="e#67236#67237#0" expanded="true" />
-            <element signature="e#67393#67394#0" expanded="true" />
-            <element signature="e#67482#67483#0" expanded="true" />
-            <element signature="e#67696#67697#0" expanded="true" />
-            <element signature="e#67746#67747#0" expanded="true" />
-            <element signature="e#75977#75978#0" expanded="true" />
-            <element signature="e#76022#76023#0" expanded="true" />
-            <element signature="e#76574#76575#0" expanded="true" />
-            <element signature="e#76621#76622#0" expanded="true" />
-            <element signature="e#76850#76851#0" expanded="true" />
-            <element signature="e#76902#76903#0" expanded="true" />
-            <element signature="e#77036#77037#0" expanded="true" />
-            <element signature="e#77077#77078#0" expanded="true" />
-            <element signature="e#109533#109534#0" expanded="true" />
-            <element signature="e#109623#109624#0" expanded="true" />
-            <element signature="e#109923#109924#0" expanded="true" />
-            <element signature="e#109973#109974#0" expanded="true" />
+            <element signature="e#46902#46903#0" expanded="false" />
+            <element signature="e#46947#46948#0" expanded="false" />
+            <element signature="e#57413#57414#0" expanded="false" />
+            <element signature="e#57453#57454#0" expanded="false" />
+            <element signature="e#59080#59081#0" expanded="false" />
+            <element signature="e#59124#59125#0" expanded="false" />
+            <element signature="e#109923#109924#0" expanded="false" />
+            <element signature="e#109973#109974#0" expanded="false" />
             <element signature="method#S2#1;class#S2#0" expanded="false" />
             <element signature="docComment;method#store#0;class#S2#0" expanded="false" />
             <element signature="method#store#0;class#S2#0" expanded="false" />
@@ -1393,34 +982,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pipeLines/Pipe.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="650">
-          <caret line="186" column="28" selection-start-line="186" selection-start-column="28" selection-end-line="186" selection-end-column="28" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/gui/Radijo.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
           <caret line="8" column="13" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cli/Cli.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="197">
-          <caret line="155" column="38" selection-start-line="155" selection-start-column="38" selection-end-line="155" selection-end-column="38" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#2997#2998#0" expanded="true" />
-            <element signature="e#3050#3051#0" expanded="true" />
-            <element signature="e#3113#3114#0" expanded="true" />
-            <element signature="e#3156#3157#0" expanded="true" />
-            <element signature="e#11078#11084#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1453,9 +1019,44 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/gui/BaurOkno2.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="472">
-          <caret line="554" column="30" selection-start-line="554" selection-start-column="30" selection-end-line="554" selection-end-column="30" />
+        <state relative-caret-position="58">
+          <caret line="531" column="0" selection-start-line="531" selection-start-column="0" selection-end-line="531" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pipeLines/Pipe.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="97">
+          <caret line="53" column="5" selection-start-line="51" selection-start-column="4" selection-end-line="53" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pipeLines/filters/SaveS2.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="269">
+          <caret line="55" column="5" selection-start-line="55" selection-start-column="5" selection-end-line="55" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cli/Cli.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="321">
+          <caret line="482" column="50" selection-start-line="482" selection-start-column="50" selection-end-line="482" selection-end-column="50" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#2997#2998#0" expanded="true" />
+            <element signature="e#3050#3051#0" expanded="true" />
+            <element signature="e#3113#3114#0" expanded="true" />
+            <element signature="e#3156#3157#0" expanded="true" />
+            <element signature="e#11406#11412#0" expanded="true" />
+            <element signature="e#15585#16367#0" expanded="true" />
+            <element signature="e#16366#16367#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
