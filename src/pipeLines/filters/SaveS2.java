@@ -179,8 +179,7 @@ public class SaveS2 extends Pipe {
 	
 	@Override
 	public boolean onUnknownLineType(byte type, int len, byte[] data) {
-
-		storeS.addUnknownLine(type, data);
+		storeS.writeLine(type, data);
 		
 		return super.onUnknownLineType(type, len, data);
 	}

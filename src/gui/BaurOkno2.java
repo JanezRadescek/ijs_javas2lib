@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -331,7 +332,7 @@ public class BaurOkno2 extends JFrame {
 				btn_Name.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						String name = JOptionPane.showInputDialog(panel_Options, "Name of OutPut file. "
-								+ "Apropriate extension will be automaticly added.", "Name dialog", JOptionPane.PLAIN_MESSAGE);
+								+ "Appropriate extension will be automatically added.", "Name dialog", JOptionPane.PLAIN_MESSAGE);
 						if(name != null)
 						{
 							textField_Output.addKid(txt_name);
@@ -391,7 +392,7 @@ public class BaurOkno2 extends JFrame {
 
 			//time
 			{
-				Gumb btn_Time = new Gumb("Time interval","-t");
+				Gumb btn_Time = new Gumb("Time interval","-ft");
 				btn_Time.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
 						JTextField txt_start = new JTextField();
@@ -459,7 +460,7 @@ public class BaurOkno2 extends JFrame {
 
 			//handles
 			{
-				Gumb btn_Handles = new Gumb("Handles","-h");
+				Gumb btn_Handles = new Gumb("Handles","-fh");
 				btn_Handles.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
 						String s = (String) JOptionPane.showInputDialog(panel_Options, "Handles separated with coma", 
@@ -531,7 +532,7 @@ public class BaurOkno2 extends JFrame {
 
 			//data to keep
 			{
-				Gumb btn_DataTypes = new Gumb("Data types","-d");
+				Gumb btn_DataTypes = new Gumb("Data types","-fd");
 				btn_DataTypes.setEnabled(false);
 				panel_Options.add(btn_DataTypes, "cell 0 5,grow");
 				//components.add(btn_DataTypes);
@@ -544,24 +545,38 @@ public class BaurOkno2 extends JFrame {
 				chckbx_C.setEnabled(false);
 				chckbx_C.setSelected(true);
 				panel.add(chckbx_C, BorderLayout.NORTH);
-				//components.add(chckbx_C);
 
-				Skatla chckbx_SM = new Skatla("Special messeges");
+				Skatla chckbx_SM = new Skatla("Special messages");
 				chckbx_SM.setEnabled(false);
 				chckbx_SM.setSelected(true);
 				panel.add(chckbx_SM, BorderLayout.CENTER);
-				//components.add(chckbx_SM);
+
+				JPanel extensionPanel = new JPanel();
+                extensionPanel.setLayout(new BorderLayout(0, 0));
+				panel.add(extensionPanel, BorderLayout.SOUTH);
 
 				Skatla chckbx_MD = new Skatla("Meta data");
 				chckbx_MD.setEnabled(false);
 				chckbx_MD.setSelected(true);
-				panel.add(chckbx_MD, BorderLayout.SOUTH);
+				extensionPanel.add(chckbx_MD, BorderLayout.NORTH);
+
+				Skatla chckbx_D = new Skatla("data streams");
+				chckbx_D.setEnabled(false);
+				chckbx_D.setSelected(true);
+				extensionPanel.add(chckbx_D, BorderLayout.CENTER);
+
+				Skatla chckbx_U = new Skatla("Unrecognised data");
+				chckbx_U.setEnabled(false);
+				chckbx_U.setSelected(true);
+				extensionPanel.add(chckbx_U, BorderLayout.SOUTH);
 
 				btn_DataTypes.addKid(chckbx_C);
 				btn_DataTypes.addKid(chckbx_SM);
 				btn_DataTypes.addKid(chckbx_MD);
+				btn_DataTypes.addKid(chckbx_U);
+				btn_DataTypes.addKid(chckbx_D);
 
-				components.put("data",new Komponenta[]{btn_DataTypes,chckbx_C,chckbx_SM,chckbx_MD});
+				components.put("data",new Komponenta[]{btn_DataTypes,chckbx_C,chckbx_SM,chckbx_MD,chckbx_D,chckbx_U});
 			}
 		}
 
@@ -613,7 +628,7 @@ public class BaurOkno2 extends JFrame {
 			JRadioGRoup.add(rdbtn2);
 			skupina.add(rdbtn2);
 
-			Radijo rdbtn3 = new Radijo("cut S2","-c");
+			Radijo rdbtn3 = new Radijo("cut S2","");
 			rdbtn3.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					act = rdbtn3;
