@@ -27,6 +27,8 @@ public class SaveS2 extends Pipe {
 	private long lastTimestamp;
 	private boolean lastTimestampWriten;
 	private Map<Byte,Long> lastTime = new HashMap<Byte,Long>();
+	// path of the source file (when performing filtering or other file modification, output file should hold a reference to the original (source) file for easier bookkeeping)
+	private String sourceFilePath = "";
 
 	/**
 	 * @param outDir directory AND name of new S2 file in which we will save
@@ -48,10 +50,17 @@ public class SaveS2 extends Pipe {
 		storeS.enableDebugOutput(false);
 	}
 
+	public void setSourceFilePath(String path) {
+		sourceFilePath = path;
+	}
 
 	@Override
 	public boolean onVersion(int versionInt, String version) {
 		storeS.setVersion(versionInt, version);
+
+		// store source file path here (if it was ever set up)
+        if (!sourceFilePath.equals(""))
+		    storeS.addMetadata("source file path", sourceFilePath);
 		
 		return pushVersion(versionInt, version);
 	}

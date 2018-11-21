@@ -48,7 +48,7 @@ public class Cli {
 	public static final String HELP = "help";
 
 	public static final String INPUT = "i";
-	public static final String MEARGE = "m";
+	public static final String MERGE = "m";
 	public static final String FILTER_DATA = "fd";
 	public static final String FILTER_COMMENTS = "fc";
 	public static final String FILTER_SPECIAL = "fs";
@@ -138,7 +138,7 @@ public class Cli {
 		options.addOption(input);
 
 
-		options.addOption(MEARGE, true, "Combines two S2 files in one S2 file. Needs flag '-i' with two inputs. Combining with other filters has undefined behavior!  Has mandatory argument."
+		options.addOption(MERGE, true, "Combines two S2 files in one S2 file. Needs flag '-i' with two inputs. Combining with other filters has undefined behavior!  Has mandatory argument."
 				+ " If true streams with same handles will be merged,"
 				+ " else streams from second file will get new one where needed.\nArguments:\n"
 				+ "-Boolean mergingHandles");
@@ -309,7 +309,7 @@ public class Cli {
 
 
 
-			if(cmd.hasOption(MEARGE))
+			if(cmd.hasOption(MERGE))
 			{
 				try
 				{
@@ -333,7 +333,7 @@ public class Cli {
 				}
 				catch(Exception r)
 				{
-					errPS.println("Option "+Cli.INPUT+" needs directory and name of second input file for "+Cli.MEARGE+". TERMINATE");
+					errPS.println("Option "+Cli.INPUT+" needs directory and name of second input file for "+Cli.MERGE +". TERMINATE");
 					return badInputArgs;
 				}
 			}
@@ -476,7 +476,13 @@ public class Cli {
 					{
 					case "txt": filterSave = new SaveTXT(outDir, errPS);break;
 					case "csv": filterSave = new SaveCSV(outDir, errPS);break;
-					case "s2":  filterSave = new SaveS2(outDir, errPS);break;
+					case "s2": {
+						SaveS2 saveFilter = new SaveS2(outDir, errPS);
+						filterSave = saveFilter;
+						if (cmd.hasOption(INPUT))
+							saveFilter.setSourceFilePath(cmd.getOptionValues(INPUT)[0]);
+						break;
+					}
 					default: errPS.println("Wrong extension of output file name");return badInputArgs;
 					}
 				}
