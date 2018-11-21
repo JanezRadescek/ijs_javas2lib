@@ -161,5 +161,11 @@ public class Merge extends Pipe{
 
 		return super.onStreamPacket(handle, timestamp, len, data);
 	}
+	
+	@Override
+	public boolean onUnknownLineType(byte type, int len, byte[] data) {
+		// TODO Auto-generated method stub
+		return super.onUnknownLineType(type, len, data);
+	}
 
 }

@@ -174,9 +174,15 @@ public class SaveS2 extends Pipe {
 		long reducedPrecisionTimestamp = lastTime.get(handle) + timestampDefinitions.get(handle).getNanoMultiplier() * writeReadyDiff;
 		lastTime.replace(handle, reducedPrecisionTimestamp);
 		//lastTime.replace(handle, timestamp);
-
-		
 		return pushStreamPacket(handle, timestamp, len, data);
+	}
+	
+	@Override
+	public boolean onUnknownLineType(byte type, int len, byte[] data) {
+
+		storeS.addUnknownLine(type, data);
+		
+		return super.onUnknownLineType(type, len, data);
 	}
 
 

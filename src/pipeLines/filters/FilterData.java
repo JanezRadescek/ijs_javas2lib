@@ -8,14 +8,15 @@ public class FilterData extends Pipe
 {
 	public final int S2_version = 1;
 
-	final int C = 0b1;
+	final int  C = 0b1;
 	final int SM = 0b10;
 	final int MD = 0b100;
 	final int SP = 0b1000;
+	final int UL = 0b10000;
 
 	private int dataTypes;
 	
-	private boolean deleted = false;
+	private boolean deleted = false;//if we delete datapacket with time we lose time for lines without time
 	private long lastTime = 0;
 
 	/**
@@ -105,7 +106,13 @@ public class FilterData extends Pipe
 			pushTimestamp(lastTime);
 			deleted = false;
 		}
-		return super.onUnknownLineType(type, len, data);
+		
+		if((dataTypes & UL) != 0)
+		{
+			return super.onUnknownLineType(type, len, data);
+		}
+		
+		return true;
 	}
 
 }

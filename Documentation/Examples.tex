@@ -88,7 +88,7 @@ merge two files provided in option input : \begin{lstlisting}
 
 
 \subsection{Data}
-This option filters lines. If we want to discard all coments there must be 0 in argument on 1st place from right to left. If we want to discard all special messagas there must be 0 in argument on 2nd place from right to left. If we want to discard all meta data there must be 0 in argument on 3rd place from right to left. If we want to discard all packets there must be 0 in argument on 4th place from right to left. Warning in curent version of Data filtering we do not allow discarding meta data. Whenever we delete line with time which is placed just before line without time, we put timestamp in front of line without time.
+This option filters lines. If we want to discard all coments there must be 0 in argument on 1st place from right to left. If we want to discard all special messagas there must be 0 in argument on 2nd place from right to left. If we want to discard all meta data there must be 0 in argument on 3rd place from right to left. If we want to discard all packets there must be 0 in argument on 4th place from right to left. If we want to discard all unknown lines there must be 0 in argument on 5th place from right to left. Warning in curent version of Data filtering we do not allow discarding meta data. Whenever we delete line with time which is placed just before line without time, we put timestamp in front of line without time.
 
 \noindent Requirements : 
 \begin{itemize}
@@ -101,7 +101,25 @@ Flag and arguments :
 \end{itemize}
 Discard comments and packets : 
 \begin{lstlisting} 
--fd 0110
+-fd 00110
+\end{lstlisting}
+
+
+\subsection{Number of lines}
+Limits number of Special messages to 10. Limits number of unknown lines to 10. Limits number of StreamPackets to maxStreamPackets.
+
+\noindent Requirements : 
+\begin{itemize}
+\item option input. 
+\end{itemize}
+Flag and arguments :
+\begin{itemize}
+\item[$\bullet$] -fnl
+\item[$\circ$] maxStreamPackets
+\end{itemize}
+Keep only first 7 stream packets: 
+\begin{lstlisting} 
+-fnl 7
 \end{lstlisting}
 
 

@@ -230,12 +230,18 @@ public class FilterTime extends Pipe {
 	
 	@Override
 	public boolean onUnknownLineType(byte type, int len, byte[] data) {
-		if(deleted)
+		if(!approximate || (approximate && (start<=lastRecordedTime && lastRecordedTime<end)))
 		{
-			pushTimestamp(lastRecordedTime);
-			deleted = false;
+			if(deleted)
+			{
+				pushTimestamp(lastRecordedTime);
+				deleted = false;
+			}
+			return super.onUnknownLineType(type, len, data);
 		}
-		return super.onUnknownLineType(type, len, data);
+		return true;
+		
+		
 	}
 
 }
