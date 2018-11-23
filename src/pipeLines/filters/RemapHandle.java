@@ -64,7 +64,7 @@ public class RemapHandle extends Pipe {
 		{
 			findNewRemap128(handle);
 		}
-		
+		byte hnew = remap.get(handle);//TODO debug only delete this after
 		return pushDefinition(remap.get(handle), definition);
 	}
 	
@@ -77,7 +77,7 @@ public class RemapHandle extends Pipe {
 		String elementsNew = "";
 		for(char element:definition.elementsInOrder.toCharArray())
 		{
-			elementsNew += (char)(byte)remap.getOrDefault(element, (byte) element);
+			elementsNew += (char)(byte)remap.getOrDefault((byte)element, (byte) element);
 		}
 		definition.elementsInOrder = elementsNew;
 
@@ -121,7 +121,12 @@ public class RemapHandle extends Pipe {
 	// PRIVATTE METHODS
 	
 	private void findNewRemap32(byte handle) {
-		
+		if(!reservedHandles.contains(handle))
+		{
+			reservedHandles.add(handle);
+			remap.put(handle, handle);
+			return;
+		}
 		for(byte i =0; i<32;i++)
 		{
 			if(!reservedHandles.contains(i))
@@ -137,6 +142,12 @@ public class RemapHandle extends Pipe {
 	}
 	
 	private void findNewRemap128(byte handle) {
+		if(!reservedHandles.contains(handle))
+		{
+			reservedHandles.add(handle);
+			remap.put(handle, handle);
+			return;
+		}
 		for(byte i =32; i<128;i++)
 		{
 			if(!reservedHandles.contains(i))

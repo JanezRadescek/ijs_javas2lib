@@ -24,6 +24,7 @@ import pipeLines.filters.FilterHandles;
 import pipeLines.filters.FilterSpecial;
 import pipeLines.filters.GetInfo;
 import pipeLines.filters.LimitNumberLines;
+import pipeLines.filters.RemapHandle;
 import pipeLines.filters.SaveCSV;
 import pipeLines.filters.SaveS2;
 import pipeLines.filters.SaveTXT;
@@ -62,6 +63,7 @@ public class Cli {
 	public static final String FILTER_SPECIAL = "fs";
 	public static final String FILTER_HANDLES = "fh";
 	public static final String FILTER_TIME = "ft";
+	public static final String CHANGE_HANDLE = "ch";
 	public static final String CHANGE_TIME = "ct";
 	public static final String CHANGE_DATE_TIME = "cdt";
 	public static final String PROCESS_SIGNAL = "p";
@@ -192,6 +194,9 @@ public class Cli {
 		time.setOptionalArg(true);
 		options.addOption(time);
 
+		Option changeHandles = new Option(CHANGE_HANDLE, "Give data lines and definitions, with oldHandle, newHandle.");
+		changeHandles.setArgs(2);
+		options.addOption(changeHandles);
 
 		options.addOption(CHANGE_TIME, true, "Add time in argument to all timestamps. "
 				+ "If added time is negative and its absolute value bigger than value of first time stamp, "
@@ -428,6 +433,20 @@ public class Cli {
 					return badInputArgs;
 				}
 
+			}
+			
+			if(cmd.hasOption(CHANGE_HANDLE))
+			{
+				try
+				{
+					byte handleOld = Byte.parseByte(cmd.getOptionValues(CHANGE_HANDLE)[0]);
+					byte handleNew = Byte.parseByte(cmd.getOptionValues(CHANGE_HANDLE)[1]);
+					pipeLine.add(new RemapHandle(handleOld, handleNew, errPS));
+				}catch(NumberFormatException e)
+				{
+					errPS.println("Arguments at" +CHANGE_HANDLE+ "must be byte byte");
+					return badInputArgs;
+				}
 			}
 
 			if(cmd.hasOption(CHANGE_TIME))
