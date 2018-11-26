@@ -120,7 +120,7 @@ public class CliTest {
 		Cli.start(new String[]{"-"+Cli.INPUT, inDirName, "-"+Cli.FILTER_TIME, Double.toString(tail*1E-9), "1", "false",
 				"-"+Cli.OUTPUT, outDir +File.separator+ "tail"+tail+".s2"});
 		//Order of head/tail is deliberatly reversed.
-		Cli.start(new String[]{"-"+Cli.MEARGE, "true", "-"+Cli.INPUT, outDir +File.separator+ "tail"+tail+".s2",
+		Cli.start(new String[]{"-"+Cli.MERGE, "true", "-"+Cli.INPUT, outDir +File.separator+ "tail"+tail+".s2",
 				outDir +File.separator+ "head"+head+".s2",
 				"-"+Cli.OUTPUT, outDir +File.separator+ "cutedMiddle.csv"});
 
@@ -152,7 +152,7 @@ public class CliTest {
 
 		//reverse order            2,1
 
-		Cli.start(new String[]{"-"+Cli.MEARGE, "true", "-"+Cli.INPUT, outDir +File.separator+ "izrezek2_"+cutTime+".s2",
+		Cli.start(new String[]{"-"+Cli.MERGE, "true", "-"+Cli.INPUT, outDir +File.separator+ "izrezek2_"+cutTime+".s2",
 				outDir +File.separator+ "izrezek1_"+cutTime+".s2",
 				"-"+Cli.OUTPUT, outDir +File.separator+ "IzpisSestavljeneR"+cutTime+".csv"});
 

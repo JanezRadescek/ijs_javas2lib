@@ -7,6 +7,9 @@ UnitTests/
 src/donkey/
 Original/
 Matlab/*
+lib/
+out/
+s2Output/
 
 #extensions
 *.class
@@ -30,6 +33,10 @@ src/cli/CliDonkey.java
 !UnitInput/cutted.txt
 !UnitInput/cutted.s2
 !Matlab/analyzeOne.m
+
+#MISC
 *.png
 *.jpg
 WEB/Examples.pdf
+./s2Output/
+debug*

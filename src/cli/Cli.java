@@ -47,13 +47,13 @@ public class Cli {
 	private static final int fileError = 2;
 	private static final int badInputArgs = 3;
 
-	//special it doesnt run filters
+	//special it doesn't run filters
 
 	public static final String HELP = "help";
 	public static final String VERSION = "version";
 
 	public static final String INPUT = "i";
-	public static final String MEARGE = "m";
+	public static final String MERGE = "m";
 	public static final String FILTER_DATA = "fd";
 	
 	//TODO make documentation for filternumberlines
@@ -149,13 +149,13 @@ public class Cli {
 		options.addOption(input);
 
 
-		options.addOption(MEARGE, true, "Combines two S2 files in one S2 file. Needs flag '-i' with two inputs. Combining with other filters has undefined behavior!  Has mandatory argument."
+		options.addOption(MERGE, true, "Combines two S2 files in one S2 file. Needs flag '-i' with two inputs. Combining with other filters has undefined behavior!  Has mandatory argument."
 				+ " If true streams with same handles will be merged,"
 				+ " else streams from second file will get new one where needed.\nArguments:\n"
 				+ "-Boolean mergingHandles");
 
 
-		Option dataTypes = new Option(FILTER_DATA,true, "Filters datatype. Argument must be a number in binary form"+
+		Option dataTypes = new Option(FILTER_DATA,true, "Filters by data type. Argument must be a number in binary form: "+
 				"@@@@1=keeps comments, @@@1@=keeps Special, @@1@@=keeps meta, @1@@@=keeps data streams, 1@@@@=keeps unknown lines."
 				+ "\nArguments:\n"
 				+ "Byte data [Byte]");
@@ -168,8 +168,8 @@ public class Cli {
 				+ "-String regex");
 
 
-		Option special = new Option(Cli.FILTER_SPECIAL, "Filters special messages. Who and What must be equal to their respective values in SP to get throught."
-				+ " Masegge must suit regex provided in argument to get throught.\nArguments:\n"
+		Option special = new Option(Cli.FILTER_SPECIAL, "Filters special messages. Who and What must be equal to their respective values in SP to get through."
+				+ " Massage must suit regex provided in argument to get through.\nArguments:\n"
 				+ "-Who [char]"
 				+ "-What [char]"
 				+ "-regex for message [String]");
@@ -185,7 +185,7 @@ public class Cli {
 
 
 		Option time = new Option(FILTER_TIME, "Filters time. Data on interval [End, start) will be keep, the rest will be deleted. If third optional argument is true we approximate "
-				+ "comments and speciall messages with last previous time and therefore delete them if outside interval."
+				+ "comments and special messages with last previous time and therefore delete them if outside interval."
 				+ "\nArguments:\n"
 				+ "-start in s [double]"
 				+ "-end in s [double]"
@@ -237,8 +237,8 @@ public class Cli {
 				+ "-normal delay in s [double]\n"
 				+ "-big delay chance [0..1] \n"		// when pause occurs machine will be saving packets normaly but android will get in transmission (packets are not only delayed, they are missing)
 				+ "-big delay in s [double] \n"
-				+ "-number of disconects (disconects are scattered randomly across whole S2 file. "
-				+ 		"When disconect ocurs machine stops recoding and resets counters. Consequently android doesnt get any packets \n"
+				+ "-number of disconnects (disconnects are scattered randomly across whole S2 file. "
+				+ 		"When disconnect occurs machine stops recoding and resets counters. Consequently android doesn't get any packets \n"
 				+ "-index of stuck bit. LITTLE_ENDIAN. Negative value will not change any index. \n"
 				+ "-value of stuck bit");
 		generate2.setArgs(10);
@@ -246,7 +246,7 @@ public class Cli {
 
 		Option generate3 = new Option(GENERATE_FROM_FILE,"Generates S2 PCARD based on 'numbers' in files from arguments.\nArguments:\n"
 				+ "-input directory of Frequencies file \n"
-				+ "-input directory of Disconects file \n"
+				+ "-input directory of Disconnects file \n"
 				+ "-input directory of Pauses file \n"
 				+ "-input directory of Delays file \n");
 		generate3.setArgs(4);
@@ -297,7 +297,6 @@ public class Cli {
 
 		//********************************           PARSANJE   ARGUMENTOV                 ********************************
 
-
 		//brez vhodne ne moremo delati nekaterih
 		if(cmd.hasOption(INPUT))
 		{
@@ -320,8 +319,11 @@ public class Cli {
 				return badInputArgs;
 			}
 			file1 = new S2();
-			loadS1 = file1.load(inDirectory1);
+            loadS1 = file1.load(inDirectory1);
 
+            // path of the source file (when performing filtering or other file modification, output file should hold a reference to the original (source) file for easier bookkeeping)
+            final String sourceFilePath = inDirectory1.getPath();
+            final String commandLine = "Cli "+String.join(" ", args);
 
 			//******************************************************************
 			//******************************************************************
@@ -331,7 +333,7 @@ public class Cli {
 
 
 
-			if(cmd.hasOption(MEARGE))
+			if(cmd.hasOption(MERGE))
 			{
 				try
 				{
@@ -341,7 +343,7 @@ public class Cli {
 						errPS.println("Input file does not exist.");
 						return badInputArgs;
 					}
-					boolean newHandles = Boolean.parseBoolean(cmd.getOptionValue(MEARGE));
+					boolean newHandles = Boolean.parseBoolean(cmd.getOptionValue(MERGE));
 					file2 = new S2();
 					loadS2 = file2.load(inDirectory2.getParentFile(), inDirectory2.getName());
 					Pipe pipeP = new Pipe(); 
@@ -356,7 +358,7 @@ public class Cli {
 				}
 				catch(Exception r)
 				{
-					errPS.println("Option "+Cli.INPUT+" needs directory and name of second input file for "+Cli.MEARGE+". TERMINATE");
+					errPS.println("Option "+Cli.INPUT+" needs directory and name of second input file for "+Cli.MERGE +". TERMINATE");
 					return badInputArgs;
 				}
 			}
@@ -485,6 +487,24 @@ public class Cli {
 				pipeLine.add(filter);
 			}
 
+			pipeLine.add(new Pipe(){
+                @Override
+                public boolean onVersion(int versionInt, String version) {
+                    // process version normally
+                    super.onVersion(versionInt, version);
+                    // now add own data
+
+                    // store source file path here (if it was ever set up)
+                    // TODO: check that path is less than 253 characters long
+                    if (!sourceFilePath.equals(""))
+                        onMetadata("source file path", sourceFilePath);
+                    // TODO: check that commandLine is less than 253 characters long or split into multiple keys
+                    onMetadata("commandline origin", commandLine);
+
+                    return true;
+                }
+            });
+
 			if(cmd.hasOption(OUTPUT))
 			{
 				Pipe filterSave;
@@ -525,14 +545,17 @@ public class Cli {
 					{
 					case "txt": filterSave = new SaveTXT(outDir, errPS);break;
 					case "csv": filterSave = new SaveCSV(outDir, errPS);break;
-					case "s2":  filterSave = new SaveS2(outDir, errPS);break;
+					case "s2": {
+						SaveS2 saveFilter = new SaveS2(outDir, errPS);
+						filterSave = saveFilter;
+						break;
+					}
 					default: errPS.println("Wrong extension of output file name");return badInputArgs;
 					}
 				}
 
 				pipeLine.add(filterSave);
 			}
-
 
 			//***************************************          COMBINING           **************************
 			//***************************************          EXECUTING           **************************
