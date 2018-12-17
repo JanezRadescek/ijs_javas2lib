@@ -194,7 +194,10 @@ public class Cli {
 		time.setOptionalArg(true);
 		options.addOption(time);
 
-		Option changeHandles = new Option(CHANGE_HANDLE, "Give data lines and definitions, with oldHandle, newHandle.");
+		Option changeHandles = new Option(CHANGE_HANDLE, "Give data lines and definitions, with oldHandle, newHandle."
+				+ "\nArguments:\n"
+				+ "-oldHandle"
+				+ "-newHandle");
 		changeHandles.setArgs(2);
 		options.addOption(changeHandles);
 
@@ -310,7 +313,7 @@ public class Cli {
 				inDirectory1 = new File(cmd.getOptionValues(INPUT)[0]);
 				if(!inDirectory1.exists())
 				{
-					errPS.println("Input file does not exist.");
+					errPS.println("Input file does not exist. Input directory was : " + inDirectory1);
 					return badInputArgs;
 				}
 			}catch(Exception e)
