@@ -1,6 +1,6 @@
 #DISCARD
 #maps
-bin/
+#bin/
 commons-cli-1.4/
 commons-io-2.6/
 UnitTests/
@@ -12,7 +12,7 @@ out/
 s2Output/
 
 #extensions
-*.class
+#*.class
 *.s2
 *.csv
 *.zip
