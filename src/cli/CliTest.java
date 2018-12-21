@@ -71,7 +71,7 @@ public class CliTest {
 		new File(outDir).mkdir();
 		// note that 'inDir' should already be present or everything will fail
 	}
-	
+
 	@Before
 	public void beforeTest()
 	{
@@ -88,7 +88,7 @@ public class CliTest {
 
 	//***********************            TEST CLI FUNCTIONALITIS                    *******************************
 
-	
+
 	@Test
 	public void buildTest()
 	{
@@ -120,7 +120,7 @@ public class CliTest {
 		Cli.start(new String[]{"-"+Cli.INPUT, inDirName, "-"+Cli.FILTER_TIME, Double.toString(tail*1E-9), "1", "false",
 				"-"+Cli.OUTPUT, outDir +File.separator+ "tail"+tail+".s2"});
 		//Order of head/tail is deliberatly reversed.
-		Cli.start(new String[]{"-"+Cli.MERGE, "true", "-"+Cli.INPUT, outDir +File.separator+ "tail"+tail+".s2",
+		Cli.start(new String[]{"-"+Cli.MERGE, "false", "-"+Cli.INPUT, outDir +File.separator+ "tail"+tail+".s2",
 				outDir +File.separator+ "head"+head+".s2",
 				"-"+Cli.OUTPUT, outDir +File.separator+ "cutedMiddle.csv"});
 
@@ -152,7 +152,7 @@ public class CliTest {
 
 		//reverse order            2,1
 
-		Cli.start(new String[]{"-"+Cli.MERGE, "true", "-"+Cli.INPUT, outDir +File.separator+ "izrezek2_"+cutTime+".s2",
+		Cli.start(new String[]{"-"+Cli.MERGE, "false", "-"+Cli.INPUT, outDir +File.separator+ "izrezek2_"+cutTime+".s2",
 				outDir +File.separator+ "izrezek1_"+cutTime+".s2",
 				"-"+Cli.OUTPUT, outDir +File.separator+ "IzpisSestavljeneR"+cutTime+".csv"});
 
@@ -166,30 +166,60 @@ public class CliTest {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 	@Test
 	public void filterDataTest()
 	{
 		Cli.start(new String[] {"-"+Cli.INPUT, inDirName, "-"+Cli.FILTER_DATA, "1111", "-"+Cli.OUTPUT, outDir +File.separator+ "FilteredData.txt" });
-		
-		File corect = new File(inDir + File.separator + inTXT);
-		File testing = new File(outDir + File.separator + "FilteredData.txt");
+
 		try {
-			boolean isTwoEqual = FileUtils.contentEquals(corect, testing);
+			boolean isTwoEqual = true;
+			BufferedReader reader1 = new BufferedReader(new FileReader(inDir + File.separator + inTXT));
+			BufferedReader reader2 = new BufferedReader(new FileReader(outDir + File.separator + "FilteredData.txt"));
+
+			String line1 = reader1.readLine();
+			String line2 = reader2.readLine();
+			while(line1 != null || line2 != null)
+			{
+				if(line1.equals(line2))
+				{
+
+				}
+				else if(line1.toLowerCase().contains("Metadata : key=commandline origin".toLowerCase()) &&
+						line2.toLowerCase().contains("Metadata : key=commandline origin".toLowerCase()))
+				{
+
+				}
+				else
+				{
+					isTwoEqual = false;
+					break;
+				}
+
+				line1 = reader1.readLine();
+				line2 = reader2.readLine();
+			}
+
+			reader1.close();
+			reader2.close();
+
 			assertTrue("Testing filtering data ", isTwoEqual);
+
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 	@Test
 	public void filterCommentsTest()
 	{
 		Cli.start(new String[] {"-"+Cli.INPUT, inDirName, "-"+Cli.FILTER_COMMENTS, "Te.*", "-"+Cli.STATISTIKA, outDir +File.separator+ "FilteredComments1.txt" });
 		Cli.start(new String[] {"-"+Cli.INPUT, inDirName, "-"+Cli.FILTER_COMMENTS, "TeS.*", "-"+Cli.STATISTIKA, outDir +File.separator+ "FilteredComments2.txt" });
-		
+
 		File correct = new File(inDir + File.separator + inINFO);
 		File testing1 = new File(outDir + File.separator + "FilteredComments1.txt");
 
@@ -201,7 +231,7 @@ public class CliTest {
 		{
 			e.printStackTrace();
 		}
-		
+
 		BufferedReader bf;
 		try {
 			bf = new BufferedReader(new FileReader(outDir + File.separator + "FilteredComments2.txt"));
@@ -219,20 +249,20 @@ public class CliTest {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 	@Test
 	public void filterSpecialTest()
 	{
 		//TODO this
 	}
-	
-	
+
+
 	@Test
 	public void filterHandlesTest()
 	{
 		Cli.start(new String[] {"-"+Cli.INPUT, inDirName, "-"+Cli.FILTER_HANDLES, "001", "-"+Cli.STATISTIKA, outDir +File.separator+ "Filtered.txt" });
-	
+
 		BufferedReader bf;
 		try {
 			bf = new BufferedReader(new FileReader(outDir + File.separator + "Filtered.txt"));
@@ -252,15 +282,15 @@ public class CliTest {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 	@Test
 	public void filterTimeTest()
 	{
 		//testeed in singleton
 	}
-	
-	
+
+
 	@Test
 	public void testChangeTimeStamps()
 	{
@@ -279,14 +309,14 @@ public class CliTest {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 	@Test
 	public void testChangeDateTime()
 	{
 		String ime = "changedDateTime.txt";
 		Cli.start(new String[] {"-"+Cli.INPUT, inDirName, "-"+Cli.CHANGE_DATE_TIME, "2018-01-01T10:30:10.554+0100", "-"+Cli.OUTPUT, outDir +File.separator+ ime});
-		
+
 		BufferedReader bf;
 		try {
 			bf = new BufferedReader(new FileReader(outDir + File.separator + ime));
@@ -299,10 +329,10 @@ public class CliTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
-	
+
+
 	@Test
 	public void SignalTest2()
 	{
@@ -314,13 +344,13 @@ public class CliTest {
 		//String out2 = outDir +File.separator+ ime2;
 		Cli.start(new String[]{"-"+Cli.PROCESS_SIGNAL, "-"+Cli.INPUT, inDirName, "-"+Cli.OUTPUT, out1});
 		assertTrue("Testing processing ",new File(out1).exists());
-		
+
 		//Cli.start(new String[]{"-p", "-i", inDirNameSignal2, "-o", out2, "-t", "0","3600"});
 
 		//assertTrue("je blizu ? : ",R <=1.5*metrikaR);
 		//assertTrue("je boljše ? : ",R <=metrikaR);
 	}
-	
+
 
 	@Test
 	public void StatisticsTest()
@@ -344,20 +374,47 @@ public class CliTest {
 	{
 		Cli.start(new String[]{"-"+Cli.INPUT, inDirName, "-"+Cli.OUTPUT, outDir + File.separator + "IzpisOriginala.txt"});
 
-		File correct = new File(inDir + File.separator + inTXT);
-		File testing = new File(outDir + File.separator + "IzpisOriginala.txt");
+		try {
+			boolean isTwoEqual = true;
+			BufferedReader reader1 = new BufferedReader(new FileReader(inDir + File.separator + inTXT));
+			BufferedReader reader2 = new BufferedReader(new FileReader(outDir + File.separator + "IzpisOriginala.txt"));
 
-		try 
-		{
-			boolean isTwoEqual = FileUtils.contentEquals(correct, testing);
-			assertTrue("testiranje izpisa TXT",isTwoEqual);		
-		} catch (IOException e) 
-		{
+			String line1 = reader1.readLine();
+			String line2 = reader2.readLine();
+			while(line1 != null || line2 != null)
+			{
+				if(line1.equals(line2))
+				{
+
+				}
+				else if(line1.toLowerCase().contains("Metadata : key=commandline origin".toLowerCase()) &&
+						line2.toLowerCase().contains("Metadata : key=commandline origin".toLowerCase()))
+				{
+
+				}
+				else
+				{
+					isTwoEqual = false;
+					break;
+				}
+
+				line1 = reader1.readLine();
+				line2 = reader2.readLine();
+			}
+
+			reader1.close();
+			reader2.close();
+
+			assertTrue("Testing filtering data ", isTwoEqual);
+
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	
+
 	@Test
 	public void OutCSVTest()
 	{
@@ -376,7 +433,7 @@ public class CliTest {
 		}
 	}
 
-	
+
 	@Test
 	public void outS2Test()
 	{
@@ -422,12 +479,12 @@ public class CliTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	public int checkSingleton(long cutTime)
 	{
-		
+
 		String nameCSV = "Singleton" + cutTime +".csv";
 		Cli.start(new String[]{"-"+Cli.INPUT, inDirName, "-"+Cli.OUTPUT, outDir +File.separator+ nameCSV,
 				"-"+Cli.FILTER_TIME, Double.toString(cutTime*1E-9),Double.toString((cutTime+1)*1E-9), "true"});
@@ -469,7 +526,7 @@ public class CliTest {
 		}
 
 	}
-	
+
 
 	@Test
 	public void testGenerator2()
@@ -481,8 +538,8 @@ public class CliTest {
 		assertTrue("generating random S2 PCARD", new File(outDir +File.separator+ "generatedRan.s2").exists());
 
 	}
-	
-	
+
+
 	//@Test
 	public void testGenerator3()
 	{

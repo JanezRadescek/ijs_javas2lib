@@ -1,14 +1,21 @@
 package cli;
 
-import java.lang.Exception;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import org.apache.commons.cli.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.UnrecognizedOptionException;
 
 import filtersOld.FilterProcessSignal;
 import generatorS2.Generator2;
@@ -22,13 +29,13 @@ import pipeLines.filters.FilterComments;
 import pipeLines.filters.FilterData;
 import pipeLines.filters.FilterHandles;
 import pipeLines.filters.FilterSpecial;
+import pipeLines.filters.FilterTime;
 import pipeLines.filters.GetInfo;
 import pipeLines.filters.LimitNumberLines;
 import pipeLines.filters.RemapHandle;
 import pipeLines.filters.SaveCSV;
 import pipeLines.filters.SaveS2;
 import pipeLines.filters.SaveTXT;
-import pipeLines.filters.FilterTime;
 import si.ijs.e6.S2;
 
 /**
@@ -82,7 +89,7 @@ public class Cli {
 		int code;
 		try 
 		{
-			code = start(args);
+			code = start(args, System.out);
 		}
 		catch(Exception e)
 		{
