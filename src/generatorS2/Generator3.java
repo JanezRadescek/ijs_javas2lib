@@ -64,7 +64,7 @@ public class Generator3 {
 			while((s = brF.readLine()) != null)
 			{
 				String[] ss = s.split(",");
-				freqTime.add(Long.parseLong(ss[0]));
+				freqTime.add(Long.parseLong(ss[0].trim()));
 				freq.add(Float.parseFloat(ss[1]));
 			}
 			brF.close();
@@ -77,8 +77,8 @@ public class Generator3 {
 			while((s = brDi.readLine()) != null)
 			{
 				String[] ss = s.split(",");
-				disc.add(Long.parseLong(ss[0]));
-				disc.add(Long.parseLong(ss[1]));
+				disc.add(Long.parseLong(ss[0].trim()));
+				disc.add(Long.parseLong(ss[1].trim()));
 			}
 			brDi.close();
 
@@ -86,8 +86,8 @@ public class Generator3 {
 			while((s = brP.readLine()) != null)
 			{
 				String[] ss = s.split(",");
-				paus.add(Long.parseLong(ss[0]));
-				paus.add(Long.parseLong(ss[1]));
+				paus.add(Long.parseLong(ss[0].trim()));
+				paus.add(Long.parseLong(ss[1].trim()));
 			}
 			brP.close();
 
