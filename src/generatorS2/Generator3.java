@@ -47,14 +47,14 @@ public class Generator3 {
 	/**
 	 * @param outDir directory of new file S2 file.
 	 * @param errPS PrintStream for errors.
-	 * @param start start in ns. [normal use 10^10 = 10s]
-	 * @param end end of measurement in ns. [normal use 60*60*10^9 = 1hour].
+	 * @param start start in s. [normal use 10s]
+	 * @param end end of measurement in s. [normal use 60*60 = 1hour].
 	 * @param frequencies directory of file with frequencies.
 	 * @param disconects directory of file with disconects.
 	 * @param pauses directory of file with pauses.
 	 * @param delays directory of file with delays.
 	 */
-	public Generator3(String outDir, PrintStream errPS, long start, long end, String frequencies, String disconects, String pauses, String delays)
+	public Generator3(String outDir, PrintStream errPS, double start, double end, String frequencies, String disconects, String pauses, String delays)
 	{
 		this.errPS = errPS;
 		
@@ -64,7 +64,7 @@ public class Generator3 {
 			while((s = brF.readLine()) != null)
 			{
 				String[] ss = s.split(",");
-				freqTime.add(Long.parseLong(ss[0].trim()));
+				freqTime.add((long) (Double.parseDouble(ss[0].trim())*1e9));
 				freq.add(Float.parseFloat(ss[1]));
 			}
 			brF.close();
@@ -77,8 +77,8 @@ public class Generator3 {
 			while((s = brDi.readLine()) != null)
 			{
 				String[] ss = s.split(",");
-				disc.add(Long.parseLong(ss[0].trim()));
-				disc.add(Long.parseLong(ss[1].trim()));
+				disc.add((long) (Double.parseDouble(ss[0].trim())*1e9));
+				disc.add((long) (Double.parseDouble(ss[1].trim())*1e9));
 			}
 			brDi.close();
 
@@ -86,15 +86,15 @@ public class Generator3 {
 			while((s = brP.readLine()) != null)
 			{
 				String[] ss = s.split(",");
-				paus.add(Long.parseLong(ss[0].trim()));
-				paus.add(Long.parseLong(ss[1].trim()));
+				paus.add((long) (Double.parseDouble(ss[0].trim())*1e9));
+				paus.add((long) (Double.parseDouble(ss[1].trim())*1e9));
 			}
 			brP.close();
 
 			BufferedReader brDe = new BufferedReader(new FileReader(delays));
 			while((s = brDe.readLine()) != null)
 			{
-				dela.add(Long.parseLong(s));
+				dela.add((long) (Double.parseDouble(s)*1e9));
 			}
 			brDe.close();
 
@@ -142,9 +142,11 @@ public class Generator3 {
 
 
 
-		curentTonMashine = start;
+		curentTonMashine = (long) (start*1e9);
 
-		while(curentTonMashine < end)
+		long endInNS = (long) (end * 1e9);//from s to ns
+		
+		while(curentTonMashine < endInNS)
 		{
 			calculateFrequency();
 			if(curentF > 0)

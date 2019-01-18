@@ -6,19 +6,19 @@ import pipeLines.Pipe;
 
 public class ChangeTimeStamps extends Pipe {
 	
-	long delay = 0;
+	long delay = 0; //in ns
 	long delayChange = 0;
 	boolean first = true;
 	
 	/**
 	 * adds delay to all timestamps
-	 * @param delay delay in ns
+	 * @param delay delay in s
 	 * @param errPS PrintStream for errors
 	 */
-	public ChangeTimeStamps(long delay, PrintStream errPS)
+	public ChangeTimeStamps(double delay, PrintStream errPS)
 	{
 		this.errPS = errPS;
-		this.delay = delay;
+		this.delay = (long) (delay*1e9);
 	}
 	
 	@Override

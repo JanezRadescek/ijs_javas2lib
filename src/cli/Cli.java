@@ -211,7 +211,7 @@ public class Cli {
 		options.addOption(CHANGE_TIME, true, "Add time in argument to all timestamps. "
 				+ "If added time is negative and its absolute value bigger than value of first time stamp, "
 				+ "added time will be set to -first time, resulting in new first time stamp being 0.\nArguments:\n"
-				+ "-Long delay[ns]");
+				+ "-Double delay[s]");
 
 
 		options.addOption(CHANGE_DATE_TIME, true, "Change date in meta into new one. Timestamps are relative to date in meta"
@@ -428,8 +428,8 @@ public class Cli {
 			{
 				boolean approximate = true;
 				try{
-					long a = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[0])* 1E9);
-					long b = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[1])* 1E9);
+					double a = Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[0]);
+					double b = Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[1]);
 					if(cmd.getOptionValues(FILTER_TIME).length == 3)
 					{
 						approximate = Boolean.parseBoolean(cmd.getOptionValues(FILTER_TIME)[2]);
@@ -463,7 +463,7 @@ public class Cli {
 
 			if(cmd.hasOption(CHANGE_TIME))
 			{
-				long delay = Long.parseLong(cmd.getOptionValue(CHANGE_TIME));
+				double delay = Double.parseDouble(cmd.getOptionValue(CHANGE_TIME));
 				ChangeTimeStamps cts = new ChangeTimeStamps(delay, errPS);
 
 				pipeLine.add(cts);
@@ -613,22 +613,22 @@ public class Cli {
 					return badInputArgs;
 				}				
 
-				long a = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[0])* 1E9);
-				long b = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[1])* 1E9);
+				double a = Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[0]);
+				double b = Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[1]);
 
 				String[] tem = cmd.getOptionValues(GENERATE_RANDOM);
 				long seed = Long.parseLong(tem[0]);
 				float frequency = Float.parseFloat(tem[1]);
 				float frequencyChange = Float.parseFloat(tem[2]);
 				float percentageMissing = Float.parseFloat(tem[3]);
-				long normalDelay = (long) (Double.parseDouble(tem[4])*1E9);
+				double normalDelay = Double.parseDouble(tem[4]);
 				if(normalDelay < 0)
 				{
 					errPS.println("Normal delay must be bigger or equal to 0.");
 					return badInputArgs;
 				}
 				float bigDelayChance = Float.parseFloat(tem[5]);
-				Long bigDelay = (long) (Double.parseDouble(tem[6])*1E9);
+				double bigDelay = Double.parseDouble(tem[6]);
 				int numDisconects = Integer.parseInt(tem[7]);
 				int indexSB = Integer.parseInt(tem[8]);
 				int valueSB = Integer.parseInt(tem[9]);
@@ -663,8 +663,8 @@ public class Cli {
 
 				//
 
-				long start = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[0])* 1E9);
-				long end = (long)(Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[1])* 1E9);
+				double start = Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[0]);
+				double end = Double.parseDouble(cmd.getOptionValues(FILTER_TIME)[1]);
 
 				String[] tem = cmd.getOptionValues(GENERATE_FROM_FILE);
 				if(! new File(tem[0]).exists())

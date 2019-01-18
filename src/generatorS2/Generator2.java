@@ -14,6 +14,8 @@ import static java.lang.Math.floor;
 
 public class Generator2 {
 
+	long startNS;
+	long endNS;
 	double frequency;
 	double frequencyChange;
 	int frequencyRamp = 0;
@@ -49,21 +51,21 @@ public class Generator2 {
 	 * @param outDir directory of new file S2 file.
 	 * @param errPS	PrintStream for errors.
 	 * @param seed seed for random generator.
-	 * @param start start in ns. [normal use 10^10 = 10s]
-	 * @param end end of measurement in ns. [normal use 60*60*10^9 = 1hour].
+	 * @param startNS start in s. [normal use 10^10 = 10s]
+	 * @param endNS end of measurement in s. [normal use 60*60*10^9 = 1hour].
 	 * @param frequency frequency of EKG device in Hz. [PCARD has around 128].
 	 * @param frequencyChange factor of how much can frequency frequencyRamp. [?normal? use 0.1].
 	 * @param percentageMissing Aproximate factor of missing packets. This number is used to calculate number of pauses(machine still save the data but not android).[for ?good? S2 use 0.01 for ?bad? use 0.1].
-	 * @param normalDelay maximal delay of packets in ns [?reasonable? value is around (1/ @param frequency /10) * 10^9].
+	 * @param normalDelay maximal delay of packets in s [?reasonable? value is around (1/ @param frequency /10)].
 	 * @param bigDelayChance chance for big delay, meaning machine works on. Android doesnt get any packets till the end of big delay.
 	 * 				After that it gets them all in burst. They come in same order they would if not delayed [?reasonable? value is 0.01].
-	 * @param bigDelay big delay in ns will be added to delay that would come from @param normalDelay [reasonable value is 10*normalDelay].
+	 * @param bigDelay big delay in s will be added to delay that would come from @param normalDelay [reasonable value is 10*normalDelay].
 	 * @param numDisconects number of disconects that will ocure in file. Machine stops recording packages for some random time. consequently android also doesnt get them.
 	 * @param stuckBit index of stuck bit. In every sample stuck bit will have selecected value of valueSB. LITTLE_ENDIAN indexation. Negative value means dont change it
 	 * @param valueSB value of stuck bit.
 	 */
-	public Generator2(String outDir, PrintStream errPS, long start, long end, long seed, float frequency, float frequencyChange, float percentageMissing,
-			long normalDelay, float bigDelayChance, long bigDelay, int numDisconects, int stuckBit, int valueSB) 
+	public Generator2(String outDir, PrintStream errPS, double start, double end, long seed, float frequency, float frequencyChange, float percentageMissing,
+			double normalDelay, float bigDelayChance, double bigDelay, int numDisconects, int stuckBit, int valueSB) 
 	{
 		//*************************************                  CHECK IF INPUT IS OK
 		
@@ -105,13 +107,15 @@ public class Generator2 {
 		
 		//*************************************                  SAVE PARAMETERS
 		
+		this.startNS = (long) (start*1e9);
+		this.endNS = (long) (end*1e9);
 		this.frequency = frequency;
 		this.currentF = frequency;
 		this.frequencyChange = frequencyChange;
 		this.percentageMissing = percentageMissing;
-		this.normalDelay = normalDelay;
+		this.normalDelay = (long) (normalDelay*1e9);//convert from ns to s;
 		this.bigDelayChance = bigDelayChance;
-		this.bigDelay = bigDelay;
+		this.bigDelay = (long) (bigDelay*1e9);//convert from s to ns
 		this.disconnectIntervals = new long[2*numDisconects];
 		this.indexSB = stuckBit;
 		this.valueSB = valueSB;
@@ -142,7 +146,7 @@ public class Generator2 {
 		ss2A.onDefinition((byte)0, new S2.TimestampDefinition(S2.AbsoluteId.abs_relative, (byte)3, 1E-6));
 		ss2A.onComment("1. comment. Original location after definitions");
 		ss2A.onComment("Command line for generating this file using Cli was '-"+Cli.GENERATE_RANDOM+" "+seed+" "+frequency+" "+frequencyChange+" "
-				+percentageMissing+" "+normalDelay/1E9+" "+bigDelayChance+" "+bigDelay/1E9+" "+numDisconects+" -"+Cli.FILTER_TIME+" "+start/1E9+" "+end/1E9
+				+percentageMissing+" "+normalDelay/1E9+" "+bigDelayChance+" "+bigDelay/1E9+" "+numDisconects+" -"+Cli.FILTER_TIME+" "+start+" "+end
 				+" -"+Cli.OUTPUT+" "+outDir+"'.");
 		
 		//*************************************                 RANDOM
@@ -173,11 +177,11 @@ public class Generator2 {
 
 		//************************************                  STARTING POINT
 
-		currentTonMachine = start;
+		currentTonMachine = startNS;
 		for(int i=0;i<numDisconects;i++)
 		{
             // start of the disconnect: random positive long lower than 'end'
-			disconnectIntervals[2*i] = (rDisc.nextLong() & Long.MAX_VALUE) % end;
+			disconnectIntervals[2*i] = (rDisc.nextLong() & Long.MAX_VALUE) % endNS;
             // end of the disconnect: start + 1 second + random 0.000..59.000 seconds
 			disconnectIntervals[2*i+1] =  (long) (disconnectIntervals[2*i] + 1E9 + rDisc.nextInt(59000)*1000000L);
 		}
@@ -185,7 +189,7 @@ public class Generator2 {
 		//************************************                 FILING STREAMLINES
 
         long firstAndroidTime = -1;
-		while(currentTonMachine < end)
+		while(currentTonMachine < endNS)
 		{
 			if (frequencyChange > 0) {
 				if (calculateFrequency())
@@ -194,7 +198,7 @@ public class Generator2 {
                     ss2A.onComment("Frequency is "+currentF);
 				currentTonMachine += 14e9 / currentF;
 			} else {
-				currentTonMachine =  start + (long) (cycle * 14e9/frequency);
+				currentTonMachine =  startNS + (long) (cycle * 14e9/frequency);
 			}
 			
             // check if disconnect is 'scheduled' and if it is, get the time of reconnect
@@ -206,7 +210,7 @@ public class Generator2 {
 				currentC = 0;
                 currentTonMachine = timeAfterDisconnect;
                 // advance 'cycle' to the time just prior to reconnect
-                cycle = (int)floor((timeAfterDisconnect - start)*frequency/14*1e-9);
+                cycle = (int)floor((timeAfterDisconnect - startNS)*frequency/14*1e-9);
             } else {
 				currentC += 14;
 				//*******************           SAVING ON MACHINE
