@@ -295,7 +295,7 @@ public class CliTest {
 	public void testChangeTimeStamps()
 	{
 		String tem = "zamaknjeniTimestamps";
-		Cli.start(new String[]{"-"+Cli.CHANGE_TIME, "10", "-"+Cli.INPUT, inDirName, "-"+Cli.OUTPUT, outDir +File.separator+ tem+".csv"});
+		Cli.start(new String[]{"-"+Cli.CHANGE_TIME, "0.00000001", "-"+Cli.INPUT, inDirName, "-"+Cli.OUTPUT, outDir +File.separator+ tem+".csv"});
 
 
 		File correct = new File(inDir + File.separator + inDelayed);
@@ -320,12 +320,18 @@ public class CliTest {
 		BufferedReader bf;
 		try {
 			bf = new BufferedReader(new FileReader(outDir + File.separator + ime));
-			while(!bf.readLine().contains("Timestamp : time=1000015"))
+			String line = "";
+			boolean result = false;
+			while((line = bf.readLine()) != null)
 			{
-
+				if(line.contains("Timestamp : time=1000015"))
+				{
+					result = true;
+					break;
+				}
 			}
-			assertTrue("Testing changing dateTime",bf.readLine().contains("Stream Packet : handle=0, timestamp=1000016, bytes=[1, 2]"));
 			bf.close();
+			assertTrue("Testing changing dateTime",result);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
