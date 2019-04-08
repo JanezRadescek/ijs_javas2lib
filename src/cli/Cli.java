@@ -49,6 +49,8 @@ public class Cli {
 	
 	private static final int CLI_VERSION = 1;
 
+	//exit codes
+	
 	private static final int good = 0;
 	private static final int unknown = 1;
 	private static final int fileError = 2;
@@ -302,8 +304,6 @@ public class Cli {
 		{
 			outPS.println(CLI_VERSION);
 		}
-
-
 
 		//********************************           PARSANJE   ARGUMENTOV                 ********************************
 
