@@ -30,7 +30,7 @@ public class SaveS2 extends Pipe {
 
 	/**
 	 * @param outDir directory AND name of new S2 file in which we will save
-	 * @param errPS printstrem for errors
+	 * @param errPS {@link PrintStream} for errors
 	 */
 	public SaveS2(String outDir, PrintStream errPS)
 	{
@@ -57,6 +57,14 @@ public class SaveS2 extends Pipe {
 
 	@Override
 	public boolean onComment(String comment) {
+		if (!lastTimestampWriten)
+		{
+			storeS.addTimestamp(new Nanoseconds(lastTimestamp));
+			lastTimestampWriten = true;
+			for(byte t:lastTime.keySet())
+				lastTime.replace(t, lastTimestamp);
+		}
+		
 		storeS.addTextMessage(comment);
 		
 		return pushComment(comment);
@@ -64,6 +72,14 @@ public class SaveS2 extends Pipe {
 
 	@Override
 	public boolean onSpecialMessage(char who, char what, String message) {
+		if (!lastTimestampWriten)
+		{
+			storeS.addTimestamp(new Nanoseconds(lastTimestamp));
+			lastTimestampWriten = true;
+			for(byte t:lastTime.keySet())
+				lastTime.replace(t, lastTimestamp);
+		}
+		
 		storeS.addSpecialTextMessage((byte)who, MessageType.convert((byte)what), message, -1);
 		
 		return pushSpecilaMessage(who, what, message);
@@ -78,6 +94,14 @@ public class SaveS2 extends Pipe {
 
 	@Override
 	public boolean onEndOfFile() {
+		if (!lastTimestampWriten)
+		{
+			storeS.addTimestamp(new Nanoseconds(lastTimestamp));
+			lastTimestampWriten = true;
+			for(byte t:lastTime.keySet())
+				lastTime.replace(t, lastTimestamp);
+		}
+		
 		storeS.endFile(true);
 		boolean r = pushEndofFile();
 		if(storeS.getNotes().length() > 0)
@@ -89,6 +113,14 @@ public class SaveS2 extends Pipe {
 
 	@Override
 	public boolean onUnmarkedEndOfFile() {
+		if (!lastTimestampWriten)
+		{
+			storeS.addTimestamp(new Nanoseconds(lastTimestamp));
+			lastTimestampWriten = true;
+			for(byte t:lastTime.keySet())
+				lastTime.replace(t, lastTimestamp);
+		}
+		
 		storeS.endFile(true);
 		boolean r = pushUnmarkedEndofFile();
 		if(storeS.getNotes().length() > 0)
@@ -123,7 +155,6 @@ public class SaveS2 extends Pipe {
 		return pushDefinition(handle, definition);
 	}
 
-	//TODO S2 we get should be a valid S2 therefor it should write timestamps too.
 	@Override
 	public boolean onTimestamp(long nanoSecondTimestamp) {
 		lastTimestamp = nanoSecondTimestamp;
@@ -137,7 +168,6 @@ public class SaveS2 extends Pipe {
 	@Override
 	public boolean onStreamPacket(byte handle, long timestamp, int len, byte[] data) {
 
-		
 		if (!lastTimestampWriten)
 		{
 			storeS.addTimestamp(new Nanoseconds(lastTimestamp));
@@ -169,6 +199,14 @@ public class SaveS2 extends Pipe {
 	
 	@Override
 	public boolean onUnknownLineType(byte type, int len, byte[] data) {
+		if (!lastTimestampWriten)
+		{
+			storeS.addTimestamp(new Nanoseconds(lastTimestamp));
+			lastTimestampWriten = true;
+			for(byte t:lastTime.keySet())
+				lastTime.replace(t, lastTimestamp);
+		}
+		
 		storeS.writeLine(type, data);
 		
 		return super.onUnknownLineType(type, len, data);
