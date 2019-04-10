@@ -19,6 +19,7 @@ s2Output/
 *.txt
 *.aux
 *.gz
+*.log
 
 #specific files
 src/cli/CliDonkey.java
