@@ -165,7 +165,8 @@ public class Cli {
 
 
 		Option dataTypes = new Option(FILTER_DATA,true, "Filters by data type. Argument must be a number in binary form: "+
-				"@@@@1=keeps comments, @@@1@=keeps Special, @@1@@=keeps meta, @1@@@=keeps data streams, 1@@@@=keeps unknown lines."
+				"@@@@1=keeps comments, @@@1@=keeps Special, @@1@@=keeps meta, @1@@@=keeps data streams, 1@@@@=keeps unknown lines."+
+				"MetaData cannot be deleted from s2 files with version PCARD."
 				+ "\nArguments:\n"
 				+ "Byte data [Byte]");
 		options.addOption(dataTypes);

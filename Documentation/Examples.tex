@@ -13,20 +13,20 @@ This article provides some information about \textit{Cli} alongside with example
 
 \section{Introduction}
 
-Cli giveus us acces to \textit{pipes} which can manipulate and work with S2 format. Pipes works as followed. They get valid S2 format. They do something with it. Finally they send changed but still valid S2 format to the next Pipe in line. We get desired pipeline by combaning appropriate pipes.
-The main purpose of Cli is to parse input arguments and based on them, it build pipeline from pipes. In its curent version every pipe can be included at most ones and in predetermed unmutable order. In most cases the order of pipes doesnt matter. In thoes that does the corect order can be achieved by reapingly calling Cli, thought for some task it may be more efficent to build a program that can directly use pipes.
+Cli gives us access to \textit{pipes} which can manipulate and work with S2 format. Pipes works as followed. They get valid S2 format. They do something with it. Finally they send changed but still valid S2 format to the next Pipe in line. We get desired pipeline by combining appropriate pipes.
+The main purpose of Cli is to parse input arguments and based on them, it build pipeline from pipes. In its current version every pipe can be included at most ones and in predetermined immutable order. In most cases the order of pipes doesn't matter. In those that does the correct order can be achieved by repeatedly calling Cli, thought for some task it may be more efficient to build a program that can directly use pipes.
 
 In next section we will briefly explain parsing and how Cli build pipes together.
-In the section to follow we will explain options and functionalities of coresponding pipe along side with examples of posible arguments. The implementation of pipes will not be discused here.
-In the last section there will be some more realistic working examples and some examples that doesnt work. 
+In the section to follow we will explain options and functionalities of corresponding pipe along side with examples of possible arguments. The implementation of pipes will not be discussed here.
+In the last section there will be some more realistic working examples and some examples that doesn't work. 
 
 \section{Parsing}
-For every funcionality that we want to include into our pipeline we must include apropriate pipe. We do so by passing flag (one that represent desired pipe) to the Cli followed by arguments if any is needed. Functionality, pipe, flag and arguments together are called \textit{Option}. Order of flags doesnt matter. It is inportant thought that if option has any arguments, this arguments are directly after flag and in corect order. 
+For every functionality that we want to include into our pipeline we must include appropriate pipe. We do so by passing flag (one that represent desired pipe) to the Cli followed by arguments if any is needed. Functionality, pipe, flag and arguments together are called \textit{Option}. Order of flags doesn't matter. It is important thought that if option has any arguments, this arguments are directly after flag and in correct order. 
 
-If there is problem with the input arguments (flags + arguments) or file acces, Cli will stop with a brif explanation why.
+If there is problem with the input arguments (flags + arguments) or file access, Cli will stop with a brief explanation why.
 
 Cli stats by parsing input arguments.
-After Cli parses flags and their argumentsit it starts including pipes coresponding to flags. Eventhoug all the pipes are complitly mutualy compatible, Cli will look only for pipes that needs input when input is given and vice versa. It isnt mandatory to include output callback, thought without it all the work will be in vain. At the end it runs the pipeline, writes any posible errors that ocured during execution of Cli and in the if everything was successful it will print \textbf{CLI finished}.
+After Cli parses flags and their arguments it starts including pipes corresponding to flags. Even though all the pipes are completely mutually compatible, Cli will look only for pipes that needs input when input is given and vice versa. It inst mandatory to include output callback, thought without it all the work will be in vain. At the end it runs the pipeline, writes any possible errors that occurred during execution of Cli and in the if everything was successful it will print \textbf{CLI finished}.
 Warning: From point of Cli none existing or pointless pipeline is perfectly fine.
 
 
@@ -54,7 +54,7 @@ Flag and arguments in the following structure:
 As we mentioned before Cli builds pipes in predetermined order therefore we will list options in the same order as their pipes (if they represent one) will be in pipeline.
 
 \subsection{Help}
-Option help doesnt actualy corespond to any pipe. It prints basic info on how to use Cli. Any aditional options are discarded.
+Option help doesn't actually correspond to any pipe. It prints basic info on how to use Cli. Any additional options are discarded.
 \begin{itemize}
 \item[$\bullet$] -h
 \end{itemize}
@@ -64,7 +64,7 @@ Print help : \begin{lstlisting}
 
 
 \subsection{Input}
-Option input also doesnt corespond to any pipe. Its purpuse is to read lines from S2 file saved on disk and give them to the next pipe in line. Directories must be valid. It has optional secondary directory.
+Option input also doesn't correspond to any pipe. Its purpose is to read lines from S2 file saved on disk and give them to the next pipe in line. Directories must be valid. It has optional secondary directory.
 \begin{itemize}
 \item[$\bullet$] -i
 \item[$\circ$] primary directory
@@ -88,7 +88,7 @@ merge two files provided in option input : \begin{lstlisting}
 
 
 \subsection{Data}
-This option filters lines. If we want to discard all coments there must be 0 in argument on 1st place from right to left. If we want to discard all special messagas there must be 0 in argument on 2nd place from right to left. If we want to discard all meta data there must be 0 in argument on 3rd place from right to left. If we want to discard all packets there must be 0 in argument on 4th place from right to left. If we want to discard all unknown lines there must be 0 in argument on 5th place from right to left. Warning in curent version of Data filtering we do not allow discarding meta data. Whenever we delete line with time which is placed just before line without time, we put timestamp in front of line without time.
+This option filters lines. If we want to discard all comments there must be 0 in argument on 1st place from right to left. If we want to discard all special messages there must be 0 in argument on 2nd place from right to left. If we want to discard all meta data there must be 0 in argument on 3rd place from right to left. If we want to discard all packets there must be 0 in argument on 4th place from right to left. If we want to discard all unknown lines there must be 0 in argument on 5th place from right to left. Warning in current version of Data filtering we do not allow discarding meta data from s2 files, which have version PCARD. Whenever we delete line with time which is placed just before line without time, we put timestamp in front of line without time.
 
 \noindent Requirements : 
 \begin{itemize}
@@ -124,7 +124,7 @@ Keep only first 7 stream packets:
 
 
 \subsection{Comments}
-This option filters coments based on the regex provided in argument.
+This option filters comments based on the regex provided in argument.
 
 \noindent Requirements : 
 \begin{itemize}
@@ -143,7 +143,7 @@ Keep only comments containing word Hello :
 
 
 \subsection{Special messages}
-This option filters special message. It keeps messagas that have same who and what as in arguments and suits regex.  
+This option filters special message. It keeps messages that have same who and what as in arguments and suits regex.  
 
 \noindent Requirements : 
 \begin{itemize}
@@ -181,7 +181,7 @@ Keep only packages with handle 0,1 and 4 :
 
 
 \subsection{Filter time}
-This option filters lines with time. We keep only lines inside time interval. Start is included, end is exclusive. Start and end are relative times from the time/date in metadata. If 3rd optional argument is true we give comments and special messagas last known time and filter them accordingly.  Whenever we delete line with time which is placed just before line without time, we put timestamp in front of line without time.
+This option filters lines with time. We keep only lines inside time interval. Start is included, end is exclusive. Start and end are relative times from the time/date in metadata. If 3rd optional argument is true we give comments and special massages last known time and filter them accordingly.  Whenever we delete line with time which is placed just before line without time, we put timestamp in front of line without time.
 
 \noindent Requirements : 
 \begin{itemize}
@@ -192,7 +192,7 @@ Flag and arguments :
 \item[$\bullet$] -ft
 \item[$\circ$] start [s]
 \item[$\circ$] time [s]
-\item[\textasteriskcentered] aproximate
+\item[\textasteriskcentered] approximate
 \end{itemize}
 Keep only lines from 5th second till 15th second : 
 \begin{lstlisting} 
@@ -201,7 +201,7 @@ Keep only lines from 5th second till 15th second :
 
 
 \subsection{Change time}
-This option changes timespams by adding them argument. If argument is too negative (firt line with time would have negative timestamp) it changes it so the first line with time will have timestamp 0. 
+This option changes timestamps by adding them argument. If argument is too negative (first line with time would have negative timestamp) it changes it so the first line with time will have timestamp 0. 
 
 \noindent Requirements : 
 \begin{itemize}
@@ -219,7 +219,7 @@ add timestamps 2s :
 
 
 \subsection{Change datetime}
-This option changes date and time in meta data. We can only change date time backwards. This option also changes timestamps so the absolute time doesnt change. Argument must be date, time and timezone in ISO format. 
+This option changes date and time in meta data. We can only change date time backwards. This option also changes timestamps so the absolute time doesn't change. Argument must be date, time and timezone in ISO format. 
 
 \noindent Requirements : 
 \begin{itemize}
@@ -237,7 +237,7 @@ change date time :
 
 
 \subsection{Process time}
-This option localy changes time with least squares method. 
+This option locally changes time with least squares method. 
 
 \noindent Requirements : 
 \begin{itemize}
@@ -254,7 +254,7 @@ process time :
 
 
 \subsection{Statistics}
-Produces basic statistics about S2 file and saves it into file provided in argument. If argument is omitted statistics will be printed to standard output insted.
+Produces basic statistics about S2 file and saves it into file provided in argument. If argument is omitted statistics will be printed to standard output instead.
 
 \noindent Requirements : 
 \begin{itemize}
@@ -272,7 +272,7 @@ print statistics :
 
 
 \subsection{Output}
-This option saves results of previous pipes. Based on extension of file provided in argument it will save in either txt,csv or S2 format. If we provide only extension it will print result on standard output in coresponding format. If we provide only name, it will use curent directory. Warning : if the directory doesnt exist, it will create one.
+This option saves results of previous pipes. Based on extension of file provided in argument it will save in either txt,csv or S2 format. If we provide only extension it will print result on standard output in corresponding format. If we provide only name, it will use current directory. Warning : if the directory doesn't exist, it will create one.
 
 \noindent Requirements : 
 \begin{itemize}
@@ -290,7 +290,7 @@ save result in csv format :
 
 
 \subsection{Generate random}
-This option simulates procces of generating samples on device and sending them over wifi to android. Main idea of this option is to be able to test all S2 related tools. The data itself is constant except for the counters. It makes new S2 file in PCARD standard. In order to make it more realistics it is made pseudo-randomly within boundaries provided with arguments. It will generate file in time interval provided with option filter time and then save it to output provided with option output. In order to reapet random result we provide seed for random generator. Frequency is expected frequency of device this this program tries to simulate (must be a positive value). Frequency change is faktor of how much can frequency change during simulation. Pecenting missing is aproximate faktor of packets that should be lost. Normal delay is maximum value of delay that occuers for every packet. Big dela chance is chance that packets are significantly delayed than they all come in quick burst. Big delay is maximum value for big delay. Big delay canot happen again till previous big delay has ended. Disconects are scattered randomly across whole S2 file. They can overlap or be so small that they dont cover any package at all! When disconect ocurs device `stops` recoding, resets counters and add comment \''Disconect\'' . Consequently android doesnt get any packets. If we want file without `wifi-flaves` we set percentage missing, normal delay and big delay chance to zero. 
+This option simulates process of generating samples on device and sending them over WiFi to android. Main idea of this option is to be able to test all S2 related tools. The data itself is constant except for the counters. It makes new S2 file in PCARD standard. In order to make it more realistic it is made pseudo-randomly within boundaries provided with arguments. It will generate file in time interval provided with option filter time and then save it to output provided with option output. In order to repeat random result we provide seed for random generator. Frequency is expected frequency of device this this program tries to simulate (must be a positive value). Frequency change is factor of how much can frequency change during simulation. Percentage missing is approximate factor of packets that should be lost. Normal delay is maximum value of delay that occurs for every packet. Big delay chance is chance that packets are significantly delayed than they all come in quick burst. Big delay is maximum value for big delay. Big delay cannot happen again till previous big delay has ended. Disconnects are scattered randomly across whole S2 file. They can overlap or be so small that they don't cover any package at all! When disconnect occurs device `stops` recording, resets counters and add comment \''Disconnect\'' . Consequently android doesn't get any packets. If we want file without `WiFi-flaws` we set percentage missing, normal delay and big delay chance to zero. 
 
 \noindent Requirements : 
 \begin{itemize}
@@ -308,7 +308,7 @@ Flag and arguments :
 \item[$\circ$] normal delay in s [double]
 \item[$\circ$] big delay chance [0..1]
 \item[$\circ$] big delay in s [double]
-\item[$\circ$] number of disconects
+\item[$\circ$] number of disconnects
 
 \end{itemize}
 generate S2 file : 
@@ -317,7 +317,7 @@ generate S2 file :
 \end{lstlisting}
 
 \subsection{Generate from files}
-This option generates S2 PCARD file from pattern provided in the files. It will make file in time interval provided with option filter time and then save it to output provided with option output. File with frequencies must be in the next order: In every line there must be time relative to the time/date in meta data and a freaquency. They must be separated with comma. This two data represent a dot. The 'dots are connected linearly. If the first dot appears after start we will use constant frequency equal to the first frequency till firts dot. If the last dot apears before end we will ''reuse'' dots by interpreting times as relative to the last dot in previos cicle. All frequencies must be strictly positive. At least one frequency with time bigger that 0 must be given. File disconects must contain in every line start and end of disconect relative to the time/date in metadata separated with comma. Intervals of disconect should be ordered ascendingly. If the last interval ends before the END it will reuse disconect intervals this time relative to the last interval. If we dont want to reapet the intervals, workaround is to include interval (Long.MAX\_VALUE,Long.MAX\_VALUE) at the end. File with pauses should be in the same format as disconects. File with delays must contain delays in nanoseconds for every packet in its own line. If we are still generating packets after we use all delays we will go from the start. All delays must be zero or bigger.
+This option generates S2 PCARD file from pattern provided in the files. It will make file in time interval provided with option filter time and then save it to output provided with option output. File with frequencies must be in the next order: In every line there must be time relative to the time/date in meta data and a frequency. They must be separated with comma. This two data represent a dot. The 'dots are connected linearly. If the first dot appears after start we will use constant frequency equal to the first frequency till first dot. If the last dot appears before end we will ''reuse'' dots by interpreting times as relative to the last dot in previous cycle. All frequencies must be strictly positive. At least one frequency with time bigger that 0 must be given. File disconnects must contain in every line start and end of disconnect relative to the time/date in metadata separated with comma. Intervals of disconnect should be ordered in ascending order. If the last interval ends before the END it will reuse disconnect intervals this time relative to the last interval. If we don't want to repeat the intervals, workaround is to include interval (Long.MAX\_VALUE,Long.MAX\_VALUE) at the end. File with pauses should be in the same format as disconnects. File with delays must contain delays in nanoseconds for every packet in its own line. If we are still generating packets after we use all delays we will go from the start. All delays must be zero or bigger.
 
 \noindent Requirements : 
 \begin{itemize}
@@ -344,16 +344,16 @@ generate S2 file :
 
 \section{Examples}
 
-In the following examples we will assume we have 2 folders \textit{folderIn} and \textit{folderOut} in curent directory. In folder \textit{folderIn} we have 2 files called \textit{file1.s2} and \textit{file2.s2} and no others. \textit{folderOut} is empty.
+In the following examples we will assume we have 2 folders \textit{folderIn} and \textit{folderOut} in current directory. In folder \textit{folderIn} we have 2 files called \textit{file1.s2} and \textit{file2.s2} and no others. \textit{folderOut} is empty.
 
 \subsection{Working}
 Here we will provide some working examples that can be copied and used. 
 
-Lets say we forgot what is in file \textit{file1.s2}. We want some basic info to help us remember. Later we wont need it therefore we dont save it. Call Cli as followed:
+Lets say we forgot what is in file \textit{file1.s2}. We want some basic info to help us remember. Later we wont need it therefore we don't save it. Call Cli as followed:
 $$\text{Cli -i ./folderIn/file1.s2 -s}$$
-We realize this isnt file we wanted. We quickly look into second file. As we mentioned before the order in which options appear doesnt matter.
+We realize this isn't file we wanted. We quickly look into second file. As we mentioned before the order in which options appear doesnt matter.
 $$\text{Cli -s -i ./folderIn/file2.s2}$$
-This is the one. We are actualy only interested in packets from \textbf{30s} till \textbf{125s}. We want the result saved in \textit{folderOut} in new file caled \textit{file3.s2}.
+This is the one. We are actually only interested in packets from \textbf{30s} till \textbf{125s}. We want the result saved in \textit{folderOut} in new file called \textit{file3.s2}.
 $$\text{Cli -i ./folderIn/file2.s2 -ft 30 125 -fd 1100 -o ./folderOut/file3.s2}$$
 we are not interested in all the comment and special messages in this time interval, therefore we only keep comments which include word \textbf{time} and \textbf{warnings} from \textbf{recording device} that begin with \textbf{t1}. We want it in txt format so we can read it directly.
 $$\text{Cli -fc .*time.* -fs 1 w t1.* -i ./folderOut/file3.s2 -o ./folderOut/file4.txt}$$
@@ -369,26 +369,26 @@ $$\text{Cli -m -i ./folderIn/file2.s2 ./folderIn/file1.s2 -o ./folderOut/coworke
 Our second coworker realizes that times are delayed for \textbf{0.001s} and dateTime in metadata should be \textbf{25.2.2017 15h 31min UTC} and asks us to fix it.
 $$\text{Cli -ct -1000000 -cdt 2017-02-25T15:31:00.000+0000}$$ $$ \text{-i ./folderOut/coworker2.s2 -o ./folderOut/coworker2fixed.s2}$$
 
-For testing purposes want to create file starting at 1s and ending at 10s. From the start till the 2nd second we want constant frequency of 50. After that and till 4th second we want frequency to slowly linearly rise to 100. From 4th to 7th second we want constant frequency of 100. And till 8th second we want frequency to drop down to 80. After that we want to repeat the cicle till the end. frequencies.csv should be as followed.
+For testing purposes want to create file starting at 1s and ending at 10s. From the start till the 2nd second we want constant frequency of 50. After that and till 4th second we want frequency to slowly linearly rise to 100. From 4th to 7th second we want constant frequency of 100. And till 8th second we want frequency to drop down to 80. After that we want to repeat the cycle till the end. frequencies.csv should be as followed.
 \begin{verbatim}
 2000000000,50
 4000000000,100
 7000000000,100
 8000000000,80
 \end{verbatim}
-Note that from 8th till 10th second frequeny will be dropping from 80 to 50. IF we would set the END after 10s the frequency would be rissing from 10th second till 12th second than from 12th second till 15th second it would be constantly 100 and so on.
+Note that from 8th till 10th second frequency will be dropping from 80 to 50. IF we would set the END after 10s the frequency would be rising from 10th second till 12th second than from 12th second till 15th second it would be constantly 100 and so on.
 
-We want one disconect in interval [2.9s,3.0s] and no pauses. 
-disconects.csv chould contain
+We want one disconnect in interval [2.9s,3.0s] and no pauses. 
+disconects.csv should contain
 \begin{verbatim}
 2900000000,3000000000
 10000000000,10000000000
 \end{verbatim}
-We included one disconect after 10s to make sure we dont get disconects with intervals (5.9s-6s) and (8.9s-9s).
+We included one disconnect after 10s to make sure we don't get disconnects with intervals (5.9s-6s) and (8.9s-9s).
 pauses.csv should be empty.
 
 We want odd Packets with 0ns delay while even should have delay 1000ns.
-delays.csv chould contain
+delays.csv should contain
 \begin{verbatim}
 0
 1000
@@ -399,12 +399,12 @@ $$\text{./Input/pauses.csv ./Input/delays.csv}$$
 $$\text{-ft 1 10 -o ./Output/generated3.s2} $$
 
 \subsection{Misconceptions}
-Here we will provide some examples that dont work, not as expected or suprisingly work.
+Here we will provide some examples that don't work, not as expected or surprisingly work.
 
-One might expect that the next command line will save statistics into file123.txt. What will actually happes is statistics will get printed on stdout and S2 file itself will be saved in txt format.
+One might expect that the next command line will save statistics into file123.txt. What will actually happen is statistics will get printed on stdout and S2 file itself will be saved in txt format.
 $$\text{Cli -s -i ./folderIn/file1.s2 -o ./folderOut/file123.txt}$$
 
-The next command line is valid but useless since it dosnt save the work done.
+The next command line is valid but useless since it doesn't save the work done.
 $$\text{Cli -i ./folderIn/file1.s2 -ft 10 20}$$
 
 The next command line is invalid since option output requires directory.

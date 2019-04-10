@@ -35,7 +35,7 @@ public class FilterData extends Pipe
 		if((dataTypes & MD) == 0 && version.equals("PCARD"))
 		{
 			dataTypes |=MD;
-			this.errPS.println("Filtering Data. PCARD version of S2 needs meta data. Parameter data set to " + dataTypes);
+			this.errPS.println("Filtering Data. PCARD version of S2 needs meta data. Parameter data set to " + Integer.toBinaryString(dataTypes));
 		}
 		return super.onVersion(versionInt, version);
 	}
